@@ -1,10 +1,10 @@
-# Bakery ERP System
+# BakerySync ERP System
 
-Welcome to the Bakery ERP (Enterprise Resource Planning) System project repository. This project is a fictional representation of an ERP system designed for a bakery. It was created for demonstration purposes and is not intended for actual use.
+Welcome to the BakerySync ERP (Enterprise Resource Planning) System project repository. This project is a fictional representation of an ERP system designed for a bakery. It was created for demonstration purposes and is not intended for actual use.
 
 ## Overview
 
-The Bakery ERP System is a comprehensive software solution designed to streamline and manage various aspects of bakery operations. This ERP system includes modules for raw material management, production planning, quality control, inventory management, and more.
+The BakerySync ERP System is a comprehensive software solution designed to streamline and manage various aspects of bakery operations. This ERP system includes modules for raw material management, production planning, quality control, inventory management, and more.
 
 ## Features
 
