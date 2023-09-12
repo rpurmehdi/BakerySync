@@ -1,6 +1,6 @@
 CREATE TABLE RawMaterialTypes (
 	material_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	material_name TEXT NOT NULL UNIQUE,
+	material_name TEXT NOT NULL UNIQUE
 	-- Add more attributes as needed
 );
 
@@ -19,13 +19,13 @@ CREATE TABLE RawMaterialUsage (
 	material_id INTEGER NOT NULL,
 	quantity REAL NOT NULL,
 	batch_id INTEGER NOT NULL,
-	FOREIGN KEY (material_id) REFERENCES RawMaterialTypes (material_id)
+	FOREIGN KEY (material_id) REFERENCES RawMaterialTypes (material_id),
 	FOREIGN KEY (arrival_id) REFERENCES RawMaterialArrival (arrival_id)
 );
 
 CREATE TABLE ProductionTypes (
 	production_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	production_name TEXT NOT NULL UNIQUE,
+	production_name TEXT NOT NULL UNIQUE
 	-- Add more attributes as needed
 );
 
