@@ -1,47 +1,76 @@
-import sqlite3
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
 from flask import Flask, flash, redirect, render_template, request
-
 
 
 app = Flask(__name__)
 
-class DatabaseError(Exception):
-    pass
+# Configure to use SQLalchemy database
+# Create an SQLAlchemy engine for your database
+pathdatabase = os.path.dirname(os.path.abspath(__file__))
+db_url = pathdatabase+"\bakerysync.db"
+engine = create_engine(db_url)
 
-# Configure to use SQLite database
-def db(sql_query, query_params=None, commit=True):
+# Reflect the database and generate Python classes for all tables
+Base = automap_base()
+Base.prepare(engine, reflect=True)
+
+# Create a session to interact with the database
+session = Session(engine)
+
+def create_record(table, **kwargs):
+    """Create a new record in the specified table."""
     try:
-        # Connect to the SQLite database
-        conn = sqlite3.connect(bakerysync.db)
-        cursor = conn.cursor()
+        new_record = table(**kwargs)
+        session.add(new_record)
+        session.commit()
+        flash("Record created successfully", "success")
+    except Exception as e:
+        session.rollback()
+        flash(f"Error creating record: {str(e)}", "error")
 
-        # Execute the SQL query with optional parameters
-        if query_params:
-            cursor.execute(sql_query, query_params)
+def read_records(table, filter_by=None):
+    """Read records from the specified table."""
+    try:
+        if filter_by:
+            records = session.query(table).filter_by(**filter_by).all()
         else:
-            cursor.execute(sql_query)
+            records = session.query(table).all()
+        return records
+    except Exception as e:
+        flash(f"Error reading records: {str(e)}", "error")
+        return []
 
-        if commit:
-            conn.commit()  # Commit changes to the database for INSERT, UPDATE, DELETE
-
-        # If it's a SELECT query, fetch and return the result
-        if sql_query.strip().upper().startswith('SELECT'):
-            rows = cursor.fetchall()
-            column_names = [desc[0] for desc in cursor.description]
-            result = [dict(zip(column_names, row)) for row in rows]
-            return result
+def update_record(table, record_id, **kwargs):
+    """Update an existing record with the provided values."""
+    try:
+        record = session.query(table).get(record_id)
+        if record:
+            for key, value in kwargs.items():
+                setattr(record, key, value)
+            session.commit()
+            flash("Record updated successfully", "success")
         else:
-            return None  # For INSERT, UPDATE, DELETE, return None
+            flash("Record not found", "error")
+    except Exception as e:
+        session.rollback()
+        flash(f"Error updating record: {str(e)}", "error")
 
-    except sqlite3.Error as e:
-        flash(str(e), 'error')
-
-    finally:
-        # Close the cursor and the database connection
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+def delete_record(table, record_id):
+    """Delete an existing record from the specified table."""
+    try:
+        record = session.query(table).get(record_id)
+        if record:
+            session.delete(record)
+            session.commit()
+            flash("Record deleted successfully", "success")
+        else:
+            flash("Record not found", "error")
+    except Exception as e:
+        session.rollback()
+        flash(f"Error deleting record: {str(e)}", "error")
 
 @app.after_request
 def after_request(response):
@@ -59,20 +88,17 @@ def index():
             "index.html"
         )
     else:
-        return render_template(
-            "index.html"
-        )
+        return render_template("index.html")
 
-'''EXAMPLE OF USING THE db FUNCTION FOR SQL QUERY:
+'''
+EXAMPLE OF USING THE db FUNCTION FOR SQL QUERY:
 # Example for SELECT
-result = db("SELECT * FROM your_table")
+
 
 # Example for INSERT
-db("INSERT INTO your_table (column1, column2) VALUES (?, ?)", ('value1', 'value2'))
+
 
 # Example for DELETE
-db("DELETE FROM your_table WHERE column_name = ?", ('desired_column_name',), commit=True)
+
 
 # Example for UPDATE
-db("UPDATE your_table SET column1 = ?, column2 = ? WHERE condition_column = ?", ('new_value1', 'new_value2', 'condition_value'), commit=True)
-'''
