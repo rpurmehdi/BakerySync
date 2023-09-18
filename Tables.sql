@@ -34,7 +34,7 @@ CREATE TABLE RawMaterialArrival (
 	arrival_time DATETIME NOT NULL,
 	source_id INTEGER NOT NULL,
 	quantity REAL NOT NULL,
-	FOREIGN KEY (material_id) REFERENCES RawMaterialTypes (material_id)
+	FOREIGN KEY (material_id) REFERENCES RawMaterialTypes (material_id),
 	FOREIGN KEY (source_id) REFERENCES Sources (source_id)
 );
 
@@ -51,7 +51,7 @@ CREATE TABLE RawMaterialUsage (
 CREATE TABLE Recipes (
     recipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
     recipe_name TEXT NOT NULL UNIQUE,
-    recipe_description TEXT,
+    recipe_description TEXT
 );
 
 CREATE TABLE RecipeRawMaterialtypes (
@@ -70,7 +70,7 @@ CREATE TABLE Production (
 	production_time DATETIME NOT NULL,
 	recipe_id INTEGER NOT NULL,
 	quantity REAL NOT NULL,
-	FOREIGN KEY (production_id) REFERENCES ProductionTypes (production_id)
+	FOREIGN KEY (production_id) REFERENCES ProductionTypes (production_id),
 	FOREIGN KEY (recipe_id) REFERENCES Recipes (recipe_id)
 );
 
@@ -88,8 +88,8 @@ CREATE TABLE ProductionShipping (
 	destination_id INTEGER NOT NULL,
 	shipping_date DATETIME NOT NULL,
 	quantity REAL NOT NULL,
-	FOREIGN KEY (batch_id) REFERENCES Production (batch_id)
-	FOREIGN KEY (production_id) REFERENCES ProductionTypes (production_id)
+	FOREIGN KEY (batch_id) REFERENCES Production (batch_id),
+	FOREIGN KEY (production_id) REFERENCES ProductionTypes (production_id),
 	FOREIGN KEY (destination_id) REFERENCES Destinations (destination_id)
 );
 
