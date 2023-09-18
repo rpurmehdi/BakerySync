@@ -1,10 +1,11 @@
 import sqlite3
 from flask import Flask, flash, redirect, render_template, request
-
+import os
 
 
 app = Flask(__name__)
 
+pathdatabase = os.path.dirname(os.path.abspath(__file__)) 
 class DatabaseError(Exception):
     pass
 
@@ -12,7 +13,7 @@ class DatabaseError(Exception):
 def db(sql_query, query_params=None, commit=True):
     try:
         # Connect to the SQLite database
-        conn = sqlite3.connect(bakerysync.db)
+        conn = sqlite3.connect(pathdatabase+'\Bakery.db')
         cursor = conn.cursor()
 
         # Execute the SQL query with optional parameters
@@ -59,9 +60,10 @@ def index():
             "index.html"
         )
     else:
-        return Hi
+        return 'Hi'
 
-'''EXAMPLE OF USING THE db FUNCTION FOR SQL QUERY:
+'''
+EXAMPLE OF USING THE db FUNCTION FOR SQL QUERY:
 # Example for SELECT
 result = db("SELECT * FROM your_table")
 
