@@ -59,7 +59,9 @@ def index():
             "index.html"
         )
     else:
-        return Hi
+        return render_template(
+            "index.html"
+        )
 
 '''EXAMPLE OF USING THE db FUNCTION FOR SQL QUERY:
 # Example for SELECT
