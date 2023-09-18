@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 # Configure to use SQLalchemy database
 # Create an SQLAlchemy engine for your database
-pathdatabase = os.path.dirname(os.path.abspath(__file__))
-db_url = pathdatabase+"\bakerysync.db"
+path = os.path.dirname(os.path.abspath(__file__))
+db_url = os.path.join(path, "bakerysync.db")
 engine = create_engine(db_url)
 
 # Reflect the database and generate Python classes for all tables
@@ -102,3 +102,4 @@ EXAMPLE OF USING THE db FUNCTION FOR SQL QUERY:
 
 
 # Example for UPDATE
+'''
