@@ -3,7 +3,7 @@ CREATE TABLE Sources (
 	source_name TEXT NOT NULL UNIQUE,
 	source_contact_person TEXT,
 	contact_information TEXT,
-	source_type TEXT,
+	source_type TEXT NOT NULL,
 	source_location TEXT,
 	source_description TEXT
 );
