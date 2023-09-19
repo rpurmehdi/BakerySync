@@ -38,16 +38,6 @@ CREATE TABLE RawMaterialArrival (
 	FOREIGN KEY (source_id) REFERENCES Sources (source_id)
 );
 
-CREATE TABLE RawMaterialUsage (
-	usage_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	arrival_id INTEGER NOT NULL,
-	material_id INTEGER NOT NULL,
-	quantity REAL NOT NULL,
-	batch_id INTEGER NOT NULL,
-	FOREIGN KEY (material_id) REFERENCES RawMaterialTypes (material_id),
-	FOREIGN KEY (arrival_id) REFERENCES RawMaterialArrival (arrival_id)
-);
-
 CREATE TABLE Recipes (
     recipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
     recipe_name TEXT NOT NULL UNIQUE,
@@ -72,6 +62,17 @@ CREATE TABLE Production (
 	quantity REAL NOT NULL,
 	FOREIGN KEY (production_id) REFERENCES ProductionTypes (production_id),
 	FOREIGN KEY (recipe_id) REFERENCES Recipes (recipe_id)
+);
+
+CREATE TABLE RawMaterialUsage (
+	usage_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	arrival_id INTEGER NOT NULL,
+	material_id INTEGER NOT NULL,
+	quantity REAL NOT NULL,
+	batch_id INTEGER NOT NULL,
+	FOREIGN KEY (material_id) REFERENCES RawMaterialTypes (material_id),
+	FOREIGN KEY (arrival_id) REFERENCES RawMaterialArrival (arrival_id),
+	FOREIGN KEY (batch_id) REFERENCES Production (batch_id)
 );
 
 CREATE TABLE ProductionRawMaterialArrivals (

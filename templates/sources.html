@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Overview
+{% endblock %}
+
+{% block main %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Sources</title>
+</head>
+<body>
+    <h1>Sources</h1>
+
+    <!-- Display flash messages if they exist -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form to add a new source -->
+    <form method="POST" action="{{ url_for('sources') }}">
+        <label for="source_name">Source Name:</label>
+        <input type="text" id="source_name" name="source_name" required><br>
+
+        <label for="source_contact_person">Contact Person:</label>
+        <input type="text" id="source_contact_person" name="source_contact_person"><br>
+
+        <label for="contact_information">Contact Information:</label>
+        <input type="text" id="contact_information" name="contact_information"><br>
+
+        <label for="source_type">Source Type:</label>
+        <input type="text" id="source_type" name="source_type" required><br>
+
+        <label for="source_location">Source Location:</label>
+        <input type="text" id="source_location" name="source_location"><br>
+
+        <label for="source_description">Source Description:</label>
+        <textarea id="source_description" name="source_description"></textarea><br>
+
+        <button type="submit">Add Source</button>
+    </form>
+
+    <!-- List of existing sources -->
+    <h2>Existing Sources</h2>
+    <ul>
+        {% for source in sources %}
+            <li>{{ source.source_name }}</li>
+            <li></li>
+            <!-- Display other source details here -->
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}
