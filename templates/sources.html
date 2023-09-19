@@ -11,18 +11,7 @@
     <title>Manage Sources</title>
 </head>
 <body>
-    <h1>Sources</h1>
-
-    <!-- Display flash messages if they exist -->
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul class="flash-messages">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <h1>New Source</h1>
 
     <!-- Form to add a new source -->
     <form method="POST" action="{{ url_for('sources') }}">
