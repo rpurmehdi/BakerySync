@@ -3,7 +3,7 @@ from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-from models import db, BaseModel, StockModel, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, RecipeRawMaterialType, Production, RawMaterialUsage, ProductionRawMaterialArrival, ProductionShipping, InStockRawMaterial, InStockProduct
+from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, RawMaterialUsage, ProductionShipping, recipe_rawmaterial_association
 
 
 app = Flask(__name__)
@@ -12,10 +12,13 @@ path = os.path.dirname(os.path.abspath(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(path, 'bakerysync.db')
 
+app.secret_key = 'very_secret_key'
+
 db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
 
 def create_tables():
     db.create_all()
@@ -54,7 +57,7 @@ def sources():
             flash(f'Error: {str(e)}', 'error')
             db.session.rollback()  # Rollback any changes to the database
 
-    if request.method == 'GET':
+    else:
         # Retrieve all sources from the database
         sources = Source.query.all()
         return render_template('sources.html', sources=sources)
