@@ -56,6 +56,7 @@ def sources():
             # Handle the exception and display an error message
             flash(f'Error: {str(e)}', 'error')
             db.session.rollback()  # Rollback any changes to the database
+            return redirect(url_for('sources'))
 
     else:
         # Retrieve all sources from the database
