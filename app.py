@@ -28,21 +28,21 @@ def create_tables():
 def sources():
     if request.method == 'POST':
         # Get data from the form
-        source_name = request.form['source_name']
-        source_contact_person = request.form['source_contact_person']
+        name = request.form['name']
+        contact_person = request.form['contact_person']
         contact_information = request.form['contact_information']
-        source_type = request.form['source_type']
-        source_location = request.form['source_location']
-        source_description = request.form['source_description']
+        type = request.form['type']
+        location = request.form['location']
+        description = request.form['description']
 
         # Create a new source object and add it to the database
         new_source = Source(
-            source_name=source_name,
-            source_contact_person=source_contact_person,
+            name=name,
+            contact_person=contact_person,
             contact_information=contact_information,
-            source_type=source_type,
-            source_location=source_location,
-            source_description=source_description
+            type=type,
+            location=location,
+            description=description
         )
         try:
             # Attempt to perform a database operation

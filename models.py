@@ -47,7 +47,7 @@ recipe_rawmaterial_association = db.Table(
 class RawMaterialType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
-    arrivals = db.relationship('RawMaterialArrival', backref='type')
+    arrivals = db.relationship('RawMaterialArrival', backref='kind')
     recipes = db.relationship(
         'Recipe', secondary=recipe_rawmaterial_association, back_populates='materials')
 
@@ -55,7 +55,7 @@ class RawMaterialType(BaseModel):
 class ProductionType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
-    productions = db.relationship('Production', backref='type')
+    productions = db.relationship('Production', backref='kind')
     recipes = db.relationship('Recipe', backref='product')
 
 
