@@ -15,35 +15,57 @@
 
     <!-- Form to add a new source -->
     <form method="POST" action="{{ url_for('sources') }}">
-        <label for="source_name">Source Name:</label>
-        <input type="text" id="source_name" name="source_name" required><br>
+        <label for="name">Source Name:</label>
+        <input type="text" id="name" name="name" required><br>
 
-        <label for="source_contact_person">Contact Person:</label>
-        <input type="text" id="source_contact_person" name="source_contact_person"><br>
+        <label for="contact_person">Contact Person:</label>
+        <input type="text" id="contact_person" name="contact_person"><br>
 
         <label for="contact_information">Contact Information:</label>
         <input type="text" id="contact_information" name="contact_information"><br>
 
-        <label for="source_type">Source Type:</label>
-        <input type="text" id="source_type" name="source_type" required><br>
+        <label for="type">Source Type:</label>
+        <input type="text" id="type" name="type" required><br>
 
-        <label for="source_location">Source Location:</label>
-        <input type="text" id="source_location" name="source_location"><br>
+        <label for="location">Source Location:</label>
+        <input type="text" id="location" name="location"><br>
 
-        <label for="source_description">Source Description:</label>
-        <textarea id="source_description" name="source_description"></textarea><br>
+        <label for="description">Source Description:</label>
+        <textarea id="description" name="description"></textarea><br>
 
         <button type="submit">Add Source</button>
     </form>
 
     <!-- List of existing sources -->
     <h2>Existing Sources</h2>
-    <ul>
-        {% for source in sources %}
-            <li>{{ source.source_name }}</li>
-               <!-- Display other source details here -->
-        {% endfor %}
-    </ul>
+	<table>
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Contact</th>
+							<th>Type</th>
+							<th>Location</th>
+							<th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for source in sources %}
+                            <tr>
+                                <td>{{ source.name }}</td>
+                                <td>{{ source.contact_person }} - {{ source.contact_information }}</td>
+                                <td>{{ source.type }}</td>
+								<td>{{ source.location }}</td>
+								<td>{{ source.description" }}</td>
+								<td>
+                                    <form action="/remove" method="post">
+                                        <input type="hidden" name="id" value="{{ source.id }}">
+                                        <input type="submit" value="x" style="
+                                                                              color: red;">
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
 
-
+                    </tbody>
+                </table>
 {% endblock %}
