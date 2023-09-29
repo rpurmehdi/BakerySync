@@ -1,71 +1,138 @@
-{% extends "layout.html" %}
-
-{% block title %}
-    Overview
-{% endblock %}
-
-{% block main %}
+{% extends "layout.html" %} {% block title %} Overview {% endblock %} {% block
+main %}
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <script>
+      function confirmDelete(dbItem) {
+        var confirmMessage =
+          "Are you sure you want to delete '" +
+          dbItem +
+          "'?\nThis can not be undone!";
+        if (confirm(confirmMessage)) {
+          // If confirmed, submit the form
+          document.getElementById("delete-form").submit();
+        } else {
+          // If canceled, prevent form submission
+          return false;
+        }
+      }
+    </script>
     <title>Manage Sources</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>New Source</h1>
 
     <!-- Form to add a new source -->
     <form method="POST" action="{{ url_for('sources') }}">
-        <label for="name">Source Name:</label>
-        <input type="text" id="name" name="name" required><br>
+      <label for="name">Source Name:</label>
+      <input type="text" id="name" name="name" required /><br />
 
-        <label for="contact_person">Contact Person:</label>
-        <input type="text" id="contact_person" name="contact_person"><br>
+      <label for="contact_person">Contact Person:</label>
+      <input type="text" id="contact_person" name="contact_person" /><br />
 
-        <label for="contact_information">Contact Information:</label>
-        <input type="text" id="contact_information" name="contact_information"><br>
+      <label for="contact_information">Contact Information:</label>
+      <input
+        type="text"
+        id="contact_information"
+        name="contact_information"
+      /><br />
 
-        <label for="type">Source Type:</label>
-        <input type="text" id="type" name="type" required><br>
+      <label for="type">Source Type:</label>
+      <input type="text" id="type" name="type" required /><br />
 
-        <label for="location">Source Location:</label>
-        <input type="text" id="location" name="location"><br>
+      <label for="location">Source Location:</label>
+      <input type="text" id="location" name="location" /><br />
 
-        <label for="description">Source Description:</label>
-        <textarea id="description" name="description"></textarea><br>
+      <label for="description">Source Description:</label>
+      <textarea id="description" name="description"></textarea><br />
 
-        <button type="submit">Add Source</button>
+      <button type="submit">Add Source</button>
     </form>
 
     <!-- List of existing sources -->
     <h2>Existing Sources</h2>
-	<table>
-                    <thead>
-                        <tr>
-                            <th>Source</th>
-                            <th>Contact</th>
-							<th>Type</th>
-							<th>Location</th>
-							<th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for source in sources %}
-                            <tr>
-                                <td>{{ source.name }}</td>
-                                <td>{{ source.contact_person }} - {{ source.contact_information }}</td>
-                                <td>{{ source.type }}</td>
-								<td>{{ source.location }}</td>
-								<td>{{ source.description }}</td>
-								<td>
-                                    <form action="/remove" method="post">
-                                        <input type="hidden" name="id" value="{{ source.id }}">
-                                        <input type="submit" value="x" style="
-                                                                              color: red;">
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-
-                    </tbody>
-                </table>
-{% endblock %}
+    <table>
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Contact</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for source in sources %}
+        <tr>
+          <td>{{ source.name }}</td>
+          <td>
+            {{ source.contact_person }} - {{ source.contact_information }}
+          </td>
+          <td>{{ source.type }}</td>
+          <td>{{ source.location }}</td>
+          <td>{{ source.description }}</td>
+          <td>
+            <form id="edit-form" action="/edit_source" method="post">
+              <input type="hidden" name="id" value="{{ source.id }}" />
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                📝
+              </button>
+            </form>
+          </td>
+          <td>
+            <form id="delete-form" action="/delete_source" method="post">
+              <input type="hidden" name="id" value="{{ source.id }}" />
+              <input
+                type="submit"
+                value="🗑️"
+                onclick="return confirmDelete('{{ source.name }}');"
+              />
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Edit Source</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/edit_source">
+                    <!-- Add form fields for editing here -->
+                    <label for="edit-name">Source Name:</label>
+                    <input type="text" id="edit-name" name="name" required /><br />
+              
+                    <label for="edit-contact_person">Contact Person:</label>
+                    <input type="text" id="edit-contact_person" name="contact_person" /><br />
+              
+                    <label for="edit-contact_information">Contact Information:</label>
+                    <input
+                      type="text"
+                      id="edit-contact_information"
+                      name="contact_information"
+                    /><br />
+              
+                    <label for="edit-type">Source Type:</label>
+                    <input type="text" id="edit-type" name="type" required /><br />
+              
+                    <label for="edit-location">Source Location:</label>
+                    <input type="text" id="edit-location" name="location" /><br />
+              
+                    <label for="dedit-escription">Source Description:</label>
+                    <textarea id="description" name="edit-description"></textarea><br />
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endblock %}
+  </body>
+</html>

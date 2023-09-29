@@ -24,6 +24,25 @@ def create_tables():
     db.create_all()
 
 
+@app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        return render_template(
+            "index.html"
+        )
+    else:
+        return render_template("index.html")
+
+
 @app.route('/sources', methods=['GET', 'POST'])
 def sources():
     if request.method == 'POST':
@@ -64,38 +83,30 @@ def sources():
         return render_template('sources.html', sources=sources)
 
 
-@app.after_request
-def after_request(response):
-    """Ensure responses aren't cached"""
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Expires"] = 0
-    response.headers["Pragma"] = "no-cache"
-    return response
+@app.route('/delete_source', methods=["POST"])
+def delete_source():
+    id = request.form.get("id")
+    try:
+        # Attempt to find the source by its ID
+        source_to_delete = Source.query.get(id)
 
+        if source_to_delete:
+            # Delete the found source
+            db.session.delete(source_to_delete)
+            db.session.commit()
+            flash('Source deleted successfully', 'success')
+        else:
+            flash('Source not found', 'error')
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        return render_template(
-            "index.html"
-        )
-    else:
-        return render_template("index.html")
+        # Redirect to the /sources page
+        return redirect(url_for('sources'))
 
+    except Exception as e:
+        # Handle the exception and display an error message
+        flash(f'Error: {str(e)}', 'error')
+        db.session.rollback()  # Rollback any changes to the database
+        return redirect(url_for('sources'))
 
-'''
-EXAMPLE OF USING THE db FUNCTION FOR SQL QUERY:
-# Example for SELECT
-
-
-# Example for INSERT
-
-
-# Example for DELETE
-
-
-# Example for UPDATE
-'''
 
 if __name__ == '__main__':
     app.run(debug=True)
