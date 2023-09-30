@@ -72,8 +72,11 @@ def sources():
             return redirect(url_for('sources'))
 
         except Exception as e:
-            # Handle the exception and display an error message
-            flash(f'Error: {str(e)}', 'error')
+            if 'UNIQUE constraint failed: source.name' in str(e):
+                flash(
+                    f'Can not add another source with the name {name}. Source name must be unique. Please choose a different name.', 'warning')
+            else:
+                flash(f'Error: {str(e)}', 'warning')
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('sources'))
 
@@ -83,29 +86,77 @@ def sources():
         return render_template('sources.html', sources=sources)
 
 
+@app.route('/edit_source', methods=['POST'])
+def edit_source():
+    if request.method == 'POST':
+        # Get the data from the form
+        id = request.form.get('id')
+        name = request.form.get('name')
+        contact_person = request.form.get('contact_person')
+        contact_information = request.form.get('contact_information')
+        type = request.form.get('type')
+        location = request.form.get('location')
+        description = request.form.get('description')
+        try:
+            # Fetch the source to edit from the database
+            source_to_edit = Source.query.get(id)
+
+            if source_to_edit:
+                # Update the source with the new data
+                source_to_edit.name = name
+                source_to_edit.contact_person = contact_person
+                source_to_edit.contact_information = contact_information
+                source_to_edit.type = type
+                source_to_edit.location = location
+                source_to_edit.description = description
+
+                # Commit the changes to the database
+                db.session.commit()
+                flash('Source edited successfully', 'success')
+            else:
+                flash('Source not found', 'danger')
+
+                return redirect(url_for('sources'))
+        except Exception as e:
+            if 'UNIQUE constraint failed: source.name' in str(e):
+                flash(
+                    'Source name must be unique. Please choose a different name.', 'warning')
+            else:
+                flash(f'Error: {str(e)}', 'warning')
+            db.session.rollback()  # Rollback any changes to the database
+            return redirect(url_for('sources'))
+    return redirect(url_for('sources'))
+
+
 @app.route('/delete_source', methods=["POST"])
 def delete_source():
-    id = request.form.get("id")
-    try:
-        # Attempt to find the source by its ID
-        source_to_delete = Source.query.get(id)
+    if request.method == 'POST':
+        id = request.form.get("id")
+        try:
+            # Attempt to find the source by its ID
+            source_to_delete = Source.query.get(id)
 
-        if source_to_delete:
-            # Delete the found source
-            db.session.delete(source_to_delete)
-            db.session.commit()
-            flash('Source deleted successfully', 'success')
-        else:
-            flash('Source not found', 'error')
+            if source_to_delete:
+                is_referenced = RawMaterialArrival.query.filter_by(
+                    source_id=id).first()
+                if is_referenced:
+                    flash('Source is used in Arrivals, cannot delete', 'danger')
+                else:
+                    # Delete the found source
+                    db.session.delete(source_to_delete)
+                    db.session.commit()
+                    flash('Source deleted successfully', 'success')
+            else:
+                flash('Source not found', 'danger')
 
-        # Redirect to the /sources page
-        return redirect(url_for('sources'))
+            # Redirect to the /sources page
+            return redirect(url_for('sources'))
 
-    except Exception as e:
-        # Handle the exception and display an error message
-        flash(f'Error: {str(e)}', 'error')
-        db.session.rollback()  # Rollback any changes to the database
-        return redirect(url_for('sources'))
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'warning')
+            db.session.rollback()  # Rollback any changes to the database
+            return redirect(url_for('sources'))
+    return redirect(url_for('sources'))
 
 
 if __name__ == '__main__':
