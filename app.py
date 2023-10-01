@@ -5,6 +5,7 @@ from datetime import datetime
 
 from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, RawMaterialUsage, ProductionShipping, recipe_rawmaterial_association
 from routes.sources import sources_bp
+from routes.destinations import destinations_bp
 
 app = Flask(__name__)
 
@@ -45,6 +46,9 @@ def index():
 
 # registering sources.py
 app.register_blueprint(sources_bp)
+
+# registering destinations.py
+app.register_blueprint(destinations_bp)
 
 
 if __name__ == '__main__':

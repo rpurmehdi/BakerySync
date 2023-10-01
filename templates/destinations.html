@@ -1,0 +1,392 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} Manage Destinations {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} Manage Destinations {% endblock %}
+<!--main-->
+{%block main %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function confirmDelete(dbItem) {
+        var confirmMessage =
+          "Are you sure you want to delete '" +
+          dbItem +
+          "'?\nThis can not be undone!";
+        if (confirm(confirmMessage)) {
+          // If confirmed, submit the form
+          document.getElementById("delete-form").submit();
+        } else {
+          // If canceled, prevent form submission
+          return false;
+        }
+      }
+    </script>
+    <script>
+      // Attach the populateModal() function to the edit buttons
+      $(document).ready(function () {
+        const editButtons = document.querySelectorAll(".edit-destination");
+        editButtons.forEach((button) => {
+          button.addEventListener("click", populateModal);
+        });
+      });
+
+      // Populate the modal form
+      function populateModal(event) {
+        // Get the modal element
+        const editModal = document.getElementById("EditCanvas");
+
+        // Get the data attributes from the clicked button
+        const destinationId = event.target.getAttribute("data-destination-id");
+        const destinationName = event.target.getAttribute(
+          "data-destination-name"
+        );
+        const contactPerson = event.target.getAttribute("data-contact-person");
+        const contactInformation = event.target.getAttribute(
+          "data-contact-information"
+        );
+        const destinationType = event.target.getAttribute(
+          "data-destination-type"
+        );
+        const destinationLocation = event.target.getAttribute(
+          "data-destination-location"
+        );
+        const destinationDescription = event.target.getAttribute(
+          "data-destination-description"
+        );
+
+        // Populate the modal form fields
+        editModal.querySelector("#edit-destination-id").value = destinationId;
+        editModal.querySelector("#edit-name").value = destinationName;
+        editModal.querySelector("#edit-contact_person").value = contactPerson;
+        editModal.querySelector("#edit-contact_information").value =
+          contactInformation;
+        editModal.querySelector("#edit-type").value = destinationType;
+        editModal.querySelector("#edit-location").value = destinationLocation;
+        editModal.querySelector("#edit-description").value =
+          destinationDescription;
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container mx-auto text-start my-4">
+      <button
+        class="btn btn-success"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#AddCanvas"
+        aria-controls="AddCanvas"
+      >
+        + Add New Destination
+      </button>
+    </div>
+    <!-- offcanvas to add a new Destination -->
+    <div
+      class="offcanvas offcanvas-start"
+      data-bs-scroll="true"
+      tabindex="-1"
+      id="AddCanvas"
+      aria-labelledby="AddCanvasLabel"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Destination</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="container mx-auto mt-8">
+          <form method="POST" action="/destinations">
+            <div class="row">
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the destination name"
+                  />
+                  <label for="name">Destination Name</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-floating">
+                  <select class="form-select" id="type" name="type" required>
+                    <option selected disabled value="">Select a type</option>
+                    <option value="Wholesaler">Wholesale Distributor</option>
+                    <option value="Online Retailer">Online Retailer</option>
+                    <option value="Local Market">Local Market</option>
+                    <option value="Flour Mill">Restaurant</option>
+                    <option value="Farm">Hotel</option>
+                  </select>
+                  <label for="type">Destination type</label>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="contact_person"
+                    name="contact_person"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the contact name"
+                  />
+                  <label for="contact_person">Contact Person</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="contact_information"
+                    name="contact_information"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the contact info"
+                  />
+                  <label for="contact_information">Contact Information</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="location"
+                    name="location"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the location"
+                  />
+                  <label for="location">Destination Location</label>
+                </div>
+              </div>
+            </div>
+            <div class="row my-4">
+              <div class="col w-auto">
+                <div class="form-floating">
+                  <textarea
+                    class="form-control"
+                    placeholder="Write destination description"
+                    name="description"
+                    id="description"
+                    autocomplete="off"
+                    style="height: 100px"
+                  ></textarea>
+                  <label for="description">Destination Description</label>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success">
+              Add Destination
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- offcanvas for destination editing -->
+    <div
+      class="offcanvas offcanvas-end"
+      data-bs-scroll="true"
+      tabindex="-1"
+      id="EditCanvas"
+      aria-labelledby="EditCanvasLabel"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Destination</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="container mx-auto mt-8">
+          <form
+            method="POST"
+            action="{{ url_for('destinations.edit_destination') }}"
+          >
+            <div class="row">
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input type="hidden" name="id" id="edit-destination-id" />
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="edit-name"
+                    name="name"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the destination name"
+                  />
+                  <label for="edit-name">Destination Name</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-floating">
+                  <select
+                    class="form-select"
+                    id="edit-type"
+                    name="type"
+                    required
+                  >
+                    <option value="Wholesaler">Wholesale Distributor</option>
+                    <option value="Online Retailer">Online Retailer</option>
+                    <option value="Local Market">Local Market</option>
+                    <option value="Flour Mill">Restaurant</option>
+                    <option value="Farm">Hotel</option>
+                  </select>
+                  <label for="edit-contact_person">Destination type</label>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="edit-contact_person"
+                    name="contact_person"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the contact name"
+                  />
+                  <label for="edit-contact_person">Contact Person</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="edit-contact_information"
+                    name="contact_information"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the contact info"
+                  />
+                  <label for="edit-contact_information"
+                    >Contact Information</label
+                  >
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="edit-location"
+                    name="location"
+                    autocomplete="off"
+                    required
+                    placeholder="Enter the location"
+                  />
+                  <label for="edit-location">Destination Location</label>
+                </div>
+              </div>
+            </div>
+            <div class="row my-4">
+              <div class="col w-auto">
+                <div class="form-floating">
+                  <textarea
+                    class="form-control"
+                    placeholder="Write destination description"
+                    name="description"
+                    id="edit-description"
+                    autocomplete="off"
+                    style="height: 100px"
+                  ></textarea>
+                  <label for="edit-description">Destination Description</label>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-warning">
+              Edit Destination
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- List of existing destinations -->
+    <div class="container mx-auto">
+      <h3 class="text-start">Existing Destinations</h3>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Destination</th>
+            <th>Contact</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for destination in destinations %}
+          <tr>
+            <td>{{ destination.name }}</td>
+            <td>
+              {{ destination.contact_person }}: {{
+              destination.contact_information }}
+            </td>
+            <td>{{ destination.type }}</td>
+            <td>{{ destination.location }}</td>
+            <td>{{ destination.description }}</td>
+            <td>
+              <button
+                type="button"
+                class="btn btn-warning edit-destination"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#EditCanvas"
+                aria-controls="EditCanvas"
+                data-destination-id="{{ destination.id }}"
+                data-destination-name="{{ destination.name }}"
+                data-contact-person="{{ destination.contact_person }}"
+                data-contact-information="{{ destination.contact_information }}"
+                data-destination-type="{{ destination.type }}"
+                data-destination-location="{{ destination.location }}"
+                data-destination-description="{{ destination.description }}"
+              >
+                📝
+              </button>
+            </td>
+            <td>
+              <form
+                id="delete-form"
+                action="{{ url_for('destinations.delete_destination') }}"
+                method="post"
+              >
+                <input type="hidden" name="id" value="{{ destination.id }}" />
+                <button
+                  type="submit"
+                  class="btn btn-danger"
+                  onclick="return confirmDelete('{{ destination.name }}');"
+                >
+                  🗑️
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% endblock %}
+  </body>
+</html>
