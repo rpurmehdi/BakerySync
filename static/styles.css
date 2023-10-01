@@ -1,36 +1,7 @@
-/* Size for brand */
-nav .navbar-brand {
-    font-size: xx-large;
-}
-
-/* Colors for brand */
-nav .navbar-brand .blue {
-    color: #537fbe;
-}
-
-nav .navbar-brand .red {
-    color: #ea433b;
-}
-
-nav .navbar-brand .yellow {
-    color: #f5b82e;
-}
-
-nav .navbar-brand .green {
-    color: #2e944b;
-}
-
-tbody,
-td,
-tfoot,
-th,
-thead,
-tr {
-    padding-right: .5rem;
-    padding-left: 0.5rem;
-}
-
 .offcanvas.offcanvas-start {
+    width: (var(--bs-offcanvas-width) * 1.25);
+}
+.offcanvas.offcanvas-end {
     width: (var(--bs-offcanvas-width) * 1.25);
 }
 

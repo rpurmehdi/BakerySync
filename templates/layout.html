@@ -45,8 +45,20 @@
   </head>
 
   <body>
-    <nav class="bg-light border navbar navbar-expand-md navbar-light">
-      <div class="container-fluid">BakerySync</div>
+    <nav class="navbar bg-body-tertiary sticky-top">
+      <div class="container mx-auto">
+        <div class="navbar-brand">
+          BakerySync
+          <img
+            src="/static/favicon-32x32.png"
+            alt="Logo"
+            width="27"
+            height="27"
+            class="d-inline-block align-text-middle"
+          />
+          {% block navbar_title %}{% endblock %}
+        </div>
+      </div>
     </nav>
 
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
@@ -54,7 +66,20 @@
     <div class="alert alert-{{ category }} mb-0 text-center" role="alert">
       {{ message|capitalize }}
     </div>
-    {% endfor %} {% endif %} {% endwith %}
+    {% endfor %}
+    <script>
+      // Automatically close alerts after 10 seconds
+      document.addEventListener("DOMContentLoaded", function () {
+        const alerts = document.querySelectorAll(".alert");
+
+        alerts.forEach(function (alert) {
+          setTimeout(function () {
+            alert.style.display = "none";
+          }, 7000); // 7 seconds in milliseconds
+        });
+      });
+    </script>
+    {% endif %} {% endwith %}
 
     <main class="container-fluid text-center">
       {% block main %}{% endblock %}
