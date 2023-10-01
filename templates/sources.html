@@ -65,8 +65,8 @@ block main %}
         class="btn btn-success"
         type="button"
         data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasWithBothOptions"
-        aria-controls="offcanvasWithBothOptions"
+        data-bs-target="#AddCanvas"
+        aria-controls="AddCanvas"
       >
         + Add New Source
       </button>
@@ -76,11 +76,11 @@ block main %}
       class="offcanvas offcanvas-start"
       data-bs-scroll="true"
       tabindex="-1"
-      id="offcanvasWithBothOptions"
-      aria-labelledby="offcanvasWithBothOptionsLabel"
+      id="AddCanvas"
+      aria-labelledby="AddCanvasLabel"
     >
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">
+        <h5 class="offcanvas-title" id="AddCanvasLabel">
           Add New Source
         </h5>
         <button
@@ -168,7 +168,7 @@ block main %}
               </div>
             </div>
             <div class="row my-4">
-              <div class="col-auto">
+              <div class="col w-auto">
                 <div class="form-floating">
                   <textarea
                     class="form-control"
