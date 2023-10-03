@@ -3,373 +3,362 @@
 {% block title %} Manage Sources {% endblock %}
 <!-- and again here!-->
 {% block navbar_title %} Manage Sources {% endblock %}
-<!--main-->
+<!--head-->
+{%block head %}
+<script>
+  function confirmDelete(dbItem) {
+    var confirmMessage =
+      "Are you sure you want to delete '" +
+      dbItem +
+      "'?\nThis can not be undone!";
+    if (confirm(confirmMessage)) {
+      // If confirmed, submit the form
+      document.getElementById("delete-form").submit();
+    } else {
+      // If canceled, prevent form submission
+      return false;
+    }
+  }
+</script>
+<script>
+  // Attach the populateModal() function to the edit buttons
+  $(document).ready(function () {
+    const editButtons = document.querySelectorAll(".edit-source");
+    editButtons.forEach((button) => {
+      button.addEventListener("click", populateModal);
+    });
+  });
+
+  // Populate the modal form
+  function populateModal(event) {
+    // Get the modal element
+    const editModal = document.getElementById("EditCanvas");
+
+    // Get the data attributes from the clicked button
+    const sourceId = event.target.getAttribute("data-source-id");
+    const sourceName = event.target.getAttribute("data-source-name");
+    const contactPerson = event.target.getAttribute("data-contact-person");
+    const contactInformation = event.target.getAttribute(
+      "data-contact-information"
+    );
+    const sourceType = event.target.getAttribute("data-source-type");
+    const sourceLocation = event.target.getAttribute("data-source-location");
+    const sourceDescription = event.target.getAttribute(
+      "data-source-description"
+    );
+
+    // Populate the modal form fields
+    editModal.querySelector("#edit-source-id").value = sourceId;
+    editModal.querySelector("#edit-name").value = sourceName;
+    editModal.querySelector("#edit-contact_person").value = contactPerson;
+    editModal.querySelector("#edit-contact_information").value =
+      contactInformation;
+    editModal.querySelector("#edit-type").value = sourceType;
+    editModal.querySelector("#edit-location").value = sourceLocation;
+    editModal.querySelector("#edit-description").value = sourceDescription;
+  }
+</script>
+{% endblock %}
+<!--body-->
 {%block main %}
-<!DOCTYPE html>
-<html>
-  <head>
-    <script>
-      function confirmDelete(dbItem) {
-        var confirmMessage =
-          "Are you sure you want to delete '" +
-          dbItem +
-          "'?\nThis can not be undone!";
-        if (confirm(confirmMessage)) {
-          // If confirmed, submit the form
-          document.getElementById("delete-form").submit();
-        } else {
-          // If canceled, prevent form submission
-          return false;
-        }
-      }
-    </script>
-    <script>
-      // Attach the populateModal() function to the edit buttons
-      $(document).ready(function () {
-        const editButtons = document.querySelectorAll(".edit-source");
-        editButtons.forEach((button) => {
-          button.addEventListener("click", populateModal);
-        });
-      });
-
-      // Populate the modal form
-      function populateModal(event) {
-        // Get the modal element
-        const editModal = document.getElementById("EditCanvas");
-
-        // Get the data attributes from the clicked button
-        const sourceId = event.target.getAttribute("data-source-id");
-        const sourceName = event.target.getAttribute("data-source-name");
-        const contactPerson = event.target.getAttribute("data-contact-person");
-        const contactInformation = event.target.getAttribute(
-          "data-contact-information"
-        );
-        const sourceType = event.target.getAttribute("data-source-type");
-        const sourceLocation = event.target.getAttribute(
-          "data-source-location"
-        );
-        const sourceDescription = event.target.getAttribute(
-          "data-source-description"
-        );
-
-        // Populate the modal form fields
-        editModal.querySelector("#edit-source-id").value = sourceId;
-        editModal.querySelector("#edit-name").value = sourceName;
-        editModal.querySelector("#edit-contact_person").value = contactPerson;
-        editModal.querySelector("#edit-contact_information").value =
-          contactInformation;
-        editModal.querySelector("#edit-type").value = sourceType;
-        editModal.querySelector("#edit-location").value = sourceLocation;
-        editModal.querySelector("#edit-description").value = sourceDescription;
-      }
-    </script>
-  </head>
-  <body>
-    <div class="container mx-auto text-start my-4">
-      <button
-        class="btn btn-success"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#AddCanvas"
-        aria-controls="AddCanvas"
-      >
-        + Add New Source
-      </button>
-    </div>
-    <!-- offcanvas to add a new source -->
-    <div
-      class="offcanvas offcanvas-start"
-      data-bs-scroll="true"
-      tabindex="-1"
-      id="AddCanvas"
-      aria-labelledby="AddCanvasLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Source</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="offcanvas-body">
-        <div class="container mx-auto mt-8">
-          <form method="POST" action="/sources">
-            <div class="row">
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    name="name"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the source name"
-                  />
-                  <label for="name">Source Name</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-floating">
-                  <select class="form-select" id="type" name="type" required>
-                    <option selected disabled value="">Select a type</option>
-                    <option value="Wholesaler">Wholesaler</option>
-                    <option value="Online Retailer">Online Retailer</option>
-                    <option value="Local Market">Local Market</option>
-                    <option value="Flour Mill">Flour Mill</option>
-                    <option value="Farm">Farm</option>
-                  </select>
-                  <label for="type">Source type</label>
-                </div>
-              </div>
+<div class="container mx-auto text-start my-4">
+  <button
+    class="btn btn-success"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#AddCanvas"
+    aria-controls="AddCanvas"
+  >
+    + Add New Source
+  </button>
+</div>
+<!-- offcanvas to add a new source -->
+<div
+  class="offcanvas offcanvas-start"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="AddCanvas"
+  aria-labelledby="AddCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Source</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form method="POST" action="/sources">
+        <div class="row">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                autocomplete="off"
+                required
+                placeholder="Enter the source name"
+              />
+              <label for="name">Source Name</label>
             </div>
-            <div class="row mt-4">
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="contact_person"
-                    name="contact_person"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the contact name"
-                  />
-                  <label for="contact_person">Contact Person</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="contact_information"
-                    name="contact_information"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the contact info"
-                  />
-                  <label for="contact_information">Contact Information</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="location"
-                    name="location"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the location"
-                  />
-                  <label for="location">Source Location</label>
-                </div>
-              </div>
+          </div>
+          <div class="col-auto">
+            <div class="form-floating">
+              <select class="form-select" id="type" name="type" required>
+                <option selected disabled value="">Select a type</option>
+                <option value="Wholesaler">Wholesaler</option>
+                <option value="Online Retailer">Online Retailer</option>
+                <option value="Local Market">Local Market</option>
+                <option value="Flour Mill">Flour Mill</option>
+                <option value="Farm">Farm</option>
+              </select>
+              <label for="type">Source type</label>
             </div>
-            <div class="row my-4">
-              <div class="col w-auto">
-                <div class="form-floating">
-                  <textarea
-                    class="form-control"
-                    placeholder="Write source description"
-                    name="description"
-                    id="description"
-                    autocomplete="off"
-                    style="height: 100px"
-                  ></textarea>
-                  <label for="description">Source Description</label>
-                </div>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-success">Add Source</button>
-          </form>
+          </div>
         </div>
-      </div>
-    </div>
-    <!-- offcanvas for source editing -->
-    <div
-      class="offcanvas offcanvas-end"
-      data-bs-scroll="true"
-      tabindex="-1"
-      id="EditCanvas"
-      aria-labelledby="EditCanvasLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Source</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="offcanvas-body">
-        <div class="container mx-auto mt-8">
-          <form method="POST" action="{{ url_for('sources.edit_source') }}">
-            <div class="row">
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input type="hidden" name="id" id="edit-source-id" />
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="edit-name"
-                    name="name"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the source name"
-                  />
-                  <label for="edit-name">Source Name</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-floating">
-                  <select
-                    class="form-select"
-                    id="edit-type"
-                    name="type"
-                    required
-                  >
-                    <option value="Wholesaler">Wholesaler</option>
-                    <option value="Online Retailer">Online Retailer</option>
-                    <option value="Local Market">Local Market</option>
-                    <option value="Flour Mill">Flour Mill</option>
-                    <option value="Farm">Farm</option>
-                  </select>
-                  <label for="edit-contact_person">Source type</label>
-                </div>
-              </div>
+        <div class="row mt-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="contact_person"
+                name="contact_person"
+                autocomplete="off"
+                required
+                placeholder="Enter the contact name"
+              />
+              <label for="contact_person">Contact Person</label>
             </div>
-            <div class="row mt-4">
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="edit-contact_person"
-                    name="contact_person"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the contact name"
-                  />
-                  <label for="edit-contact_person">Contact Person</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="edit-contact_information"
-                    name="contact_information"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the contact info"
-                  />
-                  <label for="edit-contact_information"
-                    >Contact Information</label
-                  >
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="edit-location"
-                    name="location"
-                    autocomplete="off"
-                    required
-                    placeholder="Enter the location"
-                  />
-                  <label for="edit-location">Source Location</label>
-                </div>
-              </div>
+          </div>
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="contact_information"
+                name="contact_information"
+                autocomplete="off"
+                required
+                placeholder="Enter the contact info"
+              />
+              <label for="contact_information">Contact Information</label>
             </div>
-            <div class="row my-4">
-              <div class="col w-auto">
-                <div class="form-floating">
-                  <textarea
-                    class="form-control"
-                    placeholder="Write source description"
-                    name="description"
-                    id="edit-description"
-                    autocomplete="off"
-                    style="height: 100px"
-                  ></textarea>
-                  <label for="edit-description">Source Description</label>
-                </div>
-              </div>
+          </div>
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="location"
+                name="location"
+                autocomplete="off"
+                required
+                placeholder="Enter the location"
+              />
+              <label for="location">Source Location</label>
             </div>
-            <button type="submit" class="btn btn-warning">Edit Source</button>
-          </form>
+          </div>
         </div>
-      </div>
+        <div class="row my-4">
+          <div class="col w-auto">
+            <div class="form-floating">
+              <textarea
+                class="form-control"
+                placeholder="Write source description"
+                name="description"
+                id="description"
+                autocomplete="off"
+                style="height: 100px"
+              ></textarea>
+              <label for="description">Source Description</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">Add Source</button>
+      </form>
     </div>
-    <!-- List of existing sources -->
-    <div class="container mx-auto">
-      <h3 class="text-start">Existing Sources</h3>
-      <table class="table table-striped w-auto mx-auto">
-        <thead>
-          <tr>
-            <th>Source</th>
-            <th>Contact</th>
-            <th>Type</th>
-            <th>Location</th>
-            <th>Description</th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for source in sources %}
-          <tr>
-            <td>{{ source.name }}</td>
-            <td>
-              {{ source.contact_person }}: {{ source.contact_information }}
-            </td>
-            <td>{{ source.type }}</td>
-            <td>{{ source.location }}</td>
-            <td>{{ source.description }}</td>
-            <td>
-              <button
-                type="button"
-                class="btn btn-warning edit-source"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#EditCanvas"
-                aria-controls="EditCanvas"
-                data-source-id="{{ source.id }}"
-                data-source-name="{{ source.name }}"
-                data-contact-person="{{ source.contact_person }}"
-                data-contact-information="{{ source.contact_information }}"
-                data-source-type="{{ source.type }}"
-                data-source-location="{{ source.location }}"
-                data-source-description="{{ source.description }}"
-              >
-                📝
-              </button>
-            </td>
-            <td>
-              <form id="delete-form" action="{{ url_for('sources.delete_source') }}" method="post">
-                <input type="hidden" name="id" value="{{ source.id }}" />
-                <button
-                  type="submit"
-                  class="btn btn-danger"
-                  onclick="return confirmDelete('{{ source.name }}');"
-                >
-                  🗑️
-                </button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  </div>
+</div>
+<!-- offcanvas for source editing -->
+<div
+  class="offcanvas offcanvas-end"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="EditCanvas"
+  aria-labelledby="EditCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Source</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form method="POST" action="{{ url_for('sources.edit_source') }}">
+        <div class="row">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input type="hidden" name="id" id="edit-source-id" />
+              <input
+                type="text"
+                class="form-control"
+                id="edit-name"
+                name="name"
+                autocomplete="off"
+                required
+                placeholder="Enter the source name"
+              />
+              <label for="edit-name">Source Name</label>
+            </div>
+          </div>
+          <div class="col-auto">
+            <div class="form-floating">
+              <select class="form-select" id="edit-type" name="type" required>
+                <option value="Wholesaler">Wholesaler</option>
+                <option value="Online Retailer">Online Retailer</option>
+                <option value="Local Market">Local Market</option>
+                <option value="Flour Mill">Flour Mill</option>
+                <option value="Farm">Farm</option>
+              </select>
+              <label for="edit-contact_person">Source type</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="edit-contact_person"
+                name="contact_person"
+                autocomplete="off"
+                required
+                placeholder="Enter the contact name"
+              />
+              <label for="edit-contact_person">Contact Person</label>
+            </div>
+          </div>
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="edit-contact_information"
+                name="contact_information"
+                autocomplete="off"
+                required
+                placeholder="Enter the contact info"
+              />
+              <label for="edit-contact_information">Contact Information</label>
+            </div>
+          </div>
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="edit-location"
+                name="location"
+                autocomplete="off"
+                required
+                placeholder="Enter the location"
+              />
+              <label for="edit-location">Source Location</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col w-auto">
+            <div class="form-floating">
+              <textarea
+                class="form-control"
+                placeholder="Write source description"
+                name="description"
+                id="edit-description"
+                autocomplete="off"
+                style="height: 100px"
+              ></textarea>
+              <label for="edit-description">Source Description</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-warning">Edit Source</button>
+      </form>
     </div>
+  </div>
+</div>
+<!-- List of existing sources -->
+<div class="container mx-auto">
+  <h3 class="text-start">Existing Sources</h3>
+  <table class="table table-striped w-auto mx-auto">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Contact</th>
+        <th>Type</th>
+        <th>Location</th>
+        <th>Description</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for source in sources %}
+      <tr>
+        <td>{{ source.name }}</td>
+        <td>{{ source.contact_person }}: {{ source.contact_information }}</td>
+        <td>{{ source.type }}</td>
+        <td>{{ source.location }}</td>
+        <td>{{ source.description }}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-warning edit-source"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#EditCanvas"
+            aria-controls="EditCanvas"
+            data-source-id="{{ source.id }}"
+            data-source-name="{{ source.name }}"
+            data-contact-person="{{ source.contact_person }}"
+            data-contact-information="{{ source.contact_information }}"
+            data-source-type="{{ source.type }}"
+            data-source-location="{{ source.location }}"
+            data-source-description="{{ source.description }}"
+          >
+            📝
+          </button>
+        </td>
+        <td>
+          <form
+            id="delete-form"
+            action="{{ url_for('sources.delete_source') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ source.id }}" />
+            <button
+              type="submit"
+              class="btn btn-danger"
+              onclick="return confirmDelete('{{ source.name|escape_html|safe }}');"
+            >
+              🗑️
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-    {% endblock %}
-  </body>
-</html>
+{% endblock %}

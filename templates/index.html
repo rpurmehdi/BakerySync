@@ -1,13 +1,17 @@
 {% extends "layout.html" %}
-
-{% block title %}
-    Overview
+<!-- enter the page title here!-->
+{% block title %} Overview {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} Overview {% endblock %}
+<!--head-->
+{% block head %}
 {% endblock %}
 
 {% block main %}
     <div class="mb-3">
        <p><a href="{{ url_for('sources.sources') }}">source management</a></p>
        <p><a href="{{ url_for('destinations.destinations') }}">destination management</a></p>
+       <p><a href="{{ url_for('shipments.shipments') }}">shipment management</a></p>
     </div>
 
 {% endblock %}

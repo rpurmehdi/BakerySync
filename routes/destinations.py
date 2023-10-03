@@ -101,7 +101,7 @@ def delete_destination():
                 is_referenced = ProductionShipping.query.filter_by(
                     destination_id=id).first()
                 if is_referenced:
-                    flash('Destination is used in Arrivals, cannot delete', 'danger')
+                    flash(f'{destination_to_delete.name} is used in shipments, cannot delete', 'danger')
                 else:
                     # Delete the found destination
                     db.session.delete(destination_to_delete)

@@ -1,0 +1,322 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} Manage Shipments {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} Manage Shipments {% endblock %}
+<!--head-->
+{% block head %}
+<script>
+  function confirmDelete(dbItem) {
+    var confirmMessage =
+      "Are you sure you want to delete '" +
+      dbItem +
+      "'?\nThis can not be undone!";
+    if (confirm(confirmMessage)) {
+      // If confirmed, submit the form
+      document.getElementById("delete-form").submit();
+    } else {
+      // If canceled, prevent form submission
+      return false;
+    }
+  }
+</script>
+
+<script>
+  // Attach the populateModal() function to the edit buttons
+  $(document).ready(function () {
+    const editButtons = document.querySelectorAll(".edit-shipment");
+    editButtons.forEach((button) => {
+      button.addEventListener("click", populateModal);
+    });
+  });
+
+  // Populate the modal form
+  function populateModal(event) {
+    // Get the modal element
+    const editModal = document.getElementById("EditCanvas");
+
+    // Get the data attributes from the clicked button
+    const shipmentId = event.target.getAttribute("data-shipment-id");
+    const productionId = event.target.getAttribute(
+      "data-shipment-production-id"
+    );
+    const destinationId = event.target.getAttribute(
+      "data-shipment-destination-id"
+    );
+    const shippingDate = event.target.getAttribute(
+      "data-shipment-shipping-date"
+    );
+    const Quantity = event.target.getAttribute("data-shipment-quantity");
+
+    // Populate the modal form fields
+    editModal.querySelector("#edit-shipment-id").value = shipmentId;
+    editModal.querySelector("#edit-production_id").value = productionId;
+    editModal.querySelector("#edit-destination_id").value = destinationId;
+    editModal.querySelector("#edit-shipping_date").value = shippingDate;
+    editModal.querySelector("#edit-quantity").value = Quantity;
+  }
+</script>
+{% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-start my-4">
+  <button
+    class="btn btn-success"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#AddCanvas"
+    aria-controls="AddCanvas"
+  >
+    + Add New Shipment
+  </button>
+</div>
+<!-- offcanvas to add a new shipment -->
+<div
+  class="offcanvas offcanvas-start"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="AddCanvas"
+  aria-labelledby="AddCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Shipment</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form method="POST" action="/shipments">
+        <div class="row">
+          <div class="col-auto">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="production_id"
+                name="production_id"
+                required
+              >
+                <option selected disabled value="">Select a production</option>
+                {% for production in productions %} {% if production.stock > 0
+                %}
+                <option value="{{ production.id }}">
+                  {{ production.kind.name }} : {{ production.print_batch }}
+                </option>
+                {% endif %} {% endfor %}
+              </select>
+              <label for="production_id">Production</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="destination_id"
+                name="destination_id"
+                required
+              >
+                <option selected disabled value="">Select a destination</option>
+                {% for destination in destinations %}
+                <option value="{{ destination.id }}">
+                  {{ destination.name }} ({{ destination.type }})
+                </option>
+                {% endfor %}
+              </select>
+              <label for="destination_id">Destination</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="datetime-local"
+                id="shipping_date"
+                name="shipping_date"
+                required
+              />
+              <label for="shipping_date">Shipping Date</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="number"
+                id="quantity"
+                name="quantity"
+                required
+              />
+              <label for="quantity">Quantity</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">Add Shipment</button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- offcanvas for shipment editing -->
+<div
+  class="offcanvas offcanvas-end"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="EditCanvas"
+  aria-labelledby="EditCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Shipments</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form method="POST" action="{{ url_for('shipments.edit_shipment') }}">
+        <div class="row">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input type="hidden" name="id" id="edit-shipment-id" />
+              <select
+                class="form-select"
+                id="edit-production_id"
+                name="production_id"
+                required
+              >
+                {% for production in productions %} {% if production.stock > 0
+                %}
+                <option value="{{ production.id }}">
+                  {{ production.kind.name }} : {{ production.print_batch }}
+                </option>
+                {% endif %} {% endfor %}
+              </select>
+              <label for="edit-production_id">Production</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="edit-destination_id"
+                name="destination_id"
+                required
+              >
+                {% for destination in destinations|sort(attribute='name') %}
+                <option value="{{ destination.id }}">
+                  {{ destination.name }} ({{ destination.type }})
+                </option>
+                {% endfor %}
+              </select>
+              <label for="edit-destination_id">Destination</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="datetime-local"
+                id="edit-shipping_date"
+                name="shipping_date"
+                required
+              />
+              <label for="edit-shipping_date">Shipping Date</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="number"
+                id="edit-quantity"
+                name="quantity"
+                required
+              />
+              <label for="tdit-quantity">Quantity</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-warning">Edit Shipment</button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- List of existing shipments -->
+<div class="container mx-auto">
+  <h3 class="text-start">Existing Shipments</h3>
+  <table class="table table-striped w-auto mx-auto">
+    <thead>
+      <tr>
+        <th>Destination</th>
+        <th>Production</th>
+        <th>ShippingDate</th>
+        <th>Quantity</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shipment in shipments %}
+      <tr>
+        <td>{{ shipment.destination.name }}</td>
+        <td>
+          {{ shipment.production.kind.name }} : {{
+          shipment.production.print_batch }}
+        </td>
+        <td>{{ shipment.shipping_date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ shipment.quantity }}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-warning edit-shipment"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#EditCanvas"
+            aria-controls="EditCanvas"
+            data-shipment-id="{{ shipment.id }}"
+            data-shipment-production-id="{{ shipment.production.id }}"
+            data-shipment-destination-id="{{ shipment.destination_id }}"
+            data-shipment-shipping-date="{{ shipment.shipping_date }}"
+            data-shipment-quantity="{{ shipment.quantity }}"
+          >
+            📝
+          </button>
+        </td>
+        <td>
+          <form
+            id="delete-form"
+            action="{{ url_for('shipments.delete_shipment') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ shipment.id }}" />
+            <button
+              type="submit"
+              class="btn btn-danger"
+              onclick="return confirmDelete('{{ shipment.production.kind.name|escape_html|safe }} to {{ shipment.destination.name|escape_html|safe }} on {{shipment.shipping_date|safe}}');"
+            >
+              🗑️
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

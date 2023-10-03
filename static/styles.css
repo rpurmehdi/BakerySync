@@ -1,10 +1,17 @@
 .offcanvas.offcanvas-start {
-    width: (var(--bs-offcanvas-width) * 1.25);
+    width: 500px;
 }
+
 .offcanvas.offcanvas-end {
-    width: (var(--bs-offcanvas-width) * 1.25);
+    width: 500px;
 }
 
 .table {
     --bs-table-striped-bg: lightgray;
+}
+
+td {
+
+    vertical-align: middle;
+
 }

@@ -101,7 +101,7 @@ def delete_source():
                 is_referenced = RawMaterialArrival.query.filter_by(
                     source_id=id).first()
                 if is_referenced:
-                    flash('Source is used in Arrivals, cannot delete', 'danger')
+                    flash(f'{source_to_delete.name} is used in Arrivals, cannot delete', 'danger')
                 else:
                     # Delete the found source
                     db.session.delete(source_to_delete)

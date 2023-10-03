@@ -6,6 +6,7 @@ from datetime import datetime
 from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, RawMaterialUsage, ProductionShipping, recipe_rawmaterial_association
 from routes.sources import sources_bp
 from routes.destinations import destinations_bp
+from routes.shipments import shipments_bp
 
 app = Flask(__name__)
 
@@ -34,6 +35,17 @@ def after_request(response):
     return response
 
 
+@app.template_filter('escape_html')
+def escape_html_filter(s):
+    result = ""
+    for c in s:
+        if c in ["'", "<", ">", "&", '"']:
+            result += "."
+        else:
+            result += c
+    return result
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -50,6 +62,8 @@ app.register_blueprint(sources_bp)
 # registering destinations.py
 app.register_blueprint(destinations_bp)
 
+# registering shipments.py
+app.register_blueprint(shipments_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

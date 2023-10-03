@@ -94,6 +94,12 @@ class Production(BaseModel):
     material_usages = db.relationship('RawMaterialUsage', backref='production')
     shippings = db.relationship('ProductionShipping', backref='production')
 
+    @property
+    def stock(self):
+        total_shipping = sum(shipment.quantity for shipment in self.shippings)
+        stock = self.quantity - total_shipping
+        return stock
+
 
 class RawMaterialUsage(BaseModel):
     arrival_id = db.Column(db.Integer, db.ForeignKey(
