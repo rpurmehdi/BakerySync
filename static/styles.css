@@ -1,9 +1,6 @@
-.offcanvas.offcanvas-start {
-    width: 500px;
-}
-
+.offcanvas.offcanvas-start,
 .offcanvas.offcanvas-end {
-    width: 500px;
+    width: 1.5*var(--bs-offcanvas-width);
 }
 
 .table {
