@@ -20,7 +20,7 @@
     }
   }
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script>
   // Attach the populateModal() function to the edit buttons
   $(document).ready(function () {
@@ -60,6 +60,7 @@
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-start my-4">
+  <!-- add button -->
   <button
     class="btn btn-success"
     type="button"
@@ -69,6 +70,109 @@
   >
     + Add New Shipment
   </button>
+  <!-- view in stock button-->
+  <button
+    class="btn btn-primary"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#ProductionCanvas"
+    aria-controls="ProductionCanvas"
+  >
+    View In Stock Productions
+  </button>
+  <!-- off canvas of in stock production-->
+  <div
+    class="offcanvas offcanvas-top"
+    tabindex="-1"
+    id="ProductionCanvas"
+    aria-labelledby="productionCanvasLabel"
+  >
+    <div class="offcanvas-header">
+      <h5 id="productionCanvasLabel">In Stock Productions</h5>
+      <button
+        type="button"
+        class="btn-close text-reset"
+        data-bs-dismiss="offcanvas"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="offcanvas-body">
+      <canvas id="myChart" style="width: 100%; max-width: 600px"></canvas>
+
+      <script>
+            const xValues = [
+              {% for production in productions %}
+                {% if production.stock > 0 %}
+                  "{{ production.kind.name }} : {{ production.print_batch }}",
+                {% endif %}
+              {% endfor %}
+            ];
+            const yValues = [{% for production in productions %} {% if production.stock > 0
+                    %}
+                    "{{ production.stock }}",
+                    {% endif %} {% endfor %}];
+            const barColors = [
+              "#FF0000",
+              "#00FF00",
+              "#0000FF",
+              "#FFFF00",
+              "#FF00FF",
+              "#00FFFF",
+              "#000000",
+              "#FFFFFF",
+              "#FFA500",
+              "#800080",
+              "#008000",
+              "#A52A2A",
+              "#008080",
+              "#FF4500",
+              "#FFD700",
+              "#4B0082",
+              "#FF8C00",
+              "#DC143C",
+              "#00FF7F",
+              "#8A2BE2",
+              "#32CD32",
+              "#FA8072",
+              "#800000",
+              "#2E8B57",
+              "#48D1CC",
+              "#9932CC",
+              "#8B008B",
+              "#00FA9A",
+              "#FF69B4",
+              "#000080"
+            ];
+
+            new Chart("myChart", {
+              type: "bar",
+              data: {
+                labels: xValues,
+                datasets: [
+                  {
+                    backgroundColor: barColors,
+                    data: yValues,
+                  },
+                ],
+              },
+              options: {
+                legend: { display: false },
+                title: {
+                  display: false,
+                  text: "In Stock Productions",
+                },
+                scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+              },
+            });
+      </script>
+    </div>
+  </div>
 </div>
 <!-- offcanvas to add a new shipment -->
 <div

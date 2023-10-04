@@ -57,7 +57,7 @@ def shipments():
     else:
         # Retrieve all shipments, productions and destinations from the database
         shipments = ProductionShipping.query.order_by(ProductionShipping.shipping_date).all()
-        productions = Production.query.order_by(Production.production_time).all()
+        productions = Production.query.order_by(Production.type, Production.production_time).all()
         destinations = Destination.query.order_by(Destination.name).all()
 
         return render_template('shipments.html', shipments=shipments, productions=productions, destinations=destinations)

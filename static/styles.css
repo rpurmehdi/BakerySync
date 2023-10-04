@@ -1,6 +1,10 @@
 .offcanvas.offcanvas-start,
 .offcanvas.offcanvas-end {
-    width: 1.5*var(--bs-offcanvas-width);
+    width: 50%;
+}
+
+.offcanvas.offcanvas-top {
+    height: 50%;
 }
 
 .table {
