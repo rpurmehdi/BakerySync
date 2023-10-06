@@ -7,6 +7,7 @@ from models import db, Source, Destination, RawMaterialType, ProductionType, Raw
 from routes.sources import sources_bp
 from routes.destinations import destinations_bp
 from routes.shipments import shipments_bp
+from routes.productions import productions_bp
 
 app = Flask(__name__)
 
@@ -64,6 +65,9 @@ app.register_blueprint(destinations_bp)
 
 # registering shipments.py
 app.register_blueprint(shipments_bp)
+
+# registering productions.py
+app.register_blueprint(productions_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

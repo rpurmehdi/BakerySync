@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} Manage Productions {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} Manage Productions {% endblock %}
+<!--head-->
+{%block head %}
+<script>
+  function confirmDelete(dbItem) {
+    var confirmMessage =
+      "Are you sure you want to delete '" +
+      dbItem +
+      "'?\nThis can not be undone!";
+    if (confirm(confirmMessage)) {
+      // If confirmed, submit the form
+      document.getElementById("delete-form").submit();
+    } else {
+      // If canceled, prevent form submission
+      return false;
+    }
+  }
+</script>
+{% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-start my-4">
+  <a href="{{ url_for('productions.add_production') }}">
+    <button class="btn btn-success" type="button">+ Add New Production</button>
+  </a>
+</div>
+<!-- List of existing productions -->
+<div class="container mx-auto">
+  <h3 class="text-start">Existing Productions</h3>
+  <table class="table table-striped w-auto mx-auto">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Batch</th>
+        <th>Recipe</th>
+        <th>Quantity</th>
+        <th>Production Time</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for production in productions %}
+      <tr>
+        <td>{{ production.kind.name }}</td>
+        <td>{{ production.print_batch }}</td>
+        <td>{{ production.recipe.name }}</td>
+        <td>{{ production.quantity }}</td>
+        <td>{{ production.production_time }}</td>
+        <td>
+          <form
+            id="delete-form"
+            action="{{ url_for('productions.delete_production') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ production.id }}" />
+            <button
+              type="submit"
+              class="btn btn-danger"
+              onclick="return confirmDelete('{{ production.kind.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
+            >
+              🗑️
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

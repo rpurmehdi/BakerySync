@@ -68,6 +68,12 @@ class RawMaterialArrival(BaseModel):
 
     usages = db.relationship('RawMaterialUsage', backref='arrival')
 
+    @property
+    def stock(self):
+        total_usage = sum(usage.quantity for usage in self.usages)
+        stock = self.quantity - total_usage
+        return stock
+
 
 class Recipe(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)

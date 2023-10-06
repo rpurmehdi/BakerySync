@@ -1,10 +1,14 @@
 .offcanvas.offcanvas-start,
 .offcanvas.offcanvas-end {
-    width: 50%;
+    width: calc(1.25 * var(--bs-offcanvas-width));
 }
 
 .offcanvas.offcanvas-top {
-    height: 50%;
+    height: calc(1.5 * var(--bs-offcanvas-height));
+}
+
+.chart-container {
+    min-width: 500px;
 }
 
 .table {
