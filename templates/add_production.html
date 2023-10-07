@@ -5,7 +5,10 @@
 {% block navbar_title %} Add Productions {% endblock %}
 <!--head-->
 {% block head %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"
+></script>
 <script type="text/javascript">
   // from www.w3.org/WAI/WCAG21/working-examples/script-dynamic-select/
   // array of possible production types in the same order as they appear in the production type selection list
@@ -15,18 +18,11 @@
   var recipeIdLists = {};
   recipeIdLists["0"] = ["0"];
   {% for ptype in ptypes %}recipeIdLists["{{ ptype.id }}"] = [{% for recipe in recipes %}{% if recipe.production_type == ptype.id %}"{{ recipe.id }}", {% endif %}{% endfor %}];{% endfor %}
-  /* RecipeChange() is called from the onchange event of a select element.
-   * param selectObj - the select object which fired the on change event.
-   */
   function recipeChange(selectObj) {
-    // get the index of the selected option
     var idx = selectObj.selectedIndex;
-    // get the value of the selected option
     var which = selectObj.options[idx].value;
-    // use the selected option value to retrieve the list of items from the coutnryLists array
     nList = recipeLists[which];
     iList = recipeIdLists[which];
-    // get the recipe select element via its known id
     var cSelect = document.getElementById("recipe");
     // remove the current options from the recipe select
     var len = cSelect.options.length;
@@ -39,7 +35,6 @@
       newOption = document.createElement("option");
       newOption.value = iList[i];
       newOption.text = nList[i];
-      // add the new option
       try {
         cSelect.add(newOption); // this will fail in DOM browsers but is needed for IE
       } catch (e) {
@@ -47,7 +42,6 @@
       }
     }
   }
-  //]]>
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -67,21 +61,19 @@
       }
       let counter = 1;
       // Construct the string with the selected values
-      const batchNumber = `${year}${month}${date}${typeid}${counter
+      let batchNumber = `${year}${month}${date}${typeid}${counter
         .toString()
         .padStart(2, "0")}`;
       while (BatchNumbers.includes(batchNumber)) {
         counter++;
-        batchNumber = `${year}${month}${date}${typeid}${recipeid}${counter
+        batchNumber = `${year}${month}${date}${typeid}${counter
           .toString()
           .padStart(2, "0")}`;
       }
-
       // Update the field above the button
       document.getElementById("batch_number").value = batchNumber;
       document.getElementById("batch-number").value = batchNumber;
     }
-
     // Add an event listener to trigger the updateField function when dropdown values change
     document
       .getElementById("production_date")
@@ -99,13 +91,13 @@
   <div class="row justify-content-md-center">
     <div class="col chart-container">
       <canvas
-        id="firstChart"
+        id="materialChart"
         style="max-width: 700px; display: inline"
       ></canvas>
     </div>
     <div class="col chart-container">
       <canvas
-        id="secondChart"
+        id="productionChart"
         style="max-width: 700px; display: inline"
       ></canvas>
     </div>
@@ -142,6 +134,7 @@
             <input
               class="form-control"
               type="number"
+              min="0"
               id="quantity"
               name="quantity"
               required
@@ -193,138 +186,143 @@
 </div>
 <!--chart scripts-->
 <script>
-    const xValues1 = [
-      {% for material in materials %}{% if material.stock > 0 %}"{{ material.kind.name|safe }}-{{ material.source.name|safe }}-{{ material.arrival_time.strftime('%Y-%m-%d') }}", {% endif %}{% endfor %}
-    ];
-    const yValues1 = [
-      {% for material in materials %}{% if material.stock > 0 %}"{{ material.stock }}", {% endif %}{% endfor %}
-    ];
-    const xValues2 = [
-      {% for production in productions %}{% if production.stock > 0 %}"{{ production.kind.name }} : {{ production.print_batch }}", {% endif %}{% endfor %}
-    ];
-    const yValues2 = [
-      {% for production in productions %} {% if production.stock > 0%}"{{ production.stock }}", {% endif %} {% endfor %}
-    ];
-    const barColors = [
-      "rgba(255, 0, 0, 0.2)",
-      "rgba(0, 255, 0, 0.2)",
-      "rgba(0, 0, 255, 0.2)",
-      "rgba(255, 255, 0, 0.2)",
-      "rgba(255, 0, 255, 0.2)",
-      "rgba(0, 255, 255, 0.2)",
-      "rgba(0, 0, 0, 0.2)",
-      "rgba(255, 255, 255, 0.2)",
-      "rgba(255, 165, 0, 0.2)",
-      "rgba(128, 0, 128, 0.2)",
-      "rgba(0, 128, 0, 0.2)",
-      "rgba(165, 42, 42, 0.2)",
-      "rgba(0, 128, 128, 0.2)",
-      "rgba(255, 69, 0, 0.2)",
-      "rgba(255, 215, 0, 0.2)",
-      "rgba(75, 0, 130, 0.2)",
-      "rgba(255, 140, 0, 0.2)",
-      "rgba(220, 20, 60, 0.2)",
-      "rgba(0, 255, 127, 0.2)",
-      "rgba(138, 43, 226, 0.2)",
-      "rgba(50, 205, 50, 0.2)",
-      "rgba(250, 128, 114, 0.2)",
-      "rgba(128, 0, 0, 0.2)",
-      "rgba(46, 139, 87, 0.2)",
-      "rgba(72, 209, 204, 0.2)",
-      "rgba(153, 50, 204, 0.2)",
-      "rgba(139, 0, 139, 0.2)",
-      "rgba(0, 250, 154, 0.2)",
-      "rgba(255, 105, 180, 0.2)",
-      "rgba(0, 0, 128, 0.2)"
-    ];
-    const borderColors = [
-      "rgb(255, 0, 0)",
-      "rgb(0, 255, 0)",
-      "rgb(0, 0, 255)",
-      "rgb(255, 255, 0)",
-      "rgb(255, 0, 255)",
-      "rgb(0, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 165, 0)",
-      "rgb(128, 0, 128)",
-      "rgb(0, 128, 0)",
-      "rgb(165, 42, 42)",
-      "rgb(0, 128, 128)",
-      "rgb(255, 69, 0)",
-      "rgb(255, 215, 0)",
-      "rgb(75, 0, 130)",
-      "rgb(255, 140, 0)",
-      "rgb(220, 20, 60)",
-      "rgb(0, 255, 127)",
-      "rgb(138, 43, 226)",
-      "rgb(50, 205, 50)",
-      "rgb(250, 128, 114)",
-      "rgb(128, 0, 0)",
-      "rgb(46, 139, 87)",
-      "rgb(72, 209, 204)",
-      "rgb(153, 50, 204)",
-      "rgb(139, 0, 139)",
-      "rgb(0, 250, 154)",
-      "rgb(255, 105, 180)",
-      "rgb(0, 0, 128)"
-    ];
-
-    new Chart("firstChart", {
+  const barColors = [
+    "rgba(255, 0, 0, 0.3)",
+    "rgba(0, 255, 0, 0.3)",
+    "rgba(0, 0, 255, 0.3)",
+    "rgba(255, 255, 0, 0.3)",
+    "rgba(255, 0, 255, 0.3)",
+    "rgba(0, 255, 255, 0.3)",
+    "rgba(0, 0, 0, 0.3)",
+    "rgba(255, 165, 0, 0.3)",
+    "rgba(128, 0, 128, 0.3)",
+    "rgba(0, 128, 0, 0.3)",
+    "rgba(165, 42, 42, 0.3)",
+    "rgba(0, 128, 128, 0.3)",
+    "rgba(255, 69, 0, 0.3)",
+    "rgba(255, 215, 0, 0.3)",
+    "rgba(75, 0, 130, 0.3)",
+    "rgba(255, 140, 0, 0.3)",
+    "rgba(220, 20, 60, 0.3)",
+    "rgba(0, 255, 127, 0.3)",
+    "rgba(138, 43, 226, 0.3)",
+    "rgba(50, 205, 50, 0.3)",
+    "rgba(250, 128, 114, 0.3)",
+    "rgba(128, 0, 0, 0.3)",
+    "rgba(46, 139, 87, 0.3)",
+    "rgba(72, 209, 204, 0.3)",
+    "rgba(153, 50, 204, 0.3)",
+    "rgba(139, 0, 139, 0.3)",
+    "rgba(0, 250, 154, 0.3)",
+    "rgba(255, 105, 180, 0.3)",
+    "rgba(0, 0, 128, 0.3)"
+  ];
+  const borderColors = [
+    "rgba(255, 0, 0, 0.9)",
+    "rgba(0, 255, 0, 0.9)",
+    "rgba(0, 0, 255, 0.9)",
+    "rgba(255, 255, 0, 0.9)",
+    "rgba(255, 0, 255, 0.9)",
+    "rgba(0, 255, 255, 0.9)",
+    "rgba(0, 0, 0, 0.9)",
+    "rgba(255, 165, 0, 0.9)",
+    "rgba(128, 0, 128, 0.9)",
+    "rgba(0, 128, 0, 0.9)",
+    "rgba(165, 42, 42, 0.9)",
+    "rgba(0, 128, 128, 0.9)",
+    "rgba(255, 69, 0, 0.9)",
+    "rgba(255, 215, 0, 0.9)",
+    "rgba(75, 0, 130, 0.9)",
+    "rgba(255, 140, 0, 0.9)",
+    "rgba(220, 20, 60, 0.9)",
+    "rgba(0, 255, 127, 0.9)",
+    "rgba(138, 43, 226, 0.9)",
+    "rgba(50, 205, 50, 0.9)",
+    "rgba(250, 128, 114, 0.9)",
+    "rgba(128, 0, 0, 0.9)",
+    "rgba(46, 139, 87, 0.9)",
+    "rgba(72, 209, 204, 0.9)",
+    "rgba(153, 50, 204, 0.9)",
+    "rgba(139, 0, 139, 0.9)",
+    "rgba(0, 250, 154, 0.9)",
+    "rgba(255, 105, 180, 0.9)",
+    "rgba(0, 0, 128, 0.9)"
+  ];
+  new Chart("materialChart", {
       type: "bar",
       data: {
-        labels: xValues1,
-        datasets: [
-          {
-            backgroundColor: barColors,
-            borderColor: borderColors,
-            data: yValues1,
-            borderWidth: 1
-          },
-        ],
+        labels: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}"{{rtype.name|safe}}", {% endif %}{% endfor %}],
+        datasets: [{% for material in materials %}{% if material.stock > 0 %}{label: "{{material.source.name|safe}}-{{ material.arrival_time.strftime('%Y-%m-%d') }}",
+        data: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}{% if rtype.id == material.type %}{{ material.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
+        backgroundColor: barColors[{{material.id}} % 29],
+        borderColor: borderColors[{{material.id}} % 29]
+        },
+        {% endif %}{% endfor %}],
       },
       options: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: "In Stock Raw Materials",
+        tooltips: {
+          displayColors: true,
+          callbacks:{
+          mode: 'x',
+          },
         },
         scales: {
-    yAxes: [{
-        ticks: {
-            beginAtZero: true
-        }
-    }]
-  }
+          xAxes: [{
+            stacked: true,
+            gridLines: {
+              display: false,
+            }
+          }],
+          yAxes: [{
+            stacked: true,
+            ticks: {
+              beginAtZero: true,
+            },
+          type: 'linear',
+          }]
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { display: false },
       },
     });
-    new Chart("secondChart", {
-      type: "bar",
-      data: {
-        labels: xValues2,
-        datasets: [
-          {
-            backgroundColor: barColors,
-            borderColor: borderColors,
-            data: yValues2,
-            borderWidth: 1
+    new Chart("productionChart", {
+        type: "bar",
+        data: {
+          labels: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}"{{ptype.name|safe}}", {% endif %}{% endfor %}],
+          datasets: [{% for production in productions %}{% if production.stock > 0 %}{label: "{{production.print_batch|safe}}-{{ production.production_time.strftime('%Y-%m-%d') }}",
+          data: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}{% if ptype.id == production.type %}{{ production.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
+          backgroundColor: barColors[{{production.id}} % 29],
+          borderColor: borderColors[{{production.id}} % 29]
           },
-        ],
-      },
-      options: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: "In Stock Productions",
+          {% endif %}{% endfor %}],
         },
-        scales: {
-    yAxes: [{
-        ticks: {
-            beginAtZero: true
-        }
-    }]
-  }
+        options: {
+      tooltips: {
+        displayColors: true,
+        callbacks:{
+          mode: 'x',
+        },
       },
+      scales: {
+        xAxes: [{
+          stacked: true,
+          gridLines: {
+            display: false,
+          }
+        }],
+        yAxes: [{
+          stacked: true,
+          ticks: {
+            beginAtZero: true,
+          },
+          type: 'linear',
+        }]
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: { display: false },
+      }
     });
 </script>
 {% endblock %}

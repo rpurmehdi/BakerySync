@@ -8,7 +8,7 @@ productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 @productions_bp.route('/', methods=['GET'])
 def productions():
     productions = Production.query.order_by(
-            Production.production_time, Production.type).all()
+        Production.production_time, Production.type).all()
     return render_template('productions.html', productions=productions)
 
 
@@ -16,11 +16,15 @@ def productions():
 def add_production():
     if request.method == 'POST':
         # Get data from the form
-        print_batch = request.form['batch_number']
-        type = request.form['production_types']
-        production_time_str = request.form['production_date']
-        recipe_id = request.form['recipe']
-        quantity_str = request.form['quantity']
+        try:
+            print_batch = request.form['batch_number']
+            type = request.form['production_types']
+            production_time_str = request.form['production_date']
+            recipe_id = request.form['recipe']
+            quantity_str = request.form['quantity']
+        except Exception as e:
+                flash(f'Invalid data input! - Error: {str(e)}', 'warning')
+                return redirect(url_for('productions.productions'))
         if print_batch and quantity_str:
             try:
                 production_time = datetime.fromisoformat(production_time_str)
@@ -32,6 +36,9 @@ def add_production():
                 flash(f'Error: {str(e)}', 'warning')
                 return redirect(url_for('productions.productions'))
         else:
+            flash('Invalid data input', 'warning')
+            return redirect(url_for('productions.productions'))
+        if quantity < 1:
             flash('Invalid data input', 'warning')
             return redirect(url_for('productions.productions'))
         # Create a new production object and add it to the database

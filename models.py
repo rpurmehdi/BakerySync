@@ -51,12 +51,22 @@ class RawMaterialType(BaseModel):
     recipes = db.relationship(
         'Recipe', secondary=recipe_rawmaterial_association, back_populates='materials')
 
+    @property
+    def stock(self):
+        total_stock = sum(arrival.stock for arrival in self.arrivals)
+        return total_stock
+
 
 class ProductionType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
     productions = db.relationship('Production', backref='kind')
     recipes = db.relationship('Recipe', backref='product')
+
+    @property
+    def stock(self):
+        total_stock = sum(production.stock for production in self.productions)
+        return total_stock
 
 
 class RawMaterialArrival(BaseModel):
