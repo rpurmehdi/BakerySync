@@ -3,7 +3,8 @@ from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, RawMaterialUsage, ProductionShipping, recipe_rawmaterial_association
+from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, production_arrival_association, ProductionShipping, recipe_rawmaterial_association
+from routes.types import types_bp
 from routes.sources import sources_bp
 from routes.destinations import destinations_bp
 from routes.shipments import shipments_bp
@@ -56,6 +57,9 @@ def index():
     else:
         return render_template("index.html")
 
+
+# registering types.py
+app.register_blueprint(types_bp)
 
 # registering sources.py
 app.register_blueprint(sources_bp)

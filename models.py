@@ -57,6 +57,16 @@ class RawMaterialType(BaseModel):
         return total_stock
 
 
+production_arrival_association = db.Table(
+    'production_arrival_association',
+    db.Column('production_id', db.Integer,
+              db.ForeignKey('production.id')),
+    db.Column('arrival_id', db.Integer,
+              db.ForeignKey('raw_material_arrival.id')),
+    db.Column('quantity', db.Float)
+)
+
+
 class ProductionType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
@@ -76,11 +86,15 @@ class RawMaterialArrival(BaseModel):
     source_id = db.Column(db.Integer, db.ForeignKey(Source.id), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    usages = db.relationship('RawMaterialUsage', backref='arrival')
+    productions = db.relationship(
+        'Production',
+        secondary=production_arrival_association,
+        back_populates='materials'
+    )
 
     @property
     def stock(self):
-        total_usage = sum(usage.quantity for usage in self.usages)
+        total_usage = sum(association.quantity for association in self.productions)
         stock = self.quantity - total_usage
         return stock
 
@@ -107,22 +121,18 @@ class Production(BaseModel):
     recipe_id = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    material_usages = db.relationship('RawMaterialUsage', backref='production')
     shippings = db.relationship('ProductionShipping', backref='production')
+    materials = db.relationship(
+        'RawMaterialArrival',
+        secondary=production_arrival_association,
+        back_populates='productions'
+    )
 
     @property
     def stock(self):
         total_shipping = sum(shipment.quantity for shipment in self.shippings)
         stock = self.quantity - total_shipping
         return stock
-
-
-class RawMaterialUsage(BaseModel):
-    arrival_id = db.Column(db.Integer, db.ForeignKey(
-        RawMaterialArrival.id), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    production_id = db.Column(db.Integer, db.ForeignKey(
-        Production.id), nullable=False)
 
 
 class ProductionShipping(BaseModel):

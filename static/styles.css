@@ -1,6 +1,11 @@
+.navbar a {
+    text-decoration: none;
+    color: var(--bs-navbar-brand-color);
+}
+
 .offcanvas.offcanvas-start,
 .offcanvas.offcanvas-end {
-    width: calc(1.25 * var(--bs-offcanvas-width));
+    width: calc(1.5 * var(--bs-offcanvas-width));
 }
 
 .offcanvas.offcanvas-top {

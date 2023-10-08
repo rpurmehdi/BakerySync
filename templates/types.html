@@ -1,0 +1,390 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} Manage Types {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} Manage Types {% endblock %}
+<!--head-->
+{%block head %}
+<script>
+  function confirmDeleteR(dbItem) {
+    var confirmMessage =
+      "Are you sure you want to delete '" +
+      dbItem +
+      "'?\nThis can not be undone!";
+    if (confirm(confirmMessage)) {
+      // If confirmed, submit the form
+      document.getElementById("rtype-delete-form").submit();
+    } else {
+      // If canceled, prevent form submission
+      return false;
+    }
+  }
+</script>
+<script>
+  function confirmDeleteP(dbItem) {
+    var confirmMessage =
+      "Are you sure you want to delete '" +
+      dbItem +
+      "'?\nThis can not be undone!";
+    if (confirm(confirmMessage)) {
+      // If confirmed, submit the form
+      document.getElementById("ptype-delete-form").submit();
+    } else {
+      // If canceled, prevent form submission
+      return false;
+    }
+  }
+</script>
+<script>
+  // Attach the populateModal() function to the edit buttons
+  $(document).ready(function () {
+    const editButtonsR = document.querySelectorAll(".edit-rtype");
+    editButtonsR.forEach((button) => {
+      button.addEventListener("click", populateModalR);
+    });
+  });
+
+  // Populate the modal form
+  function populateModalR(event) {
+    // Get the modal element
+    const editModal = document.getElementById("EditRtypeCanvas");
+
+    // Get the data attributes from the clicked button
+    const rtypeId = event.target.getAttribute("data-rtype-id");
+    const rtypeName = event.target.getAttribute("data-rtype-name");
+
+    // Populate the modal form fields
+    editModal.querySelector("#edit-rtype-id").value = rtypeId;
+    editModal.querySelector("#edit-rtype-name").value = rtypeName;
+  }
+</script>
+<script>
+  // Attach the populateModal() function to the edit buttons
+  $(document).ready(function () {
+    const editButtonsP = document.querySelectorAll(".edit-ptype");
+    editButtonsP.forEach((button) => {
+      button.addEventListener("click", populateModalP);
+    });
+  });
+
+  // Populate the modal form
+  function populateModalP(event) {
+    // Get the modal element
+    const editModal = document.getElementById("EditPtypeCanvas");
+
+    // Get the data attributes from the clicked button
+    const ptypeId = event.target.getAttribute("data-ptype-id");
+    const ptypeName = event.target.getAttribute("data-ptype-name");
+
+    // Populate the modal form fields
+    editModal.querySelector("#edit-ptype-id").value = ptypeId;
+    editModal.querySelector("#edit-ptype-name").value = ptypeName;
+  }
+</script>
+{% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-start my-4">
+  <div class="row">
+    <div class="col">
+      <button
+        class="btn btn-success"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#AddRtypeCanvas"
+        aria-controls="AddRtypeCanvas"
+      >
+        + Add New Raw Material Type
+      </button>
+      <h3 class="text-start">Existing Raw Material Types</h3>
+      <!-- List of existing raw material types -->
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Raw Material</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rtype in rtypes %}
+          <tr>
+            <td>{{ rtype.name }}</td>
+            <td>
+              <button
+                name="rtype_edit"
+                type="button"
+                class="btn btn-warning edit-rtype"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#EditRtypeCanvas"
+                aria-controls="EditRtypeCanvas"
+                data-rtype-id="{{ rtype.id }}"
+                data-rtype-name="{{ rtype.name }}"
+              >
+                📝
+              </button>
+            </td>
+            <td>
+              <form
+                id="rtype-delete-form"
+                action="{{ url_for('types.delete_type') }}"
+                method="post"
+              >
+                <input type="hidden" name="id" value="{{ rtype.id }}" />
+                <button
+                  name="rtype_delete"
+                  type="submit"
+                  class="btn btn-danger"
+                  onclick="return confirmDeleteR('{{ rtype.name|escape_html|safe }}');"
+                >
+                  🗑️
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <button
+        class="btn btn-success"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#AddPtypeCanvas"
+        aria-controls="AddPtypeCanvas"
+      >
+        + Add New Production Type
+      </button>
+      <h3 class="text-start">Existing Production Types</h3>
+      <!-- List of existing production types -->
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Production</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ptype in ptypes %}
+          <tr>
+            <td>{{ ptype.name }}</td>
+            <td>
+              <button
+                name="ptype_edit"
+                type="button"
+                class="btn btn-warning edit-ptype"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#EditPtypeCanvas"
+                aria-controls="EditPtypeCanvas"
+                data-ptype-id="{{ ptype.id }}"
+                data-ptype-name="{{ ptype.name }}"
+              >
+                📝
+              </button>
+            </td>
+            <td>
+              <form
+                id="ptype-delete-form"
+                action="{{ url_for('types.delete_type') }}"
+                method="post"
+              >
+                <input type="hidden" name="id" value="{{ ptype.id }}" />
+                <button
+                  name="ptype_delete"
+                  type="submit"
+                  class="btn btn-danger"
+                  onclick="return confirmDeleteP('{{ ptype.name|escape_html|safe }}');"
+                >
+                  🗑️
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- offcanvas to add a new raw material -->
+<div
+  class="offcanvas offcanvas-start text-end"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="AddRtypeCanvas"
+  aria-labelledby="AddRtypeCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="AddRtypeCanvasLabel">
+      Add New Raw Material Type
+    </h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form id="rtype_form" method="POST" action="{{ url_for('types.types') }}">
+        <div class="form-floating">
+          <input
+            type="text"
+            class="form-control"
+            id="rtype-name"
+            name="name"
+            autocomplete="off"
+            required
+            placeholder="Enter the raw material name"
+          />
+          <label for="rtype-name">Raw Material Name</label>
+        </div>
+
+        <button name="rtype_form" type="submit" class="btn btn-success">
+          Add Raw Material Type
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- offcanvas for raw material type editing -->
+<div
+  class="offcanvas offcanvas-end text-start"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="EditRtypeCanvas"
+  aria-labelledby="EditRtypeCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="EditRtypeCanvasLabel">
+      Edit Raw Material Type
+    </h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form
+        id="rtype_edit"
+        method="POST"
+        action="{{ url_for('types.edit_type') }}"
+      >
+        <div class="form-floating">
+          <input type="hidden" name="id" id="edit-rtype-id" />
+          <input
+            type="text"
+            class="form-control"
+            id="edit-rtype-name"
+            name="name"
+            autocomplete="off"
+            required
+            placeholder="Enter the Raw material type name"
+          />
+          <label for="edit-rtype-name">Raw Material Type Name</label>
+        </div>
+
+        <button name="rtype_edit" type="submit" class="btn btn-warning">
+          Edit Raw Material Type
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- offcanvas to add a new production -->
+<div
+  class="offcanvas offcanvas-start text-end"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="AddPtypeCanvas"
+  aria-labelledby="AddPtypeCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="AddPtypeCanvasLabel">
+      Add New Production Type
+    </h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form id="ptype_form" method="POST" action="{{ url_for('types.types') }}">
+        <div class="form-floating">
+          <input
+            type="text"
+            class="form-control"
+            id="ptype-name"
+            name="name"
+            autocomplete="off"
+            required
+            placeholder="Enter the production name"
+          />
+          <label for="ptype-name">Production Name</label>
+        </div>
+
+        <button name="ptype_form" type="submit" class="btn btn-success">
+          Add Production Type
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- offcanvas for production type editing -->
+<div
+  class="offcanvas offcanvas-end text-start"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="EditPtypeCanvas"
+  aria-labelledby="EditPtypeCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="EditPtypeCanvasLabel">
+      Edit Production Type
+    </h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-8">
+      <form
+        id="ptype_edit"
+        method="POST"
+        action="{{ url_for('types.edit_type') }}"
+      >
+        <div class="form-floating">
+          <input type="hidden" name="id" id="edit-ptype-id" />
+          <input
+            type="text"
+            class="form-control"
+            id="edit-ptype-name"
+            name="name"
+            autocomplete="off"
+            required
+            placeholder="Enter the Raw material type name"
+          />
+          <label for="edit-ptype-name">Production Type Name</label>
+        </div>
+
+        <button name="ptype_edit" type="submit" class="btn btn-warning">
+          Edit Production Type
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

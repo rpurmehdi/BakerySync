@@ -1,6 +1,6 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from datetime import datetime
-from models import db, Production, RawMaterialArrival, ProductionShipping, RawMaterialUsage, Recipe, recipe_rawmaterial_association, ProductionType, RawMaterialType
+from models import db, Production, RawMaterialArrival, ProductionShipping, production_arrival_association, Recipe, recipe_rawmaterial_association, ProductionType, RawMaterialType
 
 productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 
