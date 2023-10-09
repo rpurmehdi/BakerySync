@@ -252,8 +252,8 @@
       type: "bar",
       data: {
         labels: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}"{{rtype.name|safe}}", {% endif %}{% endfor %}],
-        datasets: [{% for material in materials %}{% if material.stock > 0 %}{label: "{{material.source.name|safe}}-{{ material.arrival_time.strftime('%Y-%m-%d') }}",
-        data: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}{% if rtype.id == material.type %}{{ material.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
+        datasets: [{% for material in materials %}{% if material.stock > 0 %}{label: "{{material.source.name|safe}}-{{ material.arriving_date.strftime('%Y-%m-%d') }}",
+        data: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}{% if rtype.id == material.type_id %}{{ material.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
         backgroundColor: barColors[{{material.id}} % 29],
         borderColor: borderColors[{{material.id}} % 29]
         },
@@ -291,7 +291,7 @@
         data: {
           labels: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}"{{ptype.name|safe}}", {% endif %}{% endfor %}],
           datasets: [{% for production in productions %}{% if production.stock > 0 %}{label: "{{production.print_batch|safe}}-{{ production.production_time.strftime('%Y-%m-%d') }}",
-          data: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}{% if ptype.id == production.type %}{{ production.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
+          data: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}{% if ptype.id == production.type_id %}{{ production.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
           backgroundColor: barColors[{{production.id}} % 29],
           borderColor: borderColors[{{production.id}} % 29]
           },

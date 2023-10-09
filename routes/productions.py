@@ -73,7 +73,7 @@ def add_production():
         ptypes = ProductionType.query.all()
         rtypes = RawMaterialType.query.all()
         materials = RawMaterialArrival.query.order_by(
-            RawMaterialArrival.type, RawMaterialArrival.arrival_time).all()
+            RawMaterialArrival.type, RawMaterialArrival.arriving_date).all()
         recipes = Recipe.query.all()
         return render_template('add_production.html', materials=materials, recipes=recipes,  productions=productions, ptypes=ptypes, rtypes=rtypes)
 

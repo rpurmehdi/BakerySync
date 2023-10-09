@@ -45,7 +45,7 @@
     <tbody>
       {% for production in productions %}
       <tr>
-        <td>{{ production.kind.name }}</td>
+        <td>{{ production.type.name }}</td>
         <td>{{ production.print_batch }}</td>
         <td>{{ production.recipe.name }}</td>
         <td>{{ production.quantity }}</td>
@@ -60,7 +60,7 @@
             <button
               type="submit"
               class="btn btn-danger"
-              onclick="return confirmDelete('{{ production.kind.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
+              onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
             >
               🗑️
             </button>

@@ -47,7 +47,7 @@ recipe_rawmaterial_association = db.Table(
 class RawMaterialType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
-    arrivals = db.relationship('RawMaterialArrival', backref='kind')
+    arrivals = db.relationship('RawMaterialArrival', backref='type')
     recipes = db.relationship(
         'Recipe', secondary=recipe_rawmaterial_association, back_populates='materials')
 
@@ -70,7 +70,7 @@ production_arrival_association = db.Table(
 class ProductionType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
-    productions = db.relationship('Production', backref='kind')
+    productions = db.relationship('Production', backref='type')
     recipes = db.relationship('Recipe', backref='product')
 
     @property
@@ -80,9 +80,9 @@ class ProductionType(BaseModel):
 
 
 class RawMaterialArrival(BaseModel):
-    type = db.Column(db.Integer, db.ForeignKey(
+    type_id = db.Column(db.Integer, db.ForeignKey(
         RawMaterialType.id), nullable=False)
-    arrival_time = db.Column(db.DateTime, nullable=False)
+    arriving_date = db.Column(db.DateTime, nullable=False)
     source_id = db.Column(db.Integer, db.ForeignKey(Source.id), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
@@ -115,7 +115,7 @@ class Recipe(BaseModel):
 
 class Production(BaseModel):
     print_batch = db.Column(db.String(255), unique=True, nullable=False)
-    type = db.Column(db.Integer, db.ForeignKey(
+    type_id = db.Column(db.Integer, db.ForeignKey(
         ProductionType.id), nullable=False)
     production_time = db.Column(db.DateTime, nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
@@ -135,7 +135,7 @@ class Production(BaseModel):
         return stock
 
 
-class ProductionShipping(BaseModel):
+class ProductionShipment(BaseModel):
     production_id = db.Column(db.Integer, db.ForeignKey(
         Production.id), nullable=False)
     destination_id = db.Column(

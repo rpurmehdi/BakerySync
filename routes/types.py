@@ -92,11 +92,11 @@ def delete_type():
         try:
             if type_to_delete:
                 if "rtype_delete" in request.form:
-                    is_referenced = RawMaterialArrival.query.filter_by(type=id).count(
+                    is_referenced = RawMaterialArrival.query.filter_by(type_id=id).count(
                     ) + db.session.query(recipe_rawmaterial_association).filter_by(material_type=id).count()
                 else:
                     is_referenced = Recipe.query.filter_by(
-                        production_type=id).count() + Production.query.filter_by(type=id).count()
+                        production_type=id).count() + Production.query.filter_by(type_id=id).count()
                 if is_referenced and is_referenced > 0:
                     flash(
                         f'{type_to_delete.name} is used in database, cannot delete', 'danger')

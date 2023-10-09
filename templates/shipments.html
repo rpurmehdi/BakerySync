@@ -101,7 +101,7 @@
 
       <script>
             const xValues = [
-              {% for production in productions %}{% if production.stock > 0 %}"{{ production.kind.name }} : {{ production.print_batch }}", {% endif %}{% endfor %}
+              {% for production in productions %}{% if production.stock > 0 %}"{{ production.type.name }} : {{ production.print_batch }}", {% endif %}{% endfor %}
             ];
             const yValues = [
               {% for production in productions %} {% if production.stock > 0%}"{{ production.stock }}", {% endif %} {% endfor %}];
@@ -235,7 +235,7 @@
                 {% for production in productions %} {% if production.stock > 0
                 %}
                 <option value="{{ production.id }}">
-                  {{ production.kind.name }} : {{ production.print_batch }}
+                  {{ production.type.name }} : {{ production.print_batch }}
                 </option>
                 {% endif %} {% endfor %}
               </select>
@@ -329,7 +329,7 @@
                 {% for production in productions %} {% if production.stock > 0
                 %}
                 <option value="{{ production.id }}">
-                  {{ production.kind.name }} : {{ production.print_batch }}
+                  {{ production.type.name }} : {{ production.print_batch }}
                 </option>
                 {% endif %} {% endfor %}
               </select>
@@ -408,7 +408,7 @@
       <tr>
         <td>{{ shipment.destination.name }}</td>
         <td>
-          {{ shipment.production.kind.name }} : {{
+          {{ shipment.production.type.name }} : {{
           shipment.production.print_batch }}
         </td>
         <td>{{ shipment.shipping_date.strftime('%Y-%m-%d %H:%M') }}</td>
@@ -439,7 +439,7 @@
             <button
               type="submit"
               class="btn btn-danger"
-              onclick="return confirmDelete('{{ shipment.production.kind.name|escape_html|safe }} to {{ shipment.destination.name|escape_html|safe }} on {{shipment.shipping_date|safe}}');"
+              onclick="return confirmDelete('{{ shipment.production.type.name|escape_html|safe }} to {{ shipment.destination.name|escape_html|safe }} on {{shipment.shipping_date|safe}}');"
             >
               🗑️
             </button>
