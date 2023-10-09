@@ -32,7 +32,7 @@ class Destination(BaseModel):
     location = db.Column(db.String(255))
     description = db.Column(db.String(255))
 
-    shippings = db.relationship('ProductionShipping', backref='destination')
+    shipments = db.relationship('ProductionShipment', backref='destination')
 
 
 recipe_rawmaterial_association = db.Table(
@@ -82,8 +82,8 @@ class ProductionType(BaseModel):
 class RawMaterialArrival(BaseModel):
     type_id = db.Column(db.Integer, db.ForeignKey(
         RawMaterialType.id), nullable=False)
-    arriving_date = db.Column(db.DateTime, nullable=False)
     source_id = db.Column(db.Integer, db.ForeignKey(Source.id), nullable=False)
+    arriving_date = db.Column(db.DateTime, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
     productions = db.relationship(
@@ -121,7 +121,7 @@ class Production(BaseModel):
     recipe_id = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    shippings = db.relationship('ProductionShipping', backref='production')
+    shipments = db.relationship('ProductionShipment', backref='production')
     materials = db.relationship(
         'RawMaterialArrival',
         secondary=production_arrival_association,
@@ -130,8 +130,8 @@ class Production(BaseModel):
 
     @property
     def stock(self):
-        total_shipping = sum(shipment.quantity for shipment in self.shippings)
-        stock = self.quantity - total_shipping
+        total_shipment = sum(shipment.quantity for shipment in self.shipments)
+        stock = self.quantity - total_shipment
         return stock
 
 

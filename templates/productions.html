@@ -39,17 +39,28 @@
         <th>Recipe</th>
         <th>Quantity</th>
         <th>Production Time</th>
+        <th>usage</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      {% for production in productions %}
+      {% for production in productions|sort(attribute='production_time')|reverse
+      %}
       <tr>
         <td>{{ production.type.name }}</td>
         <td>{{ production.print_batch }}</td>
         <td>{{ production.recipe.name }}</td>
         <td>{{ production.quantity }}</td>
         <td>{{ production.production_time }}</td>
+        <td>
+          {% if production.id not in recipe_data.production_id %}
+          <form id="usage-form" action="{{ url_for('productions.usage') }}">
+          <input type="hidden" name="id" value="{{ production.id }}" />
+          <button type="submit" class="btn btn-warning">⚠️</button>
+          </form>
+          {% else %}<button type="button" class="btn btn-success">✅</button>{%
+          endif%}
+        </td>
         <td>
           <form
             id="delete-form"

@@ -67,14 +67,14 @@
     </div>
     {% endfor %}
     <script>
-      // Automatically close alerts after 10 seconds
+      // Automatically close alerts after 8 seconds
       document.addEventListener("DOMContentLoaded", function () {
         const alerts = document.querySelectorAll(".alert");
 
         alerts.forEach(function (alert) {
           setTimeout(function () {
             alert.style.display = "none";
-          }, 7000); // 7 seconds in milliseconds
+          }, 8000); // 8 seconds in milliseconds
         });
       });
     </script>

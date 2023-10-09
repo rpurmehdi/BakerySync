@@ -1,0 +1,305 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} Manage Arrivals {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} Manage Arrivals {% endblock %}
+<!--head-->
+{% block head %}
+<script>
+  function confirmDelete(dbItem) {
+    var confirmMessage =
+      "Are you sure you want to delete '" +
+      dbItem +
+      "'?\nThis can not be undone!";
+    if (confirm(confirmMessage)) {
+      // If confirmed, submit the form
+      document.getElementById("delete-form").submit();
+    } else {
+      // If canceled, prevent form submission
+      return false;
+    }
+  }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script>
+  // Attach the populateModal() function to the edit buttons
+  $(document).ready(function () {
+    const editButtons = document.querySelectorAll(".edit-arrival");
+    editButtons.forEach((button) => {
+      button.addEventListener("click", populateModal);
+    });
+  });
+
+  // Populate the modal form
+  function populateModal(event) {
+    // Get the modal element
+    const editModal = document.getElementById("EditCanvas");
+
+    // Get the data attributes from the clicked button
+    const arrivalId = event.target.getAttribute("data-arrival-id");
+    const typeId = event.target.getAttribute("data-arrival-type-id");
+    const sourceId = event.target.getAttribute("data-arrival-source-id");
+    const arrivingDate = event.target.getAttribute(
+      "data-arrival-arriving-date"
+    );
+    const Quantity = event.target.getAttribute("data-arrival-quantity");
+
+    // Populate the modal form fields
+    editModal.querySelector("#edit-arrival-id").value = arrivalId;
+    editModal.querySelector("#edit-type_id").value = typeId;
+    editModal.querySelector("#edit-source_id").value = sourceId;
+    editModal.querySelector("#edit-arriving_date").value = arrivingDate;
+    editModal.querySelector("#edit-quantity").value = Quantity;
+  }
+</script>
+{% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-start my-4">
+  <!-- add button -->
+  <button
+    class="btn btn-success"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#AddCanvas"
+    aria-controls="AddCanvas"
+  >
+    + Add New Arrival
+  </button>
+</div>
+<!-- offcanvas to add a new arrival -->
+<div
+  class="offcanvas offcanvas-start"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="AddCanvas"
+  aria-labelledby="AddCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Arrival</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-5">
+      <form method="POST" action="{{ url_for('arrivals.arrivals') }}">
+        <div class="row">
+          <div class="col-auto">
+            <div class="form-floating">
+              <select class="form-select" id="type_id" name="type_id" required>
+                <option selected disabled value="">Select a type</option>
+                {% for rtype in rtypes %}
+                <option value="{{ rtype.id }}">{{ rtype.name }}</option>
+                {% endfor %}
+              </select>
+              <label for="type_id">Raw Material Type</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="source_id"
+                name="source_id"
+                required
+              >
+                <option selected disabled value="">Select a source</option>
+                {% for source in sources %}
+                <option value="{{ source.id }}">
+                  {{ source.name }} ({{ source.type }})
+                </option>
+                {% endfor %}
+              </select>
+              <label for="source_id">Source</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="datetime-local"
+                id="arriving_date"
+                name="arriving_date"
+                required
+              />
+              <label for="arriving_date">Arriving Date</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="number"
+                id="quantity"
+                name="quantity"
+                required
+              />
+              <label for="quantity">Quantity</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success">Add Arrival</button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- offcanvas for arrival editing -->
+<div
+  class="offcanvas offcanvas-end"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="EditCanvas"
+  aria-labelledby="EditCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Arrivals</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto mt-5">
+      <form method="POST" action="{{ url_for('arrivals.edit_arrival') }}">
+        <div class="row">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input type="hidden" name="id" id="edit-arrival-id" />
+              <select
+                class="form-select"
+                id="edit-type_id"
+                name="type_id"
+                required
+              >
+                {% for rtype in rtypes %}
+                <option value="{{ rtype.id }}">{{ rtype.name }}</option>
+                {% endfor %}
+              </select>
+              <label for="edit-type_id">Raw Material Type</label>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="edit-source_id"
+                name="source_id"
+                required
+              >
+                {% for source in sources %}
+                <option value="{{ source.id }}">
+                  {{ source.name }} ({{ source.type }})
+                </option>
+                {% endfor %}
+              </select>
+              <label for="edit-source_id">Source</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="datetime-local"
+                id="edit-arriving_date"
+                name="arriving_date"
+                required
+              />
+              <label for="edit-arriving_date">Arriving Date</label>
+            </div>
+          </div>
+        </div>
+        <div class="row my-4">
+          <div class="col-auto">
+            <div class="form-floating">
+              <input
+                class="form-control"
+                type="number"
+                id="edit-quantity"
+                name="quantity"
+                required
+              />
+              <label for="edit-quantity">Quantity</label>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-warning">Edit Arrival</button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- List of existing arrivals -->
+<div class="container mx-auto">
+  <h3 class="text-start">Existing Arrivals</h3>
+  <table class="table table-striped w-auto mx-auto">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Raw Material Type</th>
+        <th>Arriving Date</th>
+        <th>Quantity</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for arrival in arrivals|sort(attribute='arriving_date')|reverse %}
+      <tr>
+        <td>{{ arrival.source.name }}</td>
+        <td>{{ arrival.type.name }}</td>
+        <td>{{ arrival.arriving_date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ arrival.quantity }}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-warning edit-arrival"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#EditCanvas"
+            aria-controls="EditCanvas"
+            data-arrival-id="{{ arrival.id }}"
+            data-arrival-type-id="{{ arrival.type_id }}"
+            data-arrival-source-id="{{ arrival.source_id }}"
+            data-arrival-arriving-date="{{ arrival.arriving_date }}"
+            data-arrival-quantity="{{ arrival.quantity }}"
+          >
+            📝
+          </button>
+        </td>
+        <td>
+          <form
+            id="delete-form"
+            action="{{ url_for('arrivals.delete_arrival') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ arrival.id }}" />
+            <button
+              type="submit"
+              class="btn btn-danger"
+              onclick="return confirmDelete('{{ arrival.type.name|escape_html|safe }} from {{ arrival.source.name|escape_html|safe }} on {{arrival.arriving_date|safe}}');"
+            >
+              🗑️
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

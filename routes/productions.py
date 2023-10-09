@@ -1,15 +1,15 @@
-from flask import flash, render_template, request, Blueprint, redirect, url_for
+from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
-from models import db, Production, RawMaterialArrival, ProductionShipping, production_arrival_association, Recipe, recipe_rawmaterial_association, ProductionType, RawMaterialType
+from models import db, Production, RawMaterialArrival, ProductionShipment, production_arrival_association, Recipe, recipe_rawmaterial_association, ProductionType, RawMaterialType
 
 productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 
 
 @productions_bp.route('/', methods=['GET'])
 def productions():
-    productions = Production.query.order_by(
-        Production.production_time, Production.type).all()
-    return render_template('productions.html', productions=productions)
+    productions = Production.query.all()
+    recipe_data = db.session.query(production_arrival_association).all()
+    return render_template('productions.html', productions=productions, recipe_data=recipe_data)
 
 
 @productions_bp.route('/add', methods=['GET', 'POST'])
@@ -18,13 +18,13 @@ def add_production():
         # Get data from the form
         try:
             print_batch = request.form['batch_number']
-            type = request.form['production_types']
+            type_id = request.form['production_types']
             production_time_str = request.form['production_date']
             recipe_id = request.form['recipe']
             quantity_str = request.form['quantity']
         except Exception as e:
-                flash(f'Invalid data input! - Error: {str(e)}', 'warning')
-                return redirect(url_for('productions.productions'))
+            flash(f'Invalid data input! - Error: {str(e)}', 'warning')
+            return redirect(url_for('productions.productions'))
         if print_batch and quantity_str:
             try:
                 production_time = datetime.fromisoformat(production_time_str)
@@ -44,7 +44,7 @@ def add_production():
         # Create a new production object and add it to the database
         new_production = Production(
             print_batch=print_batch,
-            type=type,
+            type_id=type_id,
             production_time=production_time,
             recipe_id=recipe_id,
             quantity=quantity
@@ -68,12 +68,11 @@ def add_production():
 
     else:
         # Retrieve all info from the database
-        productions = Production.query.order_by(
-            Production.type, Production.production_time).all()
+        productions = Production.query.all()
         ptypes = ProductionType.query.all()
         rtypes = RawMaterialType.query.all()
         materials = RawMaterialArrival.query.order_by(
-            RawMaterialArrival.type, RawMaterialArrival.arriving_date).all()
+            RawMaterialArrival.arriving_date, RawMaterialArrival.type_id).all()
         recipes = Recipe.query.all()
         return render_template('add_production.html', materials=materials, recipes=recipes,  productions=productions, ptypes=ptypes, rtypes=rtypes)
 
@@ -87,11 +86,11 @@ def delete_production():
             production_to_delete = Production.query.get(id)
 
             if production_to_delete:
-                is_referenced = ProductionShipping.query.filter_by(
+                is_referenced = ProductionShipment.query.filter_by(
                     production_id=id).first()
                 if is_referenced:
                     flash(
-                        f'{production_to_delete.kind.name} with batch {production_to_delete.print_batch} is used in Shipments, cannot delete', 'danger')
+                        f'{production_to_delete.type.name} with batch {production_to_delete.print_batch} is used in Shipments, cannot delete', 'danger')
                 else:
                     # Delete the found production
                     db.session.delete(production_to_delete)
@@ -100,7 +99,33 @@ def delete_production():
             else:
                 flash('Production not found', 'danger')
 
-            # Redirect to the /productions page
+            # Redirect to the / page
+            return redirect(url_for('productions.productions'))
+
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'warning')
+            db.session.rollback()  # Rollback any changes to the database
+            return redirect(url_for('productions.productions'))
+    return redirect(url_for('productions.productions'))
+
+
+@productions_bp.route('/usage', methods=["POST"])
+def usage():
+    if request.method == 'POST':
+        id = request.form.get("id")
+        try:
+            # Attempt to find the production by its ID
+            production = Production.query.get(id)
+            recipe_data = db.session.query(production_arrival_association).all()
+            if production:
+                is_referenced = db.session.query(production_arrival_association).filter_by(production_id=id).first()
+                if is_referenced:
+                    flash(f'{production.type.name} with batch {production.print_batch} raw material already provided' , 'danger')
+            else:
+                flash('Production not found', 'danger')
+                return redirect(url_for('productions.productions'))
+
+            # Redirect to the / page
             return redirect(url_for('productions.productions'))
 
         except Exception as e:

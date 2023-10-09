@@ -1,5 +1,5 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
-from models import db, Destination, ProductionShipping
+from models import db, Destination, ProductionShipment
 
 destinations_bp = Blueprint('destinations', __name__, url_prefix='/destinations')
 
@@ -98,7 +98,7 @@ def delete_destination():
             destination_to_delete = Destination.query.get(id)
 
             if destination_to_delete:
-                is_referenced = ProductionShipping.query.filter_by(
+                is_referenced = ProductionShipment.query.filter_by(
                     destination_id=id).first()
                 if is_referenced:
                     flash(f'{destination_to_delete.name} is used in shipments, cannot delete', 'danger')
@@ -110,7 +110,7 @@ def delete_destination():
             else:
                 flash('Destination not found', 'danger')
 
-            # Redirect to the /destinations page
+            # Redirect to the / page
             return redirect(url_for('destinations.destinations'))
 
         except Exception as e:

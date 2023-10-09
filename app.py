@@ -3,10 +3,11 @@ from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, production_arrival_association, ProductionShipping, recipe_rawmaterial_association
+from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, production_arrival_association, ProductionShipment, recipe_rawmaterial_association
 from routes.types import types_bp
 from routes.sources import sources_bp
 from routes.destinations import destinations_bp
+from routes.arrivals import arrivals_bp
 from routes.shipments import shipments_bp
 from routes.productions import productions_bp
 
@@ -66,6 +67,9 @@ app.register_blueprint(sources_bp)
 
 # registering destinations.py
 app.register_blueprint(destinations_bp)
+
+# registering arrivals.py
+app.register_blueprint(arrivals_bp)
 
 # registering shipments.py
 app.register_blueprint(shipments_bp)
