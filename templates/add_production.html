@@ -9,36 +9,24 @@
   type="text/javascript"
   src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"
 ></script>
-<script type="text/javascript">
-  // from www.w3.org/WAI/WCAG21/working-examples/script-dynamic-select/
-  // array of possible production types in the same order as they appear in the production type selection list
-  var recipeLists = {};
-  recipeLists["0"] = ["Select a Recipe"];
-  {% for ptype in ptypes %}recipeLists["{{ ptype.id }}"] = [{% for recipe in recipes %}{% if recipe.production_type == ptype.id %}"{{ recipe.name }}", {% endif %}{% endfor %}];{% endfor %}
-  var recipeIdLists = {};
-  recipeIdLists["0"] = ["0"];
-  {% for ptype in ptypes %}recipeIdLists["{{ ptype.id }}"] = [{% for recipe in recipes %}{% if recipe.production_type == ptype.id %}"{{ recipe.id }}", {% endif %}{% endfor %}];{% endfor %}
-  function recipeChange(selectObj) {
-    var idx = selectObj.selectedIndex;
-    var which = selectObj.options[idx].value;
-    nList = recipeLists[which];
-    iList = recipeIdLists[which];
-    var cSelect = document.getElementById("recipe");
-    // remove the current options from the recipe select
-    var len = cSelect.options.length;
-    while (cSelect.options.length > 0) {
-      cSelect.remove(0);
-    }
-    var newOption;
-    // create new options
-    for (var i = 0; i < nList.length; i++) {
-      newOption = document.createElement("option");
-      newOption.value = iList[i];
-      newOption.text = nList[i];
-      try {
-        cSelect.add(newOption); // this will fail in DOM browsers but is needed for IE
-      } catch (e) {
-        cSelect.appendChild(newOption);
+<script>
+  function recipeChange(selectedValue) {
+    const hiddenSelects = document.querySelectorAll(".recipe-select");
+    hiddenSelects.forEach(function (select) {
+      select.hidden = true;
+      select.removeAttribute("required");
+    });
+    const selectedHiddenSelect = document.getElementById(
+      `recipe-${selectedValue}`
+    );
+    if (selectedHiddenSelect) {
+      selectedHiddenSelect.hidden = false;
+      selectedHiddenSelect.setAttribute("required", "required");
+      const labelForRecipe = document.querySelector(
+        `label[for="recipe"][hidden]`
+      );
+      if (labelForRecipe) {
+        labelForRecipe.removeAttribute("hidden");
       }
     }
   }
@@ -81,7 +69,6 @@
     document
       .getElementById("production_types")
       .addEventListener("change", updateField);
-    document.getElementById("recipe").addEventListener("change", updateField);
   });
 </script>
 {% endblock %}
@@ -111,9 +98,10 @@
               class="form-select"
               id="production_types"
               name="production_types"
-              onchange="recipeChange(this);"
+              onchange="recipeChange(this.value);"
+              required
             >
-              <option selected disabled required value="">
+              <option selected disabled value="">
                 Select a Production Type
               </option>
               {% for ptype in ptypes %}
@@ -123,10 +111,25 @@
             <label for="production_types">Production Type</label>
           </div>
           <div class="form-floating">
-            <select class="form-select" id="recipe" name="recipe" required>
-              <option value="0">Select a recipe</option>
-            </select>
-            <label for="recipe">Recipe</label>
+            <input
+              class="form-select recipe-select"
+              id="recipe-0"
+              name="recipe"
+              readonly
+            />
+            {% for ptype in ptypes %}<select
+              class="form-select recipe-select"
+              id="recipe-{{ptype.id}}"
+              name="recipe"
+              hidden
+            >
+              <option value="" disabled selected>Select a recipe</option>
+              {% for recipe in recipes %}{% if recipe.production_type ==
+              ptype.id %}
+              <option value="{{recipe.id}}">{{recipe.name}}</option>
+              {% endif %}{% endfor %}</select
+            >{% endfor %}
+            <label for="recipe-0">Recipe</label>
           </div>
         </div>
         <div class="col-md-auto">
@@ -134,12 +137,12 @@
             <input
               class="form-control"
               type="number"
-              min="0"
+              min="1"
               id="quantity"
               name="quantity"
               required
             />
-            <label for="quantity">Quantity</label>
+            <label for="quantity">Production Quantity</label>
           </div>
           <div class="form-floating">
             <input

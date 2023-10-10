@@ -8,8 +8,7 @@ productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 @productions_bp.route('/', methods=['GET'])
 def productions():
     productions = Production.query.all()
-    recipe_data = db.session.query(production_arrival_association).all()
-    return render_template('productions.html', productions=productions, recipe_data=recipe_data)
+    return render_template('productions.html', productions=productions)
 
 
 @productions_bp.route('/add', methods=['GET', 'POST'])
@@ -98,32 +97,6 @@ def delete_production():
                     flash('Production deleted successfully', 'success')
             else:
                 flash('Production not found', 'danger')
-
-            # Redirect to the / page
-            return redirect(url_for('productions.productions'))
-
-        except Exception as e:
-            flash(f'Error: {str(e)}', 'warning')
-            db.session.rollback()  # Rollback any changes to the database
-            return redirect(url_for('productions.productions'))
-    return redirect(url_for('productions.productions'))
-
-
-@productions_bp.route('/usage', methods=["POST"])
-def usage():
-    if request.method == 'POST':
-        id = request.form.get("id")
-        try:
-            # Attempt to find the production by its ID
-            production = Production.query.get(id)
-            recipe_data = db.session.query(production_arrival_association).all()
-            if production:
-                is_referenced = db.session.query(production_arrival_association).filter_by(production_id=id).first()
-                if is_referenced:
-                    flash(f'{production.type.name} with batch {production.print_batch} raw material already provided' , 'danger')
-            else:
-                flash('Production not found', 'danger')
-                return redirect(url_for('productions.productions'))
 
             # Redirect to the / page
             return redirect(url_for('productions.productions'))
