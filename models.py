@@ -94,9 +94,9 @@ class RawMaterialArrival(BaseModel):
 
     @property
     def stock(self):
-        total_usage = sum(
-            association.quantity for association in self.productions)
-        stock = self.quantity - total_usage
+        total_usage = db.session.query(db.func.sum(production_arrival_association.c.quantity)).filter(
+            production_arrival_association.c.arrival_id == self.id).scalar()
+        stock = self.quantity - (total_usage or 0)
         return stock
 
 

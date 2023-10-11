@@ -20,7 +20,7 @@ def add_production():
             print_batch = request.form['batch_number']
             type_id = request.form['production_types']
             production_time_str = request.form['production_date']
-            recipe_id = request.form['recipe']
+            recipe_id = request.form["recipe" + str(type_id)]
             quantity_str = request.form['quantity']
         except Exception as e:
             flash(f'Invalid data input! - Error: {str(e)}', 'warning')
@@ -47,16 +47,12 @@ def add_production():
             type_id=type_id,
             production_time=production_time,
             recipe_id=recipe_id,
-            quantity=quantity
-        )
+            quantity=quantity)
         try:
             # Attempt to perform a database operation
+            recipe = Recipe.query.get(recipe_id)
             db.session.add(new_production)
             db.session.commit()
-            flash('New production added successfully', 'success')
-            # Redirect to the /productions page
-            return redirect(url_for('productions.productions'))
-
         except Exception as e:
             if 'UNIQUE constraint failed: production.print_batch' in str(e):
                 flash(
@@ -65,7 +61,38 @@ def add_production():
                 flash(f'Error: {str(e)}', 'warning')
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('productions.productions'))
-
+        try:
+            insertions = []
+            for material in recipe.materials:
+                raw_quant = int(request.form[material.name])
+                if raw_quant > material.stock:
+                    raise ValueError(
+                        f"{material.name} quantity can not be more than stock")
+                sorted_arrivals = sorted(
+                    material.arrivals, key=lambda material: material.arriving_date)
+                for arrival in sorted_arrivals:
+                    if raw_quant > 0:
+                        arr_stock = arrival.stock
+                        if arr_stock > raw_quant:
+                            insertions.append(production_arrival_association.insert().values(
+                                production_id=new_production.id, arrival_id=arrival.id, quantity=raw_quant))
+                            raw_quant = 0
+                        elif arr_stock > 0:
+                            insertions.append(production_arrival_association.insert().values(
+                                production_id=new_production.id, arrival_id=arrival.id, quantity=arr_stock))
+                            raw_quant = raw_quant - arr_stock
+            for insertion in insertions:
+                db.session.execute(insertion)
+            db.session.commit()
+            flash('New production added successfully', 'success')
+            # Redirect to the / page
+            return redirect(url_for('productions.productions'))
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'warning')
+            db.session.rollback()
+            db.session.delete(new_production)
+            db.session.commit()
+            return redirect(url_for('productions.productions'))
     else:
         # Retrieve all info from the database
         productions = Production.query.all()
@@ -92,7 +119,8 @@ def delete_production():
                     flash(
                         f'{production_to_delete.type.name} with batch {production_to_delete.print_batch} is used in Shipments, cannot delete', 'danger')
                 else:
-                    # Delete the found production
+                    db.session.query(production_arrival_association).filter(
+                        production_arrival_association.c.production_id == id).delete()
                     db.session.delete(production_to_delete)
                     db.session.commit()
                     flash('Production deleted successfully', 'success')
@@ -122,14 +150,17 @@ def search():
     ids = []
     names = []
     percents = []
+    stocks = []
     for material in recipe.materials:
         ids.append(material.id)
         names.append(material.name)
         percents.append(recipe.getp(material.id))
+        stocks.append(material.stock)
     response = {
         'ids': ids,
         'names': names,
-        'percents': percents
+        'percents': percents,
+        'stocks': stocks
     }
 
     return jsonify(response)

@@ -108,7 +108,7 @@ def delete_arrival():
             if arrival_to_delete:
                 is_referenced = db.session.query(
                     production_arrival_association).filter_by(arrival_id=id).first()
-                if is_referenced and is_referenced > 0:
+                if is_referenced:
                     flash(
                         f'This {arrival_to_delete.type.name} is used in database, cannot delete', 'danger')
                 else:

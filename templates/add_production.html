@@ -11,23 +11,19 @@
 ></script>
 <script>
   function recipeChange(selectedValue) {
+    $("#message").empty();
+    $("#rmContainer").empty();
     const hiddenSelects = document.querySelectorAll(".recipe-select");
     hiddenSelects.forEach(function (select) {
       select.hidden = true;
       select.removeAttribute("required");
     });
     const selectedHiddenSelect = document.getElementById(
-      `recipe-${selectedValue}`
+      `recipe${selectedValue}`
     );
     if (selectedHiddenSelect) {
       selectedHiddenSelect.hidden = false;
       selectedHiddenSelect.setAttribute("required", "required");
-      const labelForRecipe = document.querySelector(
-        `label[for="recipe"][hidden]`
-      );
-      if (labelForRecipe) {
-        labelForRecipe.removeAttribute("hidden");
-      }
     }
   }
 </script>
@@ -42,12 +38,13 @@
       success: function (response) {
         // Clear existing inputs and messages
         $("#message").empty();
-        $("#inputContainer").empty();
+        $("#rmContainer").empty();
 
         for (let i = 0; i < response.ids.length; i++) {
           const id = response.ids[i];
           const name = response.names[i];
           const percent = response.percents[i];
+          const stock = response.stocks[i];
           const formDiv = $("<div>", {
             class: "form-floating",
           });
@@ -55,17 +52,18 @@
             class: "form-control my-1",
             type: "number",
             min: "1",
-            id: id,
+            max: stock,
+            id: "rm" + id,
             name: name,
             required: true,
           });
           const label = $("<label>", {
-            for: id,
+            for: "rm" + id,
             text: `${name} (${percent}%)`,
           });
           formDiv.append(input);
           formDiv.append(label);
-          $("#inputContainer").append(formDiv);
+          $("#rmContainer").append(formDiv);
         }
       },
       error: function (err) {
@@ -137,48 +135,6 @@
       <div class="row justify-content-md-center">
         <div class="col-md-auto">
           <div class="form-floating">
-            <select
-              class="form-select my-1"
-              id="production_types"
-              name="production_types"
-              onchange="recipeChange(this.value);"
-              required
-            >
-              <option selected disabled value="">
-                Select a Production Type
-              </option>
-              {% for ptype in ptypes %}
-              <option value="{{ ptype.id }}">{{ ptype.name }}</option>
-              {% endfor %}
-            </select>
-            <label for="production_types">Production Type</label>
-          </div>
-          <div class="form-floating">
-            <input
-              class="form-select my-1 recipe-select"
-              id="recipe-0"
-              name="recipe"
-              readonly
-            />
-            {% for ptype in ptypes %}<select
-              class="form-select my-1 recipe-select"
-              id="recipe-{{ptype.id}}"
-              name="recipe"
-              onchange="recSearch(this.value);"
-              hidden
-            >
-              <option value="" disabled selected>Select a recipe</option>
-              {% for recipe in recipes %}{% if recipe.production_type ==
-              ptype.id %}
-              <option value="{{recipe.id}}">{{recipe.name}}</option>
-              {% endif %}{% endfor %}</select
-            >{% endfor %}
-            <label for="recipe-0">Recipe</label>
-          </div>
-          <div id="inputContainer"></div>
-        </div>
-        <div class="col-md-auto">
-          <div class="form-floating">
             <input
               class="form-control my-1"
               type="number"
@@ -199,6 +155,49 @@
             />
             <label for="production_date">Production Date</label>
           </div>
+        </div>
+        <div class="col-md-auto">
+          <div class="form-floating">
+            <select
+              class="form-select my-1"
+              id="production_types"
+              name="production_types"
+              onchange="recipeChange(this.value);"
+              required
+            >
+              <option selected disabled value="">
+                Select a Production Type
+              </option>
+              {% for ptype in ptypes %}
+              <option value="{{ ptype.id }}">{{ ptype.name }}</option>
+              {% endfor %}
+            </select>
+            <label for="production_types">Production Type</label>
+          </div>
+          <div class="form-floating">
+            <input
+              class="form-select my-1 recipe-select"
+              id="recipe0"
+              name="recipe0"
+              readonly
+            />
+            {% for ptype in ptypes %}<select
+              class="form-select my-1 recipe-select"
+              id="recipe{{ptype.id}}"
+              name="recipe{{ptype.id}}"
+              onchange="recSearch(this.value);"
+              hidden
+            >
+              <option value="" disabled selected>Select a recipe</option>
+              {% for recipe in recipes %}{% if recipe.production_type ==
+              ptype.id %}
+              <option value="{{recipe.id}}">{{recipe.name}}</option>
+              {% endif %}{% endfor %}</select
+            >{% endfor %}
+            <label for="recipe0">Recipe</label>
+          </div>
+          <div id="message" class="form-text text-danger"></div>
+          <div id="rmContainer"></div>
         </div>
       </div>
       <div class="row justify-content-md-center mt-3">
