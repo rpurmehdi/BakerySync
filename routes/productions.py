@@ -1,3 +1,4 @@
+import logging
 from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
 from models import db, Production, RawMaterialArrival, ProductionShipment, production_arrival_association, Recipe, recipe_rawmaterial_association, ProductionType, RawMaterialType
@@ -106,3 +107,29 @@ def delete_production():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('productions.productions'))
     return redirect(url_for('productions.productions'))
+
+
+@productions_bp.route('/search', methods=['POST'])
+def search():
+    data = request.get_json()
+    if 'data' not in data:
+        return jsonify({'error': 'Recipe ID not provided'}), 400
+
+    recipe = Recipe.query.get(data['data'])
+    if recipe is None:
+        return jsonify({'error': 'Recipe not found'}), 404
+
+    ids = []
+    names = []
+    percents = []
+    for material in recipe.materials:
+        ids.append(material.id)
+        names.append(material.name)
+        percents.append(recipe.getp(material.id))
+    response = {
+        'ids': ids,
+        'names': names,
+        'percents': percents
+    }
+
+    return jsonify(response)

@@ -94,7 +94,8 @@ class RawMaterialArrival(BaseModel):
 
     @property
     def stock(self):
-        total_usage = sum(association.quantity for association in self.productions)
+        total_usage = sum(
+            association.quantity for association in self.productions)
         stock = self.quantity - total_usage
         return stock
 
@@ -111,6 +112,16 @@ class Recipe(BaseModel):
         back_populates='recipes'
     )
     productions = db.relationship('Production', backref='recipe')
+
+    def getp(self, material_type_id):
+        association = db.session.query(recipe_rawmaterial_association).filter(
+            recipe_rawmaterial_association.c.recipe_id == self.id,
+            recipe_rawmaterial_association.c.material_type == material_type_id
+        ).first()
+
+        if association:
+            return association.quantity_percent
+        return 0
 
 
 class Production(BaseModel):

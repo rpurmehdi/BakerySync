@@ -32,6 +32,49 @@
   }
 </script>
 <script>
+  function recSearch(selectedValue) {
+    $.ajax({
+      type: "POST",
+      url: "{{url_for('productions.search')}}",
+      data: JSON.stringify({ data: selectedValue }),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function (response) {
+        // Clear existing inputs and messages
+        $("#message").empty();
+        $("#inputContainer").empty();
+
+        for (let i = 0; i < response.ids.length; i++) {
+          const id = response.ids[i];
+          const name = response.names[i];
+          const percent = response.percents[i];
+          const formDiv = $("<div>", {
+            class: "form-floating",
+          });
+          const input = $("<input>", {
+            class: "form-control my-1",
+            type: "number",
+            min: "1",
+            id: id,
+            name: name,
+            required: true,
+          });
+          const label = $("<label>", {
+            for: id,
+            text: `${name} (${percent}%)`,
+          });
+          formDiv.append(input);
+          formDiv.append(label);
+          $("#inputContainer").append(formDiv);
+        }
+      },
+      error: function (err) {
+        $("#message").text("Error: " + err.responseText);
+      },
+    });
+  }
+</script>
+<script>
   document.addEventListener("DOMContentLoaded", function () {
     function updateField() {
       const BatchNumbers = [{% for production in productions %}"{{ production.print_batch }}", {%endfor %}];
@@ -95,7 +138,7 @@
         <div class="col-md-auto">
           <div class="form-floating">
             <select
-              class="form-select"
+              class="form-select my-1"
               id="production_types"
               name="production_types"
               onchange="recipeChange(this.value);"
@@ -112,15 +155,16 @@
           </div>
           <div class="form-floating">
             <input
-              class="form-select recipe-select"
+              class="form-select my-1 recipe-select"
               id="recipe-0"
               name="recipe"
               readonly
             />
             {% for ptype in ptypes %}<select
-              class="form-select recipe-select"
+              class="form-select my-1 recipe-select"
               id="recipe-{{ptype.id}}"
               name="recipe"
+              onchange="recSearch(this.value);"
               hidden
             >
               <option value="" disabled selected>Select a recipe</option>
@@ -131,11 +175,12 @@
             >{% endfor %}
             <label for="recipe-0">Recipe</label>
           </div>
+          <div id="inputContainer"></div>
         </div>
         <div class="col-md-auto">
           <div class="form-floating">
             <input
-              class="form-control"
+              class="form-control my-1"
               type="number"
               min="1"
               id="quantity"
@@ -146,7 +191,7 @@
           </div>
           <div class="form-floating">
             <input
-              class="form-control"
+              class="form-control my-1"
               type="datetime-local"
               id="production_date"
               name="production_date"
@@ -160,7 +205,7 @@
         <div class="col-md-auto">
           <div class="form-floating">
             <input
-              class="form-control"
+              class="form-control my-1"
               id="batch-number"
               name="batch-number"
               type="text"
