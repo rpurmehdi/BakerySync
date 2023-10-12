@@ -1,7 +1,6 @@
-import logging
 from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
-from models import db, Production, RawMaterialArrival, ProductionShipment, production_arrival_association, Recipe, recipe_rawmaterial_association, ProductionType, RawMaterialType
+from models import db, Production, RawMaterialArrival, ProductionShipment, production_arrival_association, Recipe, ProductionType, RawMaterialType
 
 productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 
