@@ -56,8 +56,28 @@ def edit_type():
             return redirect(url_for('types.types'))
         try:
             if type_to_edit:
+                if "rtype_edit" in request.form:
+                    has_arrived = type_to_edit.arrivals
+                    has_recipe = type_to_edit.recipes
+                    if has_arrived:
+                        flash(
+                            f"{type_to_edit.name} has arrival(s), cannot edit", "danger")
+                        return redirect(url_for('types.types'))
+                    if has_recipe:
+                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
+                        return redirect(url_for('types.types'))    
+                else:
+                    has_production = type_to_edit.productions
+                    has_recipe = type_to_edit.recipes
+                    if has_production:
+                        flash(
+                            f"{type_to_edit.name} has been produced, cannot edit", "danger")
+                        return redirect(url_for('types.types'))
+                    if has_recipe:
+                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
+                        return redirect(url_for('types.types'))   
+                # edit the found type
                 type_to_edit.name = name
-                # Commit the changes to the database
                 db.session.commit()
                 flash('Type edited successfully', 'success')
             else:
@@ -69,8 +89,8 @@ def edit_type():
                     f'Can not have another type with the name {name}. Type name must be unique. Please choose a different name.', 'warning')
             else:
                 flash(f'Error: {str(e)}', 'warning')
-                db.session.rollback()  # Rollback any changes to the database
-                return redirect(url_for('types.types'))
+            db.session.rollback()  # Rollback any changes to the database
+            return redirect(url_for('types.types'))
     else:
         return redirect(url_for('types.types'))
 
@@ -92,22 +112,31 @@ def delete_type():
         try:
             if type_to_delete:
                 if "rtype_delete" in request.form:
-                    is_referenced = RawMaterialArrival.query.filter_by(type_id=id).count(
-                    ) + db.session.query(recipe_rawmaterial_association).filter_by(material_type=id).count()
+                    has_arrived = type_to_delete.arrivals
+                    has_recipe = type_to_delete.recipes
+                    if has_arrived:
+                        flash(
+                            f"{type_to_delete.name} has arrival(s), cannot delete", "danger")
+                        return redirect(url_for('types.types'))
+                    if has_recipe:
+                        flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
+                        return redirect(url_for('types.types'))    
                 else:
-                    is_referenced = Recipe.query.filter_by(
-                        production_type=id).count() + Production.query.filter_by(type_id=id).count()
-                if is_referenced and is_referenced > 0:
-                    flash(
-                        f'{type_to_delete.name} is used in database, cannot delete', 'danger')
-                else:
-                    # Delete the found type
-                    db.session.delete(type_to_delete)
-                    db.session.commit()
-                    flash('Type deleted successfully', 'success')
+                    has_production = type_to_delete.productions
+                    has_recipe = type_to_delete.recipes
+                    if has_production:
+                        flash(
+                            f"{type_to_delete.name} has been produced, cannot delete", "danger")
+                        return redirect(url_for('types.types'))
+                    if has_recipe:
+                        flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
+                        return redirect(url_for('types.types'))   
+                # Delete the found type
+                db.session.delete(type_to_delete)
+                db.session.commit()
+                flash('Type deleted successfully', 'success')
             else:
                 flash('Type not found', 'danger')
-            # Redirect to the / page
             return redirect(url_for('types.types'))
         except Exception as e:
             flash(f'Error: {str(e)}', 'warning')

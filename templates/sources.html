@@ -216,20 +216,21 @@
                 name="name"
                 autocomplete="off"
                 required
-                placeholder="Enter the source name"
+                readonly
               />
               <label for="edit-name">Source Name</label>
             </div>
           </div>
           <div class="col-auto">
             <div class="form-floating">
-              <select class="form-select" id="edit-type" name="type" required>
-                <option value="Wholesaler">Wholesaler</option>
-                <option value="Online Retailer">Online Retailer</option>
-                <option value="Local Market">Local Market</option>
-                <option value="Flour Mill">Flour Mill</option>
-                <option value="Farm">Farm</option>
-              </select>
+              <input
+                type="text"
+                class="form-control"
+                id="edit-type"
+                name="type"
+                required
+                readonly
+              />
               <label for="edit-contact_person">Source type</label>
             </div>
           </div>

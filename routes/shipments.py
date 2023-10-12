@@ -87,22 +87,20 @@ def edit_shipment():
                 shipping_date = datetime.fromisoformat(shipping_date_str)
                 quantity = float(quantity_str)
             except ValueError:
-                flash('Can not edit! - Invalid date or quantity format', 'danger')
+                flash('Invalid date or quantity format', 'danger')
                 return redirect(url_for('shipments.shipments'))
             except Exception as e:
-                flash(f'Can not edit! - Error: {str(e)}', 'warning')
+                flash(f'Error: {str(e)}', 'warning')
                 return redirect(url_for('shipments.shipments'))
         else:
-            flash('Can not edit! - Invalid production or destination', 'warning')
+            flash('Invalid production or destination', 'warning')
             return redirect(url_for('shipments.shipments'))
         if quantity < 1 or quantity > production.stock + shipment_to_edit.quantity:
-            flash('Can not edit! - Quantity value is invalid', 'warning')
+            flash('Quantity value is invalid', 'warning')
             return redirect(url_for('shipments.shipments'))
         if shipping_date < production.production_time:
-            flash('Can not edit! - Shipping date can not be before production', 'warning')
+            flash('Shipping date can not be before production', 'warning')
             return redirect(url_for('shipments.shipments'))
-
-
         if shipment_to_edit:
             # Update the source with the new data
             shipment_to_edit.id = id
@@ -120,7 +118,7 @@ def edit_shipment():
             # Redirect to the / page
             return redirect(url_for('shipments.shipments'))
         except Exception as e:
-            flash(f'Can not edit! - Error: {str(e)}', 'warning')
+            flash(f'Error: {str(e)}', 'warning')
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('shipments.shipments'))
     else:

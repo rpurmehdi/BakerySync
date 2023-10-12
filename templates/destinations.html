@@ -222,20 +222,21 @@
                 name="name"
                 autocomplete="off"
                 required
-                placeholder="Enter the destination name"
+                readonly
               />
               <label for="edit-name">Destination Name</label>
             </div>
           </div>
           <div class="col-auto">
             <div class="form-floating">
-              <select class="form-select" id="edit-type" name="type" required>
-                <option value="Wholesaler">Wholesale Distributor</option>
-                <option value="Online Retailer">Online Retailer</option>
-                <option value="Local Market">Local Market</option>
-                <option value="Flour Mill">Restaurant</option>
-                <option value="Farm">Hotel</option>
-              </select>
+              <input
+                type="text"
+                class="form-control"
+                id="edit-type"
+                name="type"
+                required
+                readonly
+              />
               <label for="edit-contact_person">Destination type</label>
             </div>
           </div>

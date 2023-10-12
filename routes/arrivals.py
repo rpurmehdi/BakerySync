@@ -67,33 +67,52 @@ def edit_arrival():
     if request.method == 'POST':
         # Get the data from the form
         id = request.form.get('id')
-        type_id = request.form.get('type_id'),
-        source_id = request.form.get('source_id'),
-        arriving_date = request.form.get('arriving_date'),
-        quantity = request.form.get('quantity')
-        try:
-            # Fetch the source to edit from the database
-            arrival_to_edit = RawMaterialArrival.query.get(id)
-
-            if arrival_to_edit:
-                # Update the source with the new data
-                arrival_to_edit.id = id
-                arrival_to_edit.type_id = type_id
-                arrival_to_edit.source_id = source_id
-                arrival_to_edit.arriving_date = arriving_date
-                arrival_to_edit.quantity = quantity
-                # Commit the changes to the database
-                db.session.commit()
-                flash('Arrival edited successfully', 'success')
-            else:
-                flash('Arrival not found', 'danger')
-
+        type_id = request.form.get('type_id')
+        source_id = request.form.get('source_id')
+        arriving_date_str = request.form.get('arriving_date')
+        quantity_str = request.form.get('quantity')
+        # validate form data
+        type = RawMaterialType.query.filter_by(
+            id=type_id).first()
+        source = Source.query.filter_by(
+            id=source_id).first()
+        if type and source:
+            try:
+                # Fetch the source to edit from the database
+                arrival_to_edit = RawMaterialArrival.query.get(id)
+                arriving_date = datetime.fromisoformat(arriving_date_str)
+                quantity = float(quantity_str)
+            except ValueError:
+                flash('Invalid date or quantity format', 'danger')
                 return redirect(url_for('arrivals.arrivals'))
-        except Exception as e:
-
-            flash(f'Error: {str(e)}', 'warning')
-            db.session.rollback()  # Rollback any changes to the database
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'warning')
+                return redirect(url_for('arrivals.arrivals'))
+        else:
+            flash('Invalid type or source', 'warning')
             return redirect(url_for('arrivals.arrivals'))
+        if arrival_to_edit:
+            is_referenced = db.session.query(
+                production_arrival_association).filter_by(arrival_id=id).first()
+            if is_referenced:
+                flash(f'This {arrival_to_edit.type.name} is used in database, cannot edit', 'danger')
+            else:
+                try:
+                    # Update the source with the new data
+                    arrival_to_edit.id = id
+                    arrival_to_edit.type_id = type_id
+                    arrival_to_edit.source_id = source_id
+                    arrival_to_edit.arriving_date = arriving_date
+                    arrival_to_edit.quantity = quantity
+                    # Commit the changes to the database
+                    db.session.commit()
+                    flash('Arrival edited successfully', 'success')
+                except Exception as e:
+                    flash(f'Error: {str(e)}', 'warning')
+                    db.session.rollback()  # Rollback any changes to the database
+        else:
+            flash('Arrival not found', 'danger')
+        return redirect(url_for('arrivals.arrivals'))
     return redirect(url_for('arrivals.arrivals'))
 
 

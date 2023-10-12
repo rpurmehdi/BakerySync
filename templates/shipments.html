@@ -232,7 +232,7 @@
                 required
               >
                 <option selected disabled value="">Select a production</option>
-                {% for production in productions %} {% if production.stock > 0
+                {% for production in productions|sort(attribute='production_time') %} {% if production.stock > 0
                 %}
                 <option value="{{ production.id }}">
                   {{ production.type.name }} : {{ production.print_batch }}
@@ -326,7 +326,7 @@
                 name="production_id"
                 required
               >
-                {% for production in productions %}
+                {% for production in productions|sort(attribute='production_time') %}
                 <option value="{{ production.id }}">
                   {{ production.type.name }} : {{ production.print_batch }}
                 </option>

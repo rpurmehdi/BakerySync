@@ -52,10 +52,8 @@ def edit_source():
     if request.method == 'POST':
         # Get the data from the form
         id = request.form.get('id')
-        name = request.form.get('name')
         contact_person = request.form.get('contact_person')
         contact_information = request.form.get('contact_information')
-        type = request.form.get('type')
         location = request.form.get('location')
         description = request.form.get('description')
         try:
@@ -64,10 +62,8 @@ def edit_source():
 
             if source_to_edit:
                 # Update the source with the new data
-                source_to_edit.name = name
                 source_to_edit.contact_person = contact_person
                 source_to_edit.contact_information = contact_information
-                source_to_edit.type = type
                 source_to_edit.location = location
                 source_to_edit.description = description
 

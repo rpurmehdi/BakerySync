@@ -52,10 +52,8 @@ def edit_destination():
     if request.method == 'POST':
         # Get the data from the form
         id = request.form.get('id')
-        name = request.form.get('name')
         contact_person = request.form.get('contact_person')
         contact_information = request.form.get('contact_information')
-        type = request.form.get('type')
         location = request.form.get('location')
         description = request.form.get('description')
         try:
@@ -64,10 +62,8 @@ def edit_destination():
 
             if destination_to_edit:
                 # Update the destination with the new data
-                destination_to_edit.name = name
                 destination_to_edit.contact_person = contact_person
                 destination_to_edit.contact_information = contact_information
-                destination_to_edit.type = type
                 destination_to_edit.location = location
                 destination_to_edit.description = description
 
