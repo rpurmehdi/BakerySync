@@ -1,3 +1,4 @@
+import random
 from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
 from models import db, Production, RawMaterialArrival, ProductionShipment, production_arrival_association, Recipe, ProductionType, RawMaterialType
@@ -5,14 +6,8 @@ from models import db, Production, RawMaterialArrival, ProductionShipment, produ
 productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 
 
-@productions_bp.route('/', methods=['GET'])
+@productions_bp.route('/', methods=['GET', 'POST'])
 def productions():
-    productions = Production.query.all()
-    return render_template('productions.html', productions=productions)
-
-
-@productions_bp.route('/add', methods=['GET', 'POST'])
-def add_production():
     if request.method == 'POST':
         # Get data from the form
         try:
@@ -100,7 +95,27 @@ def add_production():
         materials = RawMaterialArrival.query.order_by(
             RawMaterialArrival.arriving_date, RawMaterialArrival.type_id).all()
         recipes = Recipe.query.all()
-        return render_template('add_production.html', materials=materials, recipes=recipes,  productions=productions, ptypes=ptypes, rtypes=rtypes)
+        # make random colors
+        colors = []
+        for i in range(100):
+            if i < 50:
+                red = random.randint(0, 150)
+                green = random.randint(50, 255)
+                blue = random.randint(50, 255)
+                rgba = f"rgba({red}, {green}, {blue}, 0.5)"
+                colors.append(rgba)
+            else:
+                rgba = colors[i-50].replace("0.5", "1")
+                colors.append(rgba)
+    context = {
+        'materials': materials,
+        'recipes': recipes,
+        'productions': productions,
+        'ptypes': ptypes,
+        'rtypes': rtypes,
+        'colors': colors
+    }
+    return render_template('productions.html', **context)
 
 
 @productions_bp.route('/delete', methods=["POST"])
@@ -116,7 +131,7 @@ def delete_production():
                     production_id=id).first()
                 if is_referenced:
                     flash(
-                        f'{production_to_delete.type.name} with batch {production_to_delete.print_batch} is used in Shipments, cannot delete', 'danger')
+                        f"{production_to_delete.type.name} with batch {production_to_delete.print_batch} is shipped on {str(is_referenced.shipping_date)}, cannot delete", "danger")
                 else:
                     db.session.query(production_arrival_association).filter(
                         production_arrival_association.c.production_id == id).delete()

@@ -60,10 +60,15 @@ def shipments():
     else:
         # Retrieve all shipments, productions and destinations from the database
         shipments = ProductionShipment.query.all()
-        productions = Production.query.order_by(Production.type_id, Production.production_time).all()
+        productions = Production.query.order_by(
+            Production.type_id, Production.production_time).all()
         destinations = Destination.query.order_by(Destination.name).all()
-
-        return render_template('shipments.html', shipments=shipments, productions=productions, destinations=destinations)
+        context = {
+            'shipments': shipments,
+            'productions': productions,
+            'destinations': destinations
+        }
+        return render_template('shipments.html', **context)
 
 
 @shipments_bp.route('/edit', methods=['POST'])

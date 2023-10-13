@@ -5,6 +5,110 @@
 {% block navbar_title %} Manage Productions {% endblock %}
 <!--head-->
 {%block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script>
+  function recipeChange(selectedValue) {
+    $("#message").empty();
+    $("#rmContainer").empty();
+    const hiddenSelects = document.querySelectorAll(".recipe-select");
+    hiddenSelects.forEach(function (select) {
+      select.hidden = true;
+      select.removeAttribute("required");
+    });
+    const selectedHiddenSelect = document.getElementById(
+      `recipe${selectedValue}`
+    );
+    if (selectedHiddenSelect) {
+      selectedHiddenSelect.hidden = false;
+      selectedHiddenSelect.setAttribute("required", "required");
+    }
+  }
+</script>
+<script>
+  function recSearch(selectedValue) {
+    $.ajax({
+      type: "POST",
+      url: "{{url_for('productions.search')}}",
+      data: JSON.stringify({ data: selectedValue }),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function (response) {
+        // Clear existing inputs and messages
+        $("#message").empty();
+        $("#rmContainer").empty();
+
+        for (let i = 0; i < response.ids.length; i++) {
+          const id = response.ids[i];
+          const name = response.names[i];
+          const percent = response.percents[i];
+          const stock = response.stocks[i];
+          const formDiv = $("<div>", {
+            class: "form-floating",
+          });
+          const input = $("<input>", {
+            class: "form-control my-1",
+            type: "number",
+            min: "1",
+            max: stock,
+            id: "rm" + id,
+            name: name,
+            required: true,
+          });
+          const label = $("<label>", {
+            for: "rm" + id,
+            text: `${name} (${percent}%)`,
+          });
+          formDiv.append(input);
+          formDiv.append(label);
+          $("#rmContainer").append(formDiv);
+        }
+      },
+      error: function (err) {
+        $("#message").text("Error: " + err.responseText);
+      },
+    });
+  }
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function updateField() {
+      const BatchNumbers = [{% for production in productions %}"{{ production.print_batch }}", {%endfor %}];
+      const productionDateValue =
+        document.getElementById("production_date").value;
+      const productionTypeValue =
+        document.getElementById("production_types").value;
+      const selectedDate = new Date(productionDateValue);
+      const year = selectedDate.getFullYear().toString().slice(-2);
+      const month = (selectedDate.getMonth() + 1).toString().padStart(2, "0");
+      const date = selectedDate.getDate().toString().padStart(2, "0");
+      const typeid = productionTypeValue.toString().padStart(3, "0");
+      if (!productionDateValue) {
+        return;
+      }
+      let counter = 1;
+      // Construct the string with the selected values
+      let batchNumber = `${year}${month}${date}${typeid}${counter
+        .toString()
+        .padStart(2, "0")}`;
+      while (BatchNumbers.includes(batchNumber)) {
+        counter++;
+        batchNumber = `${year}${month}${date}${typeid}${counter
+          .toString()
+          .padStart(2, "0")}`;
+      }
+      // Update the field above the button
+      document.getElementById("batch_number").value = batchNumber;
+      document.getElementById("batch-number").value = batchNumber;
+    }
+    // Add an event listener to trigger the updateField function when dropdown values change
+    document
+      .getElementById("production_date")
+      .addEventListener("change", updateField);
+    document
+      .getElementById("production_types")
+      .addEventListener("change", updateField);
+  });
+</script>
 <script>
   function confirmDelete(dbItem) {
     var confirmMessage =
@@ -24,53 +128,285 @@
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-start my-4">
-  <a href="{{ url_for('productions.add_production') }}">
-    <button class="btn btn-success" type="button">+ Add New Production</button>
-  </a>
-</div>
-<!-- List of existing productions -->
-<div class="container mx-auto">
-  <h3 class="text-start">Existing Productions</h3>
-  <table class="table table-striped w-auto mx-auto">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Batch</th>
-        <th>Recipe</th>
-        <th>Quantity</th>
-        <th>Production Time</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for production in productions|sort(attribute='production_time')|reverse
-      %}
-      <tr>
-        <td>{{ production.type.name }}</td>
-        <td>{{ production.print_batch }}</td>
-        <td>{{ production.recipe.name }}</td>
-        <td>{{ production.quantity }}</td>
-        <td>{{ production.production_time }}</td>
-        <td>
-          <form
-            id="delete-form"
-            action="{{ url_for('productions.delete_production') }}"
-            method="post"
-          >
-            <input type="hidden" name="id" value="{{ production.id }}" />
-            <button
-              type="submit"
-              class="btn btn-danger"
-              onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
+  <button
+    class="btn btn-success"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#AddCanvas"
+    aria-controls="AddCanvas"
+  >
+    + Add New Production
+  </button>
+  <!-- List of existing productions -->
+  <div class="container mx-auto">
+    <h3 class="text-start">Existing Productions</h3>
+    <table class="table table-striped w-auto mx-auto">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Batch</th>
+          <th>Recipe</th>
+          <th>Quantity</th>
+          <th>Production Time</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for production in
+        productions|sort(attribute='production_time')|reverse %}
+        <tr>
+          <td>{{ production.type.name }}</td>
+          <td>{{ production.print_batch }}</td>
+          <td>{{ production.recipe.name }}</td>
+          <td>{{ production.quantity }}</td>
+          <td>{{ production.production_time }}</td>
+          <td>
+            <form
+              id="delete-form"
+              action="{{ url_for('productions.delete_production') }}"
+              method="post"
             >
-              🗑️
-            </button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+              <input type="hidden" name="id" value="{{ production.id }}" />
+              <button
+                type="submit"
+                class="btn btn-danger"
+                onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
+              >
+                🗑️
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+<!-- offcanvas to add a new production -->
+<div
+  class="offcanvas offcanvas-start"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="AddCanvas"
+  aria-labelledby="AddCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Production</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto text-center my-4">
+      <div class="row justify-content-md-center">
+        <div class="col chart-container">
+          <canvas
+            id="materialChart"
+            style="max-width: 700px; display: inline"
+          ></canvas>
+        </div>
+        <div class="col chart-container">
+          <canvas
+            id="productionChart"
+            style="max-width: 700px; display: inline"
+          ></canvas>
+        </div>
+      </div>
+      <div class="container mx-auto mt-5">
+        <form method="POST" action="{{url_for('productions.productions')}}">
+          <div class="row justify-content-md-center">
+            <div class="col-md-auto">
+              <div class="form-floating">
+                <input
+                  class="form-control my-1"
+                  type="number"
+                  min="1"
+                  id="quantity"
+                  name="quantity"
+                  required
+                />
+                <label for="quantity">Production Quantity</label>
+              </div>
+              <div class="form-floating">
+                <input
+                  class="form-control my-1"
+                  type="datetime-local"
+                  id="production_date"
+                  name="production_date"
+                  required
+                />
+                <label for="production_date">Production Date</label>
+              </div>
+            </div>
+            <div class="col-md-auto">
+              <div class="form-floating">
+                <select
+                  class="form-select my-1"
+                  id="production_types"
+                  name="production_types"
+                  onchange="recipeChange(this.value);"
+                  required
+                >
+                  <option selected disabled value="">
+                    Select a Production Type
+                  </option>
+                  {% for ptype in ptypes %}
+                  <option value="{{ ptype.id }}">{{ ptype.name }}</option>
+                  {% endfor %}
+                </select>
+                <label for="production_types">Production Type</label>
+              </div>
+              <div class="form-floating">
+                <input
+                  class="form-select my-1 recipe-select"
+                  id="recipe0"
+                  name="recipe0"
+                  readonly
+                />
+                {% for ptype in ptypes %}<select
+                  class="form-select my-1 recipe-select"
+                  id="recipe{{ptype.id}}"
+                  name="recipe{{ptype.id}}"
+                  onchange="recSearch(this.value);"
+                  hidden
+                >
+                  <option value="" disabled selected>Select a recipe</option>
+                  {% for recipe in recipes %}{% if recipe.production_type ==
+                  ptype.id %}
+                  <option value="{{recipe.id}}">{{recipe.name}}</option>
+                  {% endif %}{% endfor %}</select
+                >{% endfor %}
+                <label for="recipe0">Recipe</label>
+              </div>
+              <div id="message" class="form-text text-danger"></div>
+              <div id="rmContainer"></div>
+            </div>
+          </div>
+          <div class="row justify-content-md-center mt-3">
+            <div class="col-md-auto">
+              <div class="form-floating">
+                <input
+                  class="form-control my-1"
+                  id="batch-number"
+                  name="batch-number"
+                  type="text"
+                  placeholder="Batch Number"
+                  value=""
+                  aria-label="batch_number"
+                  readonly
+                />
+                <label for="batch-number">Batch Number</label>
+                <input
+                  class="form-control"
+                  id="batch_number"
+                  name="batch_number"
+                  type="hidden"
+                  value=""
+                  aria-label="batch_number"
+                />
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success">
+            Add Production Instance
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--chart scripts-->
+<script>
+  const randColors = {{colors|safe}};
+  new Chart("materialChart", {
+      type: "bar",
+      data: {
+        labels: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}"{{rtype.name|safe}}", {% endif %}{% endfor %}],
+        datasets: [{% for material in materials %}{% if material.stock > 0 %}{label: "{{material.source.name|safe}}-{{ material.arriving_date.strftime('%Y-%m-%d') }}",
+        data: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}{% if rtype.id == material.type_id %}{{ material.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
+        backgroundColor: randColors[{{material.id}} % 50],
+        borderColor: randColors[50 + {{material.id}} % 100],
+        borderWidth: 1
+        },
+        {% endif %}{% endfor %}],
+      },
+      options: {
+        title: {
+        display: true,
+        text: 'Raw Materials',
+      },
 
+        tooltips: {
+          displayColors: true,
+          callbacks:{
+          mode: 'x',
+          },
+        },
+        scales: {
+          xAxes: [{
+            stacked: true,
+            gridLines: {
+              display: false,
+            }
+          }],
+          yAxes: [{
+            stacked: true,
+            ticks: {
+              beginAtZero: true,
+            },
+          type: 'linear',
+          }]
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { display: false },
+      },
+    });
+    new Chart("productionChart", {
+        type: "bar",
+        data: {
+          labels: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}"{{ptype.name|safe}}", {% endif %}{% endfor %}],
+          datasets: [{% for production in productions %}{% if production.stock > 0 %}{label: "{{production.print_batch|safe}}-{{ production.production_time.strftime('%Y-%m-%d') }}",
+          data: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}{% if ptype.id == production.type_id %}{{ production.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
+        backgroundColor: randColors[{{production.id}} % 50],
+        borderColor: randColors[50 + {{production.id}} % 100],
+        borderWidth: 1
+          },
+          {% endif %}{% endfor %}],
+        },
+        options: {
+          title: {
+        display: true,
+        text: 'Productions',
+      },
+      tooltips: {
+        displayColors: true,
+        callbacks:{
+          mode: 'x',
+        },
+      },
+      scales: {
+        xAxes: [{
+          stacked: true,
+          gridLines: {
+            display: false,
+          }
+        }],
+        yAxes: [{
+          stacked: true,
+          ticks: {
+            beginAtZero: true,
+          },
+          type: 'linear',
+        }]
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: { display: false },
+      }
+    });
+</script>
 {% endblock %}

@@ -10,7 +10,7 @@ from routes.destinations import destinations_bp
 from routes.arrivals import arrivals_bp
 from routes.shipments import shipments_bp
 from routes.productions import productions_bp
-
+from routes.recipes import recipes_bp
 app = Flask(__name__)
 
 path = os.path.dirname(os.path.abspath(__file__))
@@ -77,5 +77,7 @@ app.register_blueprint(shipments_bp)
 # registering productions.py
 app.register_blueprint(productions_bp)
 
+# registering recipes.py
+app.register_blueprint(recipes_bp)
 if __name__ == '__main__':
     app.run(debug=True)

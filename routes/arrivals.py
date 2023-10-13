@@ -58,8 +58,12 @@ def arrivals():
         arrivals = RawMaterialArrival.query.all()
         rtypes = RawMaterialType.query.order_by(RawMaterialType.name).all()
         sources = Source.query.order_by(Source.name).all()
-
-        return render_template('arrivals.html', arrivals=arrivals, rtypes=rtypes, sources=sources)
+        context = {
+            'arrivals': arrivals,
+            'rtypes': rtypes,
+            'sources': sources
+        }
+        return render_template('arrivals.html', **context)
 
 
 @arrivals_bp.route('/edit', methods=['POST'])
@@ -95,7 +99,8 @@ def edit_arrival():
             is_referenced = db.session.query(
                 production_arrival_association).filter_by(arrival_id=id).first()
             if is_referenced:
-                flash(f'This {arrival_to_edit.type.name} is used in database, cannot edit', 'danger')
+                flash(
+                    f'This {arrival_to_edit.type.name} is used in database, cannot edit', 'danger')
             else:
                 try:
                     # Update the source with the new data

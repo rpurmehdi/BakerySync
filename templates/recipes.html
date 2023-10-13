@@ -1,0 +1,155 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} Manage Recipes {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} Manage Recipes {% endblock %}
+<!--head-->
+{%block head %}
+<script>
+  function confirmDelete(dbItem) {
+    var confirmMessage =
+      "Are you sure you want to delete '" +
+      dbItem +
+      "'?\nThis can not be undone!";
+    if (confirm(confirmMessage)) {
+      // If confirmed, submit the form
+      document.getElementById("delete-form").submit();
+    } else {
+      // If canceled, prevent form submission
+      return false;
+    }
+  }
+</script>
+{% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-start my-4">
+  <button
+    class="btn btn-success"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#AddCanvas"
+    aria-controls="AddCanvas"
+  >
+    + Add New Recipe
+  </button>
+  <!-- List of existing recipes -->
+  <div class="container mx-auto">
+    <h3 class="text-start">Existing Recipes</h3>
+    <table class="table table-striped w-auto mx-auto">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Product</th>
+          <th>Description</th>
+          <th>Materials</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for recipe in recipes|reverse %}
+        <tr>
+          <td>{{ recipe.type.name }}</td>
+          <td>{{ recipe.product.name }}</td>
+          <td>{{ recipe.description }}</td>
+          <td>
+            {% for material in recipe.materials %}{% for entry in materials %}
+            {% if entry.recipe_id == recipe.id and entry.material_type ==
+            material %}
+            <p>{{material.name}}: {{ entry.quantity_percent }}</p>
+            {% endif %}{% endfor %}{% endfor %}
+          </td>
+          <td>
+            <form
+              id="delete-form"
+              action="{{ url_for('recipes.delete_recipe') }}"
+              method="post"
+            >
+              <input type="hidden" name="id" value="{{ recipe.id }}" />
+              <button
+                type="submit"
+                class="btn btn-danger"
+                onclick="return confirmDelete('{{ recipe.name|escape_html|safe }} recipe');"
+              >
+                🗑️
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <!-- offcanvas to add a new recipe -->
+  <div
+    class="offcanvas offcanvas-start"
+    data-bs-scroll="true"
+    tabindex="-1"
+    id="AddCanvas"
+    aria-labelledby="AddCanvasLabel"
+  >
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Recipe</h5>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="offcanvas"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="container mx-auto mt-5">
+        <form method="POST" action="{{url_for('recipes.recipes')}}">
+          <div class="row">
+            <div class="col-auto">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  name="name"
+                  autocomplete="off"
+                  required
+                  placeholder="Enter the recipe name"
+                />
+                <label for="name">Recipe Name</label>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="form-floating">
+                <select
+                  class="form-select"
+                  id="production_type"
+                  name="production_type"
+                  required
+                >
+                  <option selected disabled value="">Select a type</option>
+                  {% for ptype in ptypes %}
+                  <option value="{{ptype.id}}">{{ptype.name}}</option>
+                  {% endfor %}
+                </select>
+                <label for="production_type">Production type</label>
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-md-center my-4">
+            <div class="form-floating">
+              <textarea
+                class="form-control"
+                placeholder="Write source description"
+                name="description"
+                id="description"
+                autocomplete="off"
+                style="height: 100px"
+              ></textarea>
+              <label for="description">Recipe Description</label>
+            </div>
+          </div>
+          <div class="row justify-content-md-center">ingredients</div>
+          <button type="submit" class="btn btn-success">Add Recipe</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

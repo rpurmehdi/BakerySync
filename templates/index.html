@@ -9,15 +9,18 @@
   <p><a href="{{ url_for('types.types') }}">type management</a></p>
   <p><a href="{{ url_for('sources.sources') }}">source management</a></p>
   <p>
+    <a href="{{ url_for('recipes.recipes') }}">recipe management</a>
+  </p>
+  <p><a href="{{ url_for('arrivals.arrivals') }}">arrival management</a></p>
+  <p>
+    <a href="{{ url_for('productions.productions') }}">production management</a>
+  </p>
+  <p>
     <a href="{{ url_for('destinations.destinations') }}"
       >destination management</a
     >
   </p>
-  <p><a href="{{ url_for('arrivals.arrivals') }}">arrival management</a></p>
   <p><a href="{{ url_for('shipments.shipments') }}">shipment management</a></p>
-  <p>
-    <a href="{{ url_for('productions.productions') }}">production management</a>
-  </p>
 </div>
 
 {% endblock %}

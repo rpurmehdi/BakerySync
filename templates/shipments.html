@@ -98,107 +98,6 @@
     </div>
     <div class="offcanvas-body">
       <canvas id="myChart" style="width: 100%; max-width: 600px"></canvas>
-
-      <script>
-            const xValues = [
-              {% for production in productions %}{% if production.stock > 0 %}"{{ production.type.name }} : {{ production.print_batch }}", {% endif %}{% endfor %}
-            ];
-            const yValues = [
-              {% for production in productions %} {% if production.stock > 0%}"{{ production.stock }}", {% endif %} {% endfor %}];
-              const barColors = [
-            "rgba(255, 0, 0, 0.2)",
-            "rgba(0, 255, 0, 0.2)",
-            "rgba(0, 0, 255, 0.2)",
-            "rgba(255, 255, 0, 0.2)",
-            "rgba(255, 0, 255, 0.2)",
-            "rgba(0, 255, 255, 0.2)",
-            "rgba(0, 0, 0, 0.2)",
-            "rgba(255, 255, 255, 0.2)",
-            "rgba(255, 165, 0, 0.2)",
-            "rgba(128, 0, 128, 0.2)",
-            "rgba(0, 128, 0, 0.2)",
-            "rgba(165, 42, 42, 0.2)",
-            "rgba(0, 128, 128, 0.2)",
-            "rgba(255, 69, 0, 0.2)",
-            "rgba(255, 215, 0, 0.2)",
-            "rgba(75, 0, 130, 0.2)",
-            "rgba(255, 140, 0, 0.2)",
-            "rgba(220, 20, 60, 0.2)",
-            "rgba(0, 255, 127, 0.2)",
-            "rgba(138, 43, 226, 0.2)",
-            "rgba(50, 205, 50, 0.2)",
-            "rgba(250, 128, 114, 0.2)",
-            "rgba(128, 0, 0, 0.2)",
-            "rgba(46, 139, 87, 0.2)",
-            "rgba(72, 209, 204, 0.2)",
-            "rgba(153, 50, 204, 0.2)",
-            "rgba(139, 0, 139, 0.2)",
-            "rgba(0, 250, 154, 0.2)",
-            "rgba(255, 105, 180, 0.2)",
-            "rgba(0, 0, 128, 0.2)"
-          ];
-          const borderColors = [
-            "rgb(255, 0, 0)",
-            "rgb(0, 255, 0)",
-            "rgb(0, 0, 255)",
-            "rgb(255, 255, 0)",
-            "rgb(255, 0, 255)",
-            "rgb(0, 255, 255)",
-            "rgb(0, 0, 0)",
-            "rgb(255, 255, 255)",
-            "rgb(255, 165, 0)",
-            "rgb(128, 0, 128)",
-            "rgb(0, 128, 0)",
-            "rgb(165, 42, 42)",
-            "rgb(0, 128, 128)",
-            "rgb(255, 69, 0)",
-            "rgb(255, 215, 0)",
-            "rgb(75, 0, 130)",
-            "rgb(255, 140, 0)",
-            "rgb(220, 20, 60)",
-            "rgb(0, 255, 127)",
-            "rgb(138, 43, 226)",
-            "rgb(50, 205, 50)",
-            "rgb(250, 128, 114)",
-            "rgb(128, 0, 0)",
-            "rgb(46, 139, 87)",
-            "rgb(72, 209, 204)",
-            "rgb(153, 50, 204)",
-            "rgb(139, 0, 139)",
-            "rgb(0, 250, 154)",
-            "rgb(255, 105, 180)",
-            "rgb(0, 0, 128)"
-          ];
-
-            new Chart("myChart", {
-              type: "bar",
-              data: {
-                labels: xValues,
-                datasets: [
-                  {
-                    backgroundColor: barColors,
-                    borderColor: borderColors,
-                    data: yValues,
-                    borderWidth: 1
-                  },
-                ],
-              },
-              options: {
-                legend: { display: false },
-                title: {
-                  display: false,
-                  text: "In Stock Productions",
-                },
-                scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
-              },
-            });
-      </script>
     </div>
   </div>
 </div>
@@ -449,5 +348,104 @@
     </tbody>
   </table>
 </div>
+<script>
+  const xValues = [
+    {% for production in productions %}{% if production.stock > 0 %}"{{ production.type.name }} : {{ production.print_batch }}", {% endif %}{% endfor %}
+  ];
+  const yValues = [
+    {% for production in productions %} {% if production.stock > 0%}"{{ production.stock }}", {% endif %} {% endfor %}];
+    const barColors = [
+  "rgba(255, 0, 0, 0.2)",
+  "rgba(0, 255, 0, 0.2)",
+  "rgba(0, 0, 255, 0.2)",
+  "rgba(255, 255, 0, 0.2)",
+  "rgba(255, 0, 255, 0.2)",
+  "rgba(0, 255, 255, 0.2)",
+  "rgba(0, 0, 0, 0.2)",
+  "rgba(255, 255, 255, 0.2)",
+  "rgba(255, 165, 0, 0.2)",
+  "rgba(128, 0, 128, 0.2)",
+  "rgba(0, 128, 0, 0.2)",
+  "rgba(165, 42, 42, 0.2)",
+  "rgba(0, 128, 128, 0.2)",
+  "rgba(255, 69, 0, 0.2)",
+  "rgba(255, 215, 0, 0.2)",
+  "rgba(75, 0, 130, 0.2)",
+  "rgba(255, 140, 0, 0.2)",
+  "rgba(220, 20, 60, 0.2)",
+  "rgba(0, 255, 127, 0.2)",
+  "rgba(138, 43, 226, 0.2)",
+  "rgba(50, 205, 50, 0.2)",
+  "rgba(250, 128, 114, 0.2)",
+  "rgba(128, 0, 0, 0.2)",
+  "rgba(46, 139, 87, 0.2)",
+  "rgba(72, 209, 204, 0.2)",
+  "rgba(153, 50, 204, 0.2)",
+  "rgba(139, 0, 139, 0.2)",
+  "rgba(0, 250, 154, 0.2)",
+  "rgba(255, 105, 180, 0.2)",
+  "rgba(0, 0, 128, 0.2)"
+];
+const borderColors = [
+  "rgb(255, 0, 0)",
+  "rgb(0, 255, 0)",
+  "rgb(0, 0, 255)",
+  "rgb(255, 255, 0)",
+  "rgb(255, 0, 255)",
+  "rgb(0, 255, 255)",
+  "rgb(0, 0, 0)",
+  "rgb(255, 255, 255)",
+  "rgb(255, 165, 0)",
+  "rgb(128, 0, 128)",
+  "rgb(0, 128, 0)",
+  "rgb(165, 42, 42)",
+  "rgb(0, 128, 128)",
+  "rgb(255, 69, 0)",
+  "rgb(255, 215, 0)",
+  "rgb(75, 0, 130)",
+  "rgb(255, 140, 0)",
+  "rgb(220, 20, 60)",
+  "rgb(0, 255, 127)",
+  "rgb(138, 43, 226)",
+  "rgb(50, 205, 50)",
+  "rgb(250, 128, 114)",
+  "rgb(128, 0, 0)",
+  "rgb(46, 139, 87)",
+  "rgb(72, 209, 204)",
+  "rgb(153, 50, 204)",
+  "rgb(139, 0, 139)",
+  "rgb(0, 250, 154)",
+  "rgb(255, 105, 180)",
+  "rgb(0, 0, 128)"
+];
 
+  new Chart("myChart", {
+    type: "bar",
+    data: {
+      labels: xValues,
+      datasets: [
+        {
+          backgroundColor: barColors,
+          borderColor: borderColors,
+          data: yValues,
+          borderWidth: 1
+        },
+      ],
+    },
+    options: {
+      legend: { display: false },
+      title: {
+        display: false,
+        text: "In Stock Productions",
+      },
+      scales: {
+  yAxes: [{
+      ticks: {
+          beginAtZero: true
+      }
+  }]
+}
+    },
+  });
+</script>
 {% endblock %}

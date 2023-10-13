@@ -84,19 +84,10 @@
 {% endblock %}
 <!--body-->
 {%block main %}
-<div class="container mx-auto text-start my-4">
+<div class="container mx-auto text-center">
   <div class="row">
     <div class="col">
-      <button
-        class="btn btn-success"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#AddRtypeCanvas"
-        aria-controls="AddRtypeCanvas"
-      >
-        + Add New Raw Material Type
-      </button>
-      <h3 class="text-start">Existing Raw Material Types</h3>
+      <h3 class="my-4">Existing Raw Material Types</h3>
       <!-- List of existing raw material types -->
       <table class="table table-striped w-auto mx-auto">
         <thead>
@@ -111,18 +102,19 @@
           <tr>
             <td>{{ rtype.name }}</td>
             <td>
-              <button
+              <img
+                src="/static/icons/pencil-square.svg"
+                alt="edit"
                 name="rtype_edit"
                 type="button"
-                class="btn btn-warning edit-rtype"
+                class="edit-rtype"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#EditRtypeCanvas"
                 aria-controls="EditRtypeCanvas"
                 data-rtype-id="{{ rtype.id }}"
                 data-rtype-name="{{ rtype.name }}"
-              >
-                📝
-              </button>
+                title="Edit {{rtype.name}}"
+              />
             </td>
             <td>
               <form
@@ -131,32 +123,33 @@
                 method="post"
               >
                 <input type="hidden" name="id" value="{{ rtype.id }}" />
-                <button
+                <img
+                  src="/static/icons/x-square.svg"
+                  alt="delete"
                   name="rtype_delete"
                   type="submit"
-                  class="btn btn-danger"
+                  title="Delete {{rtype.name}}"
                   onclick="return confirmDeleteR('{{ rtype.name|escape_html|safe }}');"
-                >
-                  🗑️
-                </button>
+                />
               </form>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-    </div>
-    <div class="col">
       <button
         class="btn btn-success"
         type="button"
         data-bs-toggle="offcanvas"
-        data-bs-target="#AddPtypeCanvas"
-        aria-controls="AddPtypeCanvas"
+        data-bs-target="#AddRtypeCanvas"
+        aria-controls="AddRtypeCanvas"
       >
-        + Add New Production Type
+        + Add New Raw Material Type
       </button>
-      <h3 class="text-start">Existing Production Types</h3>
+    </div>
+    <div class="vr px-0"></div>
+    <div class="col">
+      <h3 class="my-4">Existing Production Types</h3>
       <!-- List of existing production types -->
       <table class="table table-striped w-auto mx-auto">
         <thead>
@@ -171,18 +164,19 @@
           <tr>
             <td>{{ ptype.name }}</td>
             <td>
-              <button
+              <img
+                src="/static/icons/pencil-square.svg"
+                alt="edit"
                 name="ptype_edit"
                 type="button"
-                class="btn btn-warning edit-ptype"
+                class="edit-ptype"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#EditPtypeCanvas"
                 aria-controls="EditPtypeCanvas"
                 data-ptype-id="{{ ptype.id }}"
                 data-ptype-name="{{ ptype.name }}"
-              >
-                📝
-              </button>
+                title="Edit {{ptype.name}}"
+              />
             </td>
             <td>
               <form
@@ -191,20 +185,29 @@
                 method="post"
               >
                 <input type="hidden" name="id" value="{{ ptype.id }}" />
-                <button
+                <img
+                  src="/static/icons/x-square.svg"
+                  alt="delete"
                   name="ptype_delete"
                   type="submit"
-                  class="btn btn-danger"
+                  title="Delete {{ptype.name}}"
                   onclick="return confirmDeleteP('{{ ptype.name|escape_html|safe }}');"
-                >
-                  🗑️
-                </button>
+                />
               </form>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+      <button
+        class="btn btn-success"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#AddPtypeCanvas"
+        aria-controls="AddPtypeCanvas"
+      >
+        + Add New Production Type
+      </button>
     </div>
   </div>
 </div>
