@@ -32,7 +32,7 @@ def productions():
         else:
             flash('Invalid data input', 'warning')
             return redirect(url_for('productions.productions'))
-        if quantity < 1:
+        if quantity < 0.1:
             flash('Invalid data input', 'warning')
             return redirect(url_for('productions.productions'))
         # Create a new production object and add it to the database
@@ -58,7 +58,7 @@ def productions():
         try:
             insertions = []
             for material in recipe.materials:
-                raw_quant = int(request.form[material.name])
+                raw_quant = float(request.form[material.name])
                 if raw_quant > material.stock:
                     raise ValueError(
                         f"{material.name} quantity can not be more than stock")

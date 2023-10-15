@@ -48,7 +48,8 @@
           const input = $("<input>", {
             class: "form-control my-1",
             type: "number",
-            min: "1",
+            step: "0.1",
+            min: "0",
             max: stock,
             id: "rm" + id,
             name: name,
@@ -127,7 +128,50 @@
 {% endblock %}
 <!--body-->
 {%block main %}
-<div class="container mx-auto text-start my-4">
+<div class="container mx-auto text-center">
+  <!-- List of existing productions -->
+  <h3 class="my-4">Existing Productions</h3>
+  <table class="table table-striped w-auto mx-auto">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Batch</th>
+        <th>Recipe</th>
+        <th>Quantity</th>
+        <th>Production Time</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for production in productions|sort(attribute='production_time')|reverse
+      %}
+      <tr>
+        <td>{{ production.type.name }}</td>
+        <td>{{ production.print_batch }}</td>
+        <td>{{ production.recipe.name }}</td>
+        <td>{{ production.quantity }}</td>
+        <td>{{ production.production_time }}</td>
+        <td>
+          <form
+            id="delete-form"
+            action="{{ url_for('productions.delete_production') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ production.id }}" />
+            <img
+              src="/static/icons/x-square.svg"
+              alt="delete"
+              name="production_delete"
+              type="submit"
+              title="Delete {{production.type.name}}"
+              onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
+            />
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   <button
     class="btn btn-success"
     type="button"
@@ -137,54 +181,10 @@
   >
     + Add New Production
   </button>
-  <!-- List of existing productions -->
-  <div class="container mx-auto">
-    <h3 class="text-start">Existing Productions</h3>
-    <table class="table table-striped w-auto mx-auto">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Batch</th>
-          <th>Recipe</th>
-          <th>Quantity</th>
-          <th>Production Time</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for production in
-        productions|sort(attribute='production_time')|reverse %}
-        <tr>
-          <td>{{ production.type.name }}</td>
-          <td>{{ production.print_batch }}</td>
-          <td>{{ production.recipe.name }}</td>
-          <td>{{ production.quantity }}</td>
-          <td>{{ production.production_time }}</td>
-          <td>
-            <form
-              id="delete-form"
-              action="{{ url_for('productions.delete_production') }}"
-              method="post"
-            >
-              <input type="hidden" name="id" value="{{ production.id }}" />
-              <button
-                type="submit"
-                class="btn btn-danger"
-                onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
-              >
-                🗑️
-              </button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
 </div>
 <!-- offcanvas to add a new production -->
 <div
-  class="offcanvas offcanvas-start"
+  class="offcanvas offcanvas-start text-end"
   data-bs-scroll="true"
   tabindex="-1"
   id="AddCanvas"
@@ -200,8 +200,7 @@
     ></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto text-center my-4">
-      <div class="row justify-content-md-center">
+>      <div class="row justify-content-md-center">
         <div class="col chart-container">
           <canvas
             id="materialChart"
@@ -215,7 +214,7 @@
           ></canvas>
         </div>
       </div>
-      <div class="container mx-auto mt-5">
+      <div class="container mx-auto mt-3">
         <form method="POST" action="{{url_for('productions.productions')}}">
           <div class="row justify-content-md-center">
             <div class="col-md-auto">
@@ -223,7 +222,8 @@
                 <input
                   class="form-control my-1"
                   type="number"
-                  min="1"
+                  step="0.1"
+                  min="0.1"
                   id="quantity"
                   name="quantity"
                   required
@@ -315,8 +315,7 @@
           </button>
         </form>
       </div>
-    </div>
-  </div>
+ </div>
 </div>
 <!--chart scripts-->
 <script>

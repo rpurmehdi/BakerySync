@@ -20,10 +20,109 @@
     }
   }
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const percentInputs = document.querySelectorAll(".percent-input");
+    const form = document.getElementById("addForm");
+    const sumResult = document.getElementById("sumResult");
+
+    // Function to recalculate the sum and update the display
+    function updateSum() {
+      let sum = 0;
+
+      percentInputs.forEach(function (input) {
+        const value = parseFloat(parseFloat(input.value).toFixed(2));
+        if (!isNaN(value)) {
+          sum += value;
+        }
+      });
+
+      sumResult.className =
+        sum === 100 ? "text-success result" : "text-danger result";
+      sumResult.textContent = "Sum: " + sum.toFixed(2);
+    }
+
+    // Add input event listeners to the percentInputs
+    percentInputs.forEach(function (input) {
+      input.addEventListener("input", updateSum);
+    });
+
+    // Add a submit event listener to the form
+    form.addEventListener("submit", function (event) {
+      updateSum(); // Ensure the sum is updated before form submission
+
+      if (sumResult.className === "text-danger result") {
+        alert("The sum of the fields must be 100.");
+        event.preventDefault(); // Prevent the form submission if sum is not 100
+      }
+    });
+  });
+</script>
+<script>
+  function toggleVisibility(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      if (element.classList.contains("d-none")) {
+        element.classList.remove("d-none");
+        element.classList.add("d-block");
+      } else {
+        element.classList.remove("d-block");
+        element.classList.add("d-none");
+      }
+    }
+  }
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
-<div class="container mx-auto text-start my-4">
+<div class="container mx-auto text-center">
+  <!-- List of existing recipes -->
+  <h3 class="my-4">Existing Recipes</h3>
+  <table class="table table-striped w-auto mx-auto">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Product</th>
+        <th>Description</th>
+        <th>Materials</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for recipe in recipes|reverse %}
+      <tr>
+        <td>{{ recipe.name }}</td>
+        <td>{{ recipe.product.name }}</td>
+        <td>{{ recipe.description }}</td>
+        <td>
+          <p class="m-0">
+            {% for material in recipe.materials %}{% for entry in materials %}
+            {% if entry.recipe_id == recipe.id and entry.material_type ==
+            material.id %} {{material.name}}: {{ entry.quantity_percent }}%; {%
+            endif %}{% endfor %}{% endfor %}
+          </p>
+        </td>
+        <td>
+          <form
+            id="delete-form"
+            action="{{ url_for('recipes.delete_recipe') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ recipe.id }}" />
+            <img
+              src="/static/icons/x-square.svg"
+              alt="delete"
+              name="recipe_delete"
+              type="submit"
+              title="Delete {{recipe.name}}"
+              onclick="return confirmDelete('{{ recipe.name|escape_html|safe }} recipe');"
+            />
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   <button
     class="btn btn-success"
     type="button"
@@ -33,122 +132,109 @@
   >
     + Add New Recipe
   </button>
-  <!-- List of existing recipes -->
-  <div class="container mx-auto">
-    <h3 class="text-start">Existing Recipes</h3>
-    <table class="table table-striped w-auto mx-auto">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Product</th>
-          <th>Description</th>
-          <th>Materials</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for recipe in recipes|reverse %}
-        <tr>
-          <td>{{ recipe.type.name }}</td>
-          <td>{{ recipe.product.name }}</td>
-          <td>{{ recipe.description }}</td>
-          <td>
-            {% for material in recipe.materials %}{% for entry in materials %}
-            {% if entry.recipe_id == recipe.id and entry.material_type ==
-            material %}
-            <p>{{material.name}}: {{ entry.quantity_percent }}</p>
-            {% endif %}{% endfor %}{% endfor %}
-          </td>
-          <td>
-            <form
-              id="delete-form"
-              action="{{ url_for('recipes.delete_recipe') }}"
-              method="post"
-            >
-              <input type="hidden" name="id" value="{{ recipe.id }}" />
-              <button
-                type="submit"
-                class="btn btn-danger"
-                onclick="return confirmDelete('{{ recipe.name|escape_html|safe }} recipe');"
-              >
-                🗑️
-              </button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+</div>
+<!-- offcanvas to add a new recipe -->
+<div
+  class="offcanvas offcanvas-start text-end"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="AddCanvas"
+  aria-labelledby="AddCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Recipe</h5>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
   </div>
-  <!-- offcanvas to add a new recipe -->
-  <div
-    class="offcanvas offcanvas-start"
-    data-bs-scroll="true"
-    tabindex="-1"
-    id="AddCanvas"
-    aria-labelledby="AddCanvasLabel"
-  >
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Recipe</h5>
-      <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="offcanvas"
-        aria-label="Close"
-      ></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="container mx-auto mt-5">
-        <form method="POST" action="{{url_for('recipes.recipes')}}">
-          <div class="row">
-            <div class="col-auto">
-              <div class="form-floating">
-                <input
-                  type="text"
-                  class="form-control"
-                  id="name"
-                  name="name"
-                  autocomplete="off"
-                  required
-                  placeholder="Enter the recipe name"
-                />
-                <label for="name">Recipe Name</label>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="form-floating">
-                <select
-                  class="form-select"
-                  id="production_type"
-                  name="production_type"
-                  required
-                >
-                  <option selected disabled value="">Select a type</option>
-                  {% for ptype in ptypes %}
-                  <option value="{{ptype.id}}">{{ptype.name}}</option>
-                  {% endfor %}
-                </select>
-                <label for="production_type">Production type</label>
-              </div>
-            </div>
-          </div>
-          <div class="row justify-content-md-center my-4">
+  <div class="offcanvas-body">
+    <div class="container mx-auto">
+      <form id="addForm" method="POST" action="{{url_for('recipes.recipes')}}">
+        <div class="row">
+          <div class="col-auto">
             <div class="form-floating">
-              <textarea
+              <input
+                type="text"
                 class="form-control"
-                placeholder="Write source description"
-                name="description"
-                id="description"
+                id="recipe_name"
+                name="recipe_name"
                 autocomplete="off"
-                style="height: 100px"
-              ></textarea>
-              <label for="description">Recipe Description</label>
+                required
+                placeholder="Enter the recipe name"
+              />
+              <label for="recipe_name">Recipe Name</label>
             </div>
           </div>
-          <div class="row justify-content-md-center">ingredients</div>
-          <button type="submit" class="btn btn-success">Add Recipe</button>
-        </form>
-      </div>
+          <div class="col-auto">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="production_type"
+                name="production_type"
+                required
+              >
+                <option selected disabled value="">Select a type</option>
+                {% for ptype in ptypes %}
+                <option value="{{ptype.id}}">{{ptype.name}}</option>
+                {% endfor %}
+              </select>
+              <label for="production_type">Production type</label>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-md-center my-2">
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              placeholder="Write source description"
+              name="description"
+              id="description"
+              autocomplete="off"
+              style="height: 100px"
+            ></textarea>
+            <label for="description">Recipe Description</label>
+          </div>
+        </div>
+        <div class="text-start">
+          <h6>Choose raw material types to enter percent:</h6>
+          {% for rtype in rtypes %}
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="Checkbox-{{rtype.id}}"
+              value=""
+              onclick="toggleVisibility('div-{{rtype.id}}')"
+            />
+            <label class="form-check-label" for="Checkbox-{{rtype.id}}"
+              >{{rtype.name}}</label
+            >
+          </div>
+          {% endfor %}
+        </div>
+        <div class="row justify-content-md-center my-2">
+          {% for rtype in rtypes %}
+          <div id="div-{{rtype.id}}" class="form-floating d-none">
+            <input
+              class="form-control form-control-sm percent-input"
+              type="number"
+              step="0.01"
+              id="inp-{{rtype.id}}"
+              name="{{rtype.name}}"
+            />
+            <label for="inp-{{rtype.id}}">{{rtype.name}} percent</label>
+          </div>
+
+          {% endfor %}
+        </div>
+        <div class="row justify-content-md-center my-2">
+          <small id="sumResult" class="rounded-2 result">Sum: 0</small>
+        </div>
+        <button type="submit" class="btn btn-success">Add Recipe</button>
+      </form>
     </div>
   </div>
 </div>

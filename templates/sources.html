@@ -61,7 +61,72 @@
 {% endblock %}
 <!--body-->
 {%block main %}
-<div class="container mx-auto text-start my-4">
+<div class="container mx-auto text-center">
+  <!-- List of existing sources -->
+  <div class="container mx-auto">
+    <h3 class="my-4">Existing Sources</h3>
+    <table class="table table-striped w-auto mx-auto">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Contact</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Description</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for source in sources %}
+        <tr>
+          <td>{{ source.name }}</td>
+          <td>{{ source.contact_person }}: {{ source.contact_information }}</td>
+          <td>{{ source.type }}</td>
+          <td>{{ source.location }}</td>
+          <td>{{ source.description }}</td>
+          <td>
+            <img
+              src="/static/icons/pencil-square.svg"
+              alt="edit"
+              name="source_edit"
+              type="button"
+              class="edit-source"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#EditCanvas"
+              aria-controls="EditCanvas"
+              data-source-id="{{ source.id }}"
+              data-source-name="{{ source.name }}"
+              data-contact-person="{{ source.contact_person }}"
+              data-contact-information="{{ source.contact_information }}"
+              data-source-type="{{ source.type }}"
+              data-source-location="{{ source.location }}"
+              data-source-description="{{ source.description }}"
+              title="Edit {{source.name}}"
+            />
+          </td>
+          <td>
+            <form
+              id="delete-form"
+              action="{{ url_for('sources.delete_source') }}"
+              method="post"
+            >
+              <input type="hidden" name="id" value="{{ source.id }}" />
+              <img
+                src="/static/icons/x-square.svg"
+                alt="delete"
+                name="source_delete"
+                type="submit"
+                title="Delete {{source.name}}"
+                onclick="return confirmDelete('{{ source.name|escape_html|safe }}');"
+              />
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <button
     class="btn btn-success"
     type="button"
@@ -74,7 +139,7 @@
 </div>
 <!-- offcanvas to add a new source -->
 <div
-  class="offcanvas offcanvas-start"
+  class="offcanvas offcanvas-start text-end"
   data-bs-scroll="true"
   tabindex="-1"
   id="AddCanvas"
@@ -187,7 +252,7 @@
 </div>
 <!-- offcanvas for source editing -->
 <div
-  class="offcanvas offcanvas-end"
+  class="offcanvas offcanvas-end text-start"
   data-bs-scroll="true"
   tabindex="-1"
   id="EditCanvas"
@@ -299,67 +364,4 @@
     </div>
   </div>
 </div>
-<!-- List of existing sources -->
-<div class="container mx-auto">
-  <h3 class="text-start">Existing Sources</h3>
-  <table class="table table-striped w-auto mx-auto">
-    <thead>
-      <tr>
-        <th>Source</th>
-        <th>Contact</th>
-        <th>Type</th>
-        <th>Location</th>
-        <th>Description</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for source in sources %}
-      <tr>
-        <td>{{ source.name }}</td>
-        <td>{{ source.contact_person }}: {{ source.contact_information }}</td>
-        <td>{{ source.type }}</td>
-        <td>{{ source.location }}</td>
-        <td>{{ source.description }}</td>
-        <td>
-          <button
-            type="button"
-            class="btn btn-warning edit-source"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#EditCanvas"
-            aria-controls="EditCanvas"
-            data-source-id="{{ source.id }}"
-            data-source-name="{{ source.name }}"
-            data-contact-person="{{ source.contact_person }}"
-            data-contact-information="{{ source.contact_information }}"
-            data-source-type="{{ source.type }}"
-            data-source-location="{{ source.location }}"
-            data-source-description="{{ source.description }}"
-          >
-            📝
-          </button>
-        </td>
-        <td>
-          <form
-            id="delete-form"
-            action="{{ url_for('sources.delete_source') }}"
-            method="post"
-          >
-            <input type="hidden" name="id" value="{{ source.id }}" />
-            <button
-              type="submit"
-              class="btn btn-danger"
-              onclick="return confirmDelete('{{ source.name|escape_html|safe }}');"
-            >
-              🗑️
-            </button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
 {% endblock %}

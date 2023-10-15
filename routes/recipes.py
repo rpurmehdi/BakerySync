@@ -15,28 +15,31 @@ def recipes():
             rtypes = RawMaterialType.query.all()
             rtype_percents = {}
             for rtype in rtypes:
-                rtype_percent = float(request.form.get(rtype.name, None))
+                try:
+                    rtype_percent = float(request.form.get(rtype.name, 0))
+                except ValueError:
+                    rtype_percent = 0
                 rtype_percents[rtype.name] = rtype_percent
         except Exception as e:
             flash(f'Invalid data input! - Error: {str(e)}', 'warning')
             return redirect(url_for('recipes.recipes'))
-        if recipe_name and description and ptype:
+        if recipe_name and ptype:
             try:
                 production = ProductionType.query.get(ptype)
             except:
                 flash('Invalid production type input!', 'warning')
                 return redirect(url_for('recipes.recipes'))
         else:
-            flash('Invalid data input', 'warning')
+            flash('Invalid data input!', 'warning')
             return redirect(url_for('recipes.recipes'))
-        if sum(rtype_percents.values()) is not 100:
-            flash('Invalid data input, percentages sum shouldbe 100', 'warning')
+        if sum(rtype_percents.values()) != 100:
+            flash(f'Invalid data input, percentages sum shouldbe 100 not {sum(rtype_percents.values())}', 'warning')
             return redirect(url_for('recipes.recipes'))
         # Create a new recipe object and add it to the database
         new_recipe = Recipe(
             name=recipe_name,
             description=description,
-            ptype=ptype,
+            production_type=ptype,
         )
         try:
             # Attempt to perform a database operation
@@ -54,7 +57,7 @@ def recipes():
             insertions = []
             for rtype in rtypes:
                 raw_percent = int(rtype_percents[rtype.name])
-                if raw_percent is not None:
+                if raw_percent is not 0:
                     insertions.append(recipe_rawmaterial_association.insert().values(
                         recipe_id=new_recipe.id, material_type=rtype.id, quantity_percent=raw_percent))
             for insertion in insertions:
@@ -74,11 +77,11 @@ def recipes():
         recipes = Recipe.query.all()
         ptypes = ProductionType.query.all()
         rtypes = RawMaterialType.query.all()
-        materials = recipe_rawmaterial_association
+        materials = db.session.query(recipe_rawmaterial_association).all()
         context = {
             'recipes': recipes,
             'ptypes': ptypes,
-            'rtypes': ptypes,
+            'rtypes': rtypes,
             'materials': materials}
 
     return render_template('recipes.html', **context)

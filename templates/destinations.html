@@ -64,7 +64,73 @@
 {% endblock %}
 <!--body-->
 {%block main %}
-<div class="container mx-auto text-start my-4">
+<div class="container mx-auto text-center">
+  <!-- List of existing destinations -->
+  <h3 class="my-4">Existing Destinations</h3>
+  <table class="table table-striped w-auto mx-auto">
+    <thead>
+      <tr>
+        <th>Destination</th>
+        <th>Contact</th>
+        <th>Type</th>
+        <th>Location</th>
+        <th>Description</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for destination in destinations %}
+      <tr>
+        <td>{{ destination.name }}</td>
+        <td>
+          {{ destination.contact_person }}: {{ destination.contact_information
+          }}
+        </td>
+        <td>{{ destination.type }}</td>
+        <td>{{ destination.location }}</td>
+        <td>{{ destination.description }}</td>
+        <td>
+          <img
+            src="/static/icons/pencil-square.svg"
+            alt="edit"
+            name="destination_edit"
+            type="button"
+            class="edit-destination"
+            title="Edit {{source.name}}"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#EditCanvas"
+            aria-controls="EditCanvas"
+            data-destination-id="{{ destination.id }}"
+            data-destination-name="{{ destination.name }}"
+            data-contact-person="{{ destination.contact_person }}"
+            data-contact-information="{{ destination.contact_information }}"
+            data-destination-type="{{ destination.type }}"
+            data-destination-location="{{ destination.location }}"
+            data-destination-description="{{ destination.description }}"
+          />
+        </td>
+        <td>
+          <form
+            id="delete-form"
+            action="{{ url_for('destinations.delete_destination') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ destination.id }}" />
+            <img
+              src="/static/icons/x-square.svg"
+              alt="delete"
+              name="destination_delete"
+              type="submit"
+              title="Delete {{destination.name}}"
+              onclick="return confirmDelete('{{ destination.name|escape_html|safe }}');"
+            />
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   <button
     class="btn btn-success"
     type="button"
@@ -77,7 +143,7 @@
 </div>
 <!-- offcanvas to add a new Destination -->
 <div
-  class="offcanvas offcanvas-start"
+  class="offcanvas offcanvas-start text-end"
   data-bs-scroll="true"
   tabindex="-1"
   id="AddCanvas"
@@ -190,7 +256,7 @@
 </div>
 <!-- offcanvas for destination editing -->
 <div
-  class="offcanvas offcanvas-end"
+  class="offcanvas offcanvas-end text-start"
   data-bs-scroll="true"
   tabindex="-1"
   id="EditCanvas"
@@ -305,70 +371,4 @@
     </div>
   </div>
 </div>
-<!-- List of existing destinations -->
-<div class="container mx-auto">
-  <h3 class="text-start">Existing Destinations</h3>
-  <table class="table table-striped w-auto mx-auto">
-    <thead>
-      <tr>
-        <th>Destination</th>
-        <th>Contact</th>
-        <th>Type</th>
-        <th>Location</th>
-        <th>Description</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for destination in destinations %}
-      <tr>
-        <td>{{ destination.name }}</td>
-        <td>
-          {{ destination.contact_person }}: {{ destination.contact_information
-          }}
-        </td>
-        <td>{{ destination.type }}</td>
-        <td>{{ destination.location }}</td>
-        <td>{{ destination.description }}</td>
-        <td>
-          <button
-            type="button"
-            class="btn btn-warning edit-destination"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#EditCanvas"
-            aria-controls="EditCanvas"
-            data-destination-id="{{ destination.id }}"
-            data-destination-name="{{ destination.name }}"
-            data-contact-person="{{ destination.contact_person }}"
-            data-contact-information="{{ destination.contact_information }}"
-            data-destination-type="{{ destination.type }}"
-            data-destination-location="{{ destination.location }}"
-            data-destination-description="{{ destination.description }}"
-          >
-            📝
-          </button>
-        </td>
-        <td>
-          <form
-            id="delete-form"
-            action="{{ url_for('destinations.delete_destination') }}"
-            method="post"
-          >
-            <input type="hidden" name="id" value="{{ destination.id }}" />
-            <button
-              type="submit"
-              class="btn btn-danger"
-              onclick="return confirmDelete('{{ destination.name|escape_html|safe }}');"
-            >
-              🗑️
-            </button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
 {% endblock %}
