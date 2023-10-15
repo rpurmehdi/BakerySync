@@ -8,11 +8,11 @@ destinations_bp = Blueprint('destinations', __name__, url_prefix='/destinations'
 def destinations():
     if request.method == 'POST':
         # Get data from the form
-        name = request.form['name']
-        contact_person = request.form['contact_person']
+        name = request.form['name'].capitalize()
+        contact_person = request.form['contact_person'].title()
         contact_information = request.form['contact_information']
-        type = request.form['type']
-        location = request.form['location']
+        type = request.form['type'].title()
+        location = request.form['location'].title()
         description = request.form['description']
 
         # Create a new destination object and add it to the database

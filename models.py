@@ -101,7 +101,7 @@ class RawMaterialArrival(BaseModel):
 
 
 class Recipe(BaseModel):
-    name = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255))
     production_type = db.Column(db.Integer, db.ForeignKey(
         ProductionType.id), nullable=False)

@@ -5,22 +5,6 @@
 {% block navbar_title %} Manage Destinations {% endblock %}
 <!--head-->
 {% block head %}
-
-<script>
-  function confirmDelete(dbItem) {
-    var confirmMessage =
-      "Are you sure you want to delete '" +
-      dbItem +
-      "'?\nThis can not be undone!";
-    if (confirm(confirmMessage)) {
-      // If confirmed, submit the form
-      document.getElementById("delete-form").submit();
-    } else {
-      // If canceled, prevent form submission
-      return false;
-    }
-  }
-</script>
 <script>
   // Attach the populateModal() function to the edit buttons
   $(document).ready(function () {
@@ -39,23 +23,16 @@
     const destinationId = event.target.getAttribute("data-destination-id");
     const destinationName = event.target.getAttribute("data-destination-name");
     const contactPerson = event.target.getAttribute("data-contact-person");
-    const contactInformation = event.target.getAttribute(
-      "data-contact-information"
-    );
+    const contactInformation = event.target.getAttribute("data-contact-information");
     const destinationType = event.target.getAttribute("data-destination-type");
-    const destinationLocation = event.target.getAttribute(
-      "data-destination-location"
-    );
-    const destinationDescription = event.target.getAttribute(
-      "data-destination-description"
-    );
+    const destinationLocation = event.target.getAttribute("data-destination-location");
+    const destinationDescription = event.target.getAttribute("data-destination-description");
 
     // Populate the modal form fields
     editModal.querySelector("#edit-destination-id").value = destinationId;
     editModal.querySelector("#edit-name").value = destinationName;
     editModal.querySelector("#edit-contact_person").value = contactPerson;
-    editModal.querySelector("#edit-contact_information").value =
-      contactInformation;
+    editModal.querySelector("#edit-contact_information").value = contactInformation;
     editModal.querySelector("#edit-type").value = destinationType;
     editModal.querySelector("#edit-location").value = destinationLocation;
     editModal.querySelector("#edit-description").value = destinationDescription;
@@ -82,14 +59,11 @@
     <tbody>
       {% for destination in destinations %}
       <tr>
-        <td>{{ destination.name }}</td>
-        <td>
-          {{ destination.contact_person }}: {{ destination.contact_information
-          }}
-        </td>
-        <td>{{ destination.type }}</td>
-        <td>{{ destination.location }}</td>
-        <td>{{ destination.description }}</td>
+        <td>{{ destination.name|safe }}</td>
+        <td>{{ destination.contact_person|safe }}: {{ destination.contact_information|safe }}</td>
+        <td>{{ destination.type|safe }}</td>
+        <td>{{ destination.location|safe }}</td>
+        <td>{{ destination.description|safe }}</td>
         <td>
           <img
             src="/static/icons/pencil-square.svg"
@@ -97,22 +71,22 @@
             name="destination_edit"
             type="button"
             class="edit-destination"
-            title="Edit {{source.name}}"
+            title="Edit {{ source.name|safe }}"
             data-bs-toggle="offcanvas"
             data-bs-target="#EditCanvas"
             aria-controls="EditCanvas"
             data-destination-id="{{ destination.id }}"
-            data-destination-name="{{ destination.name }}"
-            data-contact-person="{{ destination.contact_person }}"
-            data-contact-information="{{ destination.contact_information }}"
-            data-destination-type="{{ destination.type }}"
-            data-destination-location="{{ destination.location }}"
-            data-destination-description="{{ destination.description }}"
+            data-destination-name="{{ destination.name|safe }}"
+            data-contact-person="{{ destination.contact_person|safe }}"
+            data-contact-information="{{ destination.contact_information|safe }}"
+            data-destination-type="{{ destination.type|safe }}"
+            data-destination-location="{{ destination.location|safe }}"
+            data-destination-description="{{ destination.description|safe }}"
           />
         </td>
         <td>
           <form
-            id="delete-form"
+            id="{{ destination.name|escape_html|safe }}"
             action="{{ url_for('destinations.delete_destination') }}"
             method="post"
           >
@@ -122,7 +96,7 @@
               alt="delete"
               name="destination_delete"
               type="submit"
-              title="Delete {{destination.name}}"
+              title="Delete {{ destination.name|safe }}"
               onclick="return confirmDelete('{{ destination.name|escape_html|safe }}');"
             />
           </form>
@@ -151,15 +125,10 @@
 >
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Destination</h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-8">
+    <div class="container mx-auto">
       <form method="POST" action="{{ url_for('destinations.destinations') }}">
         <div class="row">
           <div class="col-auto">
@@ -264,19 +233,11 @@
 >
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Destination</h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-8">
-      <form
-        method="POST"
-        action="{{ url_for('destinations.edit_destination') }}"
-      >
+    <div class="container mx-auto">
+      <form method="POST" action="{{ url_for('destinations.edit_destination') }}">
         <div class="row">
           <div class="col-auto">
             <div class="form-floating">

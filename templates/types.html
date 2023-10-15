@@ -6,36 +6,6 @@
 <!--head-->
 {%block head %}
 <script>
-  function confirmDeleteR(dbItem) {
-    var confirmMessage =
-      "Are you sure you want to delete '" +
-      dbItem +
-      "'?\nThis can not be undone!";
-    if (confirm(confirmMessage)) {
-      // If confirmed, submit the form
-      document.getElementById("rtype-delete-form").submit();
-    } else {
-      // If canceled, prevent form submission
-      return false;
-    }
-  }
-</script>
-<script>
-  function confirmDeleteP(dbItem) {
-    var confirmMessage =
-      "Are you sure you want to delete '" +
-      dbItem +
-      "'?\nThis can not be undone!";
-    if (confirm(confirmMessage)) {
-      // If confirmed, submit the form
-      document.getElementById("ptype-delete-form").submit();
-    } else {
-      // If canceled, prevent form submission
-      return false;
-    }
-  }
-</script>
-<script>
   // Attach the populateModal() function to the edit buttons
   $(document).ready(function () {
     const editButtonsR = document.querySelectorAll(".edit-rtype");
@@ -100,7 +70,7 @@
         <tbody>
           {% for rtype in rtypes %}
           <tr>
-            <td>{{ rtype.name }}</td>
+            <td>{{ rtype.name|safe }}</td>
             <td>
               <img
                 src="/static/icons/pencil-square.svg"
@@ -112,24 +82,24 @@
                 data-bs-target="#EditRtypeCanvas"
                 aria-controls="EditRtypeCanvas"
                 data-rtype-id="{{ rtype.id }}"
-                data-rtype-name="{{ rtype.name }}"
-                title="Edit {{rtype.name}}"
+                data-rtype-name="{{ rtype.name|safe }}"
+                title="Edit {{ rtype.name|safe }}"
               />
             </td>
             <td>
               <form
-                id="rtype-delete-form"
+                id="{{ rtype.name|escape_html|safe }}"
                 action="{{ url_for('types.delete_type') }}"
                 method="post"
               >
-                <input type="hidden" name="id" value="{{ rtype.id }}" />
+                <input type="hidden" name="rtype_delete" value="{{ rtype.id }}" />
                 <img
                   src="/static/icons/x-square.svg"
                   alt="delete"
                   name="rtype_delete"
                   type="submit"
-                  title="Delete {{rtype.name}}"
-                  onclick="return confirmDeleteR('{{ rtype.name|escape_html|safe }}');"
+                  title="Delete {{ rtype.name|safe }}"
+                  onclick="return confirmDelete('{{ rtype.name|escape_html|safe }}');"
                 />
               </form>
             </td>
@@ -162,7 +132,7 @@
         <tbody>
           {% for ptype in ptypes %}
           <tr>
-            <td>{{ ptype.name }}</td>
+            <td>{{ ptype.name|safe }}</td>
             <td>
               <img
                 src="/static/icons/pencil-square.svg"
@@ -174,24 +144,24 @@
                 data-bs-target="#EditPtypeCanvas"
                 aria-controls="EditPtypeCanvas"
                 data-ptype-id="{{ ptype.id }}"
-                data-ptype-name="{{ ptype.name }}"
-                title="Edit {{ptype.name}}"
+                data-ptype-name="{{ ptype.name|safe }}"
+                title="Edit {{ ptype.name|safe }}"
               />
             </td>
             <td>
               <form
-                id="ptype-delete-form"
+                id="{{ ptype.name|escape_html|safe }}"
                 action="{{ url_for('types.delete_type') }}"
                 method="post"
               >
-                <input type="hidden" name="id" value="{{ ptype.id }}" />
+                <input type="hidden" name="ptype_delete" value="{{ ptype.id }}" />
                 <img
                   src="/static/icons/x-square.svg"
                   alt="delete"
                   name="ptype_delete"
                   type="submit"
-                  title="Delete {{ptype.name}}"
-                  onclick="return confirmDeleteP('{{ ptype.name|escape_html|safe }}');"
+                  title="Delete {{ ptype.name|safe }}"
+                  onclick="return confirmDelete('{{ ptype.name|escape_html|safe }}');"
                 />
               </form>
             </td>
@@ -220,18 +190,11 @@
   aria-labelledby="AddRtypeCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="AddRtypeCanvasLabel">
-      Add New Raw Material Type
-    </h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <h5 class="offcanvas-title" id="AddRtypeCanvasLabel">Add New Raw Material Type</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-8">
+    <div class="container mx-auto">
       <form id="rtype_form" method="POST" action="{{ url_for('types.types') }}">
         <div class="form-floating">
           <input
@@ -255,30 +218,19 @@
 </div>
 <!-- offcanvas for raw material type editing -->
 <div
-  class="offcanvas offcanvas-end text-start"
+  class="offcanvas offcanvas-start text-end"
   data-bs-scroll="true"
   tabindex="-1"
   id="EditRtypeCanvas"
   aria-labelledby="EditRtypeCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="EditRtypeCanvasLabel">
-      Edit Raw Material Type
-    </h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <h5 class="offcanvas-title" id="EditRtypeCanvasLabel">Edit Raw Material Type</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-8">
-      <form
-        id="rtype_edit"
-        method="POST"
-        action="{{ url_for('types.edit_type') }}"
-      >
+    <div class="container mx-auto">
+      <form id="rtype_edit" method="POST" action="{{ url_for('types.edit_type') }}">
         <div class="form-floating">
           <input type="hidden" name="id" id="edit-rtype-id" />
           <input
@@ -302,25 +254,18 @@
 </div>
 <!-- offcanvas to add a new production -->
 <div
-  class="offcanvas offcanvas-start text-end"
+  class="offcanvas offcanvas-end text-start"
   data-bs-scroll="true"
   tabindex="-1"
   id="AddPtypeCanvas"
   aria-labelledby="AddPtypeCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="AddPtypeCanvasLabel">
-      Add New Production Type
-    </h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <h5 class="offcanvas-title" id="AddPtypeCanvasLabel">Add New Production Type</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-8">
+    <div class="container mx-auto">
       <form id="ptype_form" method="POST" action="{{ url_for('types.types') }}">
         <div class="form-floating">
           <input
@@ -335,9 +280,7 @@
           <label for="ptype-name">Production Name</label>
         </div>
 
-        <button name="ptype_form" type="submit" class="btn btn-success">
-          Add Production Type
-        </button>
+        <button name="ptype_form" type="submit" class="btn btn-success">Add Production Type</button>
       </form>
     </div>
   </div>
@@ -351,23 +294,12 @@
   aria-labelledby="EditPtypeCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="EditPtypeCanvasLabel">
-      Edit Production Type
-    </h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <h5 class="offcanvas-title" id="EditPtypeCanvasLabel">Edit Production Type</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-8">
-      <form
-        id="ptype_edit"
-        method="POST"
-        action="{{ url_for('types.edit_type') }}"
-      >
+    <div class="container mx-auto">
+      <form id="ptype_edit" method="POST" action="{{ url_for('types.edit_type') }}">
         <div class="form-floating">
           <input type="hidden" name="id" id="edit-ptype-id" />
           <input

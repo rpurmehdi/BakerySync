@@ -15,9 +15,7 @@
       select.hidden = true;
       select.removeAttribute("required");
     });
-    const selectedHiddenSelect = document.getElementById(
-      `recipe${selectedValue}`
-    );
+    const selectedHiddenSelect = document.getElementById(`recipe${selectedValue}`);
     if (selectedHiddenSelect) {
       selectedHiddenSelect.hidden = false;
       selectedHiddenSelect.setAttribute("required", "required");
@@ -36,7 +34,6 @@
         // Clear existing inputs and messages
         $("#message").empty();
         $("#rmContainer").empty();
-
         for (let i = 0; i < response.ids.length; i++) {
           const id = response.ids[i];
           const name = response.names[i];
@@ -73,7 +70,7 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     function updateField() {
-      const BatchNumbers = [{% for production in productions %}"{{ production.print_batch }}", {%endfor %}];
+      const BatchNumbers = [{% for production in productions %}"{{ production.print_batch|safe }}", {%endfor %}];
       const productionDateValue =
         document.getElementById("production_date").value;
       const productionTypeValue =
@@ -110,21 +107,6 @@
       .addEventListener("change", updateField);
   });
 </script>
-<script>
-  function confirmDelete(dbItem) {
-    var confirmMessage =
-      "Are you sure you want to delete '" +
-      dbItem +
-      "'?\nThis can not be undone!";
-    if (confirm(confirmMessage)) {
-      // If confirmed, submit the form
-      document.getElementById("delete-form").submit();
-    } else {
-      // If canceled, prevent form submission
-      return false;
-    }
-  }
-</script>
 {% endblock %}
 <!--body-->
 {%block main %}
@@ -137,23 +119,22 @@
         <th>Type</th>
         <th>Batch</th>
         <th>Recipe</th>
-        <th>Quantity</th>
+        <th>Quantity (Kg)</th>
         <th>Production Time</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      {% for production in productions|sort(attribute='production_time')|reverse
-      %}
+      {% for production in productions|sort(attribute='production_time')|reverse %}
       <tr>
-        <td>{{ production.type.name }}</td>
-        <td>{{ production.print_batch }}</td>
-        <td>{{ production.recipe.name }}</td>
+        <td>{{ production.type.name|safe }}</td>
+        <td>{{ production.print_batch|safe }}</td>
+        <td>{{ production.recipe.name|safe }}</td>
         <td>{{ production.quantity }}</td>
         <td>{{ production.production_time }}</td>
         <td>
           <form
-            id="delete-form"
+            id="{{ production.type.name|escape_html|safe }} on {{ production.production_time|safe }}"
             action="{{ url_for('productions.delete_production') }}"
             method="post"
           >
@@ -163,8 +144,8 @@
               alt="delete"
               name="production_delete"
               type="submit"
-              title="Delete {{production.type.name}}"
-              onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} production of {{ production.quantity|safe }} on {{ production.production_time|safe }}');"
+              title="Delete {{ production.type.name|safe }}"
+              onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} on {{ production.production_time|safe }}');"
             />
           </form>
         </td>
@@ -192,142 +173,122 @@
 >
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Production</h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
->      <div class="row justify-content-md-center">
-        <div class="col chart-container">
-          <canvas
-            id="materialChart"
-            style="max-width: 700px; display: inline"
-          ></canvas>
-        </div>
-        <div class="col chart-container">
-          <canvas
-            id="productionChart"
-            style="max-width: 700px; display: inline"
-          ></canvas>
-        </div>
+    >
+    <div class="row justify-content-md-center">
+      <div class="col chart-container">
+        <canvas id="materialChart" style="max-width: 700px; display: inline"></canvas>
       </div>
-      <div class="container mx-auto mt-3">
-        <form method="POST" action="{{url_for('productions.productions')}}">
-          <div class="row justify-content-md-center">
-            <div class="col-md-auto">
-              <div class="form-floating">
-                <input
-                  class="form-control my-1"
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  id="quantity"
-                  name="quantity"
-                  required
-                />
-                <label for="quantity">Production Quantity</label>
-              </div>
-              <div class="form-floating">
-                <input
-                  class="form-control my-1"
-                  type="datetime-local"
-                  id="production_date"
-                  name="production_date"
-                  required
-                />
-                <label for="production_date">Production Date</label>
-              </div>
+      <div class="col chart-container">
+        <canvas id="productionChart" style="max-width: 700px; display: inline"></canvas>
+      </div>
+    </div>
+    <div class="container mx-auto mt-3">
+      <form method="POST" action="{{url_for('productions.productions')}}">
+        <div class="row justify-content-md-center">
+          <div class="col-md-auto">
+            <div class="form-floating">
+              <input
+                class="form-control my-1"
+                type="number"
+                step="0.1"
+                min="0.1"
+                id="quantity"
+                name="quantity"
+                required
+              />
+              <label for="quantity">Production Quantity (Kg)</label>
             </div>
-            <div class="col-md-auto">
-              <div class="form-floating">
-                <select
-                  class="form-select my-1"
-                  id="production_types"
-                  name="production_types"
-                  onchange="recipeChange(this.value);"
-                  required
-                >
-                  <option selected disabled value="">
-                    Select a Production Type
-                  </option>
-                  {% for ptype in ptypes %}
-                  <option value="{{ ptype.id }}">{{ ptype.name }}</option>
-                  {% endfor %}
-                </select>
-                <label for="production_types">Production Type</label>
-              </div>
-              <div class="form-floating">
-                <input
-                  class="form-select my-1 recipe-select"
-                  id="recipe0"
-                  name="recipe0"
-                  readonly
-                />
-                {% for ptype in ptypes %}<select
-                  class="form-select my-1 recipe-select"
-                  id="recipe{{ptype.id}}"
-                  name="recipe{{ptype.id}}"
-                  onchange="recSearch(this.value);"
-                  hidden
-                >
-                  <option value="" disabled selected>Select a recipe</option>
-                  {% for recipe in recipes %}{% if recipe.production_type ==
-                  ptype.id %}
-                  <option value="{{recipe.id}}">{{recipe.name}}</option>
-                  {% endif %}{% endfor %}</select
-                >{% endfor %}
-                <label for="recipe0">Recipe</label>
-              </div>
-              <div id="message" class="form-text text-danger"></div>
-              <div id="rmContainer"></div>
+            <div class="form-floating">
+              <input
+                class="form-control my-1"
+                type="datetime-local"
+                id="production_date"
+                name="production_date"
+                required
+              />
+              <label for="production_date">Production Date</label>
             </div>
           </div>
-          <div class="row justify-content-md-center mt-3">
-            <div class="col-md-auto">
-              <div class="form-floating">
-                <input
-                  class="form-control my-1"
-                  id="batch-number"
-                  name="batch-number"
-                  type="text"
-                  placeholder="Batch Number"
-                  value=""
-                  aria-label="batch_number"
-                  readonly
-                />
-                <label for="batch-number">Batch Number</label>
-                <input
-                  class="form-control"
-                  id="batch_number"
-                  name="batch_number"
-                  type="hidden"
-                  value=""
-                  aria-label="batch_number"
-                />
-              </div>
+          <div class="col-md-auto">
+            <div class="form-floating">
+              <select
+                class="form-select my-1"
+                id="production_types"
+                name="production_types"
+                onchange="recipeChange(this.value);"
+                required
+              >
+                <option selected disabled value="">Select a Production Type</option>
+                {% for ptype in ptypes %}
+                <option value="{{ ptype.id }}">{{ ptype.name|safe }}</option>
+                {% endfor %}
+              </select>
+              <label for="production_types">Production Type</label>
+            </div>
+            <div class="form-floating">
+              <input class="form-select my-1 recipe-select" id="recipe0" name="recipe0" readonly />
+              {% for ptype in ptypes %}<select
+                class="form-select my-1 recipe-select"
+                id="recipe{{ ptype.id }}"
+                name="recipe{{ ptype.id }}"
+                onchange="recSearch(this.value);"
+                hidden
+              >
+                <option value="" disabled selected>Select a recipe</option>
+                {% for recipe in recipes %}{% if recipe.production_type == ptype.id %}
+                <option value="{{ recipe.id }}">{{ recipe.name|safe }}</option>
+                {% endif %}{% endfor %}</select
+              >{% endfor %}
+              <label for="recipe0">Recipe</label>
+            </div>
+            <div id="message" class="form-text text-danger"></div>
+            <div id="rmContainer"></div>
+          </div>
+        </div>
+        <div class="row justify-content-md-center mt-3">
+          <div class="col-md-auto">
+            <div class="form-floating">
+              <input
+                class="form-control my-1"
+                id="batch-number"
+                name="batch-number"
+                type="text"
+                placeholder="Batch Number"
+                value=""
+                aria-label="batch_number"
+                readonly
+              />
+              <label for="batch-number">Batch Number</label>
+              <input
+                class="form-control"
+                id="batch_number"
+                name="batch_number"
+                type="hidden"
+                value=""
+                aria-label="batch_number"
+              />
             </div>
           </div>
-          <button type="submit" class="btn btn-success">
-            Add Production Instance
-          </button>
-        </form>
-      </div>
- </div>
+        </div>
+        <button type="submit" class="btn btn-success">Add Production Instance</button>
+      </form>
+    </div>
+  </div>
 </div>
 <!--chart scripts-->
 <script>
-  const randColors = {{colors|safe}};
+  const randColors = {{ colors|safe }};
   new Chart("materialChart", {
       type: "bar",
       data: {
-        labels: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}"{{rtype.name|safe}}", {% endif %}{% endfor %}],
-        datasets: [{% for material in materials %}{% if material.stock > 0 %}{label: "{{material.source.name|safe}}-{{ material.arriving_date.strftime('%Y-%m-%d') }}",
+        labels: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}"{{ rtype.name|safe }}", {% endif %}{% endfor %}],
+        datasets: [{% for material in materials %}{% if material.stock > 0 %}{label: "{{ material.source.name|safe }}-{{ material.arriving_date.strftime('%Y-%m-%d') }}",
         data: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}{% if rtype.id == material.type_id %}{{ material.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
-        backgroundColor: randColors[{{material.id}} % 50],
-        borderColor: randColors[50 + {{material.id}} % 100],
+        backgroundColor: randColors[{{ material.id }} % 50],
+        borderColor: randColors[50 + {{ material.id }} % 100],
         borderWidth: 1
         },
         {% endif %}{% endfor %}],
@@ -370,8 +331,8 @@
           labels: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}"{{ptype.name|safe}}", {% endif %}{% endfor %}],
           datasets: [{% for production in productions %}{% if production.stock > 0 %}{label: "{{production.print_batch|safe}}-{{ production.production_time.strftime('%Y-%m-%d') }}",
           data: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}{% if ptype.id == production.type_id %}{{ production.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
-        backgroundColor: randColors[{{production.id}} % 50],
-        borderColor: randColors[50 + {{production.id}} % 100],
+        backgroundColor: randColors[{{ production.id }} % 50],
+        borderColor: randColors[50 + {{ production.id }} % 100],
         borderWidth: 1
           },
           {% endif %}{% endfor %}],

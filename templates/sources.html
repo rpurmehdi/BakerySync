@@ -6,21 +6,6 @@
 <!--head-->
 {%block head %}
 <script>
-  function confirmDelete(dbItem) {
-    var confirmMessage =
-      "Are you sure you want to delete '" +
-      dbItem +
-      "'?\nThis can not be undone!";
-    if (confirm(confirmMessage)) {
-      // If confirmed, submit the form
-      document.getElementById("delete-form").submit();
-    } else {
-      // If canceled, prevent form submission
-      return false;
-    }
-  }
-</script>
-<script>
   // Attach the populateModal() function to the edit buttons
   $(document).ready(function () {
     const editButtons = document.querySelectorAll(".edit-source");
@@ -38,21 +23,16 @@
     const sourceId = event.target.getAttribute("data-source-id");
     const sourceName = event.target.getAttribute("data-source-name");
     const contactPerson = event.target.getAttribute("data-contact-person");
-    const contactInformation = event.target.getAttribute(
-      "data-contact-information"
-    );
+    const contactInformation = event.target.getAttribute("data-contact-information");
     const sourceType = event.target.getAttribute("data-source-type");
     const sourceLocation = event.target.getAttribute("data-source-location");
-    const sourceDescription = event.target.getAttribute(
-      "data-source-description"
-    );
+    const sourceDescription = event.target.getAttribute("data-source-description");
 
     // Populate the modal form fields
     editModal.querySelector("#edit-source-id").value = sourceId;
     editModal.querySelector("#edit-name").value = sourceName;
     editModal.querySelector("#edit-contact_person").value = contactPerson;
-    editModal.querySelector("#edit-contact_information").value =
-      contactInformation;
+    editModal.querySelector("#edit-contact_information").value = contactInformation;
     editModal.querySelector("#edit-type").value = sourceType;
     editModal.querySelector("#edit-location").value = sourceLocation;
     editModal.querySelector("#edit-description").value = sourceDescription;
@@ -80,11 +60,11 @@
       <tbody>
         {% for source in sources %}
         <tr>
-          <td>{{ source.name }}</td>
-          <td>{{ source.contact_person }}: {{ source.contact_information }}</td>
-          <td>{{ source.type }}</td>
-          <td>{{ source.location }}</td>
-          <td>{{ source.description }}</td>
+          <td>{{ source.name|safe }}</td>
+          <td>{{ source.contact_person|safe }}: {{ source.contact_information|safe }}</td>
+          <td>{{ source.type|safe }}</td>
+          <td>{{ source.location|safe }}</td>
+          <td>{{ source.description|safe }}</td>
           <td>
             <img
               src="/static/icons/pencil-square.svg"
@@ -96,18 +76,18 @@
               data-bs-target="#EditCanvas"
               aria-controls="EditCanvas"
               data-source-id="{{ source.id }}"
-              data-source-name="{{ source.name }}"
-              data-contact-person="{{ source.contact_person }}"
-              data-contact-information="{{ source.contact_information }}"
-              data-source-type="{{ source.type }}"
-              data-source-location="{{ source.location }}"
-              data-source-description="{{ source.description }}"
-              title="Edit {{source.name}}"
+              data-source-name="{{ source.name|safe }}"
+              data-contact-person="{{ source.contact_person|safe }}"
+              data-contact-information="{{ source.contact_information|safe }}"
+              data-source-type="{{ source.type|safe }}"
+              data-source-location="{{ source.location|safe }}"
+              data-source-description="{{ source.description|safe }}"
+              title="Edit {{ source.name|safe }}"
             />
           </td>
           <td>
             <form
-              id="delete-form"
+              id="{{ source.name|escape_html|safe }}"
               action="{{ url_for('sources.delete_source') }}"
               method="post"
             >
@@ -117,7 +97,7 @@
                 alt="delete"
                 name="source_delete"
                 type="submit"
-                title="Delete {{source.name}}"
+                title="Delete {{ source.name|safe }}"
                 onclick="return confirmDelete('{{ source.name|escape_html|safe }}');"
               />
             </form>
@@ -147,18 +127,13 @@
 >
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Source</h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-5">
+    <div class="container mx-auto">
       <form method="POST" action="{{ url_for('sources.sources') }}">
         <div class="row">
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
               <input
                 type="text"
@@ -172,7 +147,7 @@
               <label for="name">Source Name</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
               <select class="form-select" id="type" name="type" required>
                 <option selected disabled value="">Select a type</option>
@@ -187,7 +162,7 @@
           </div>
         </div>
         <div class="row mt-4">
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -201,7 +176,7 @@
               <label for="contact_person">Contact Person</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -215,7 +190,7 @@
               <label for="contact_information">Contact Information</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -231,18 +206,16 @@
           </div>
         </div>
         <div class="row my-4">
-          <div class="col w-auto">
-            <div class="form-floating">
-              <textarea
-                class="form-control"
-                placeholder="Write source description"
-                name="description"
-                id="description"
-                autocomplete="off"
-                style="height: 100px"
-              ></textarea>
-              <label for="description">Source Description</label>
-            </div>
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              placeholder="Write source description"
+              name="description"
+              id="description"
+              autocomplete="off"
+              style="height: 100px"
+            ></textarea>
+            <label for="description">Source Description</label>
           </div>
         </div>
         <button type="submit" class="btn btn-success">Add Source</button>
@@ -260,18 +233,13 @@
 >
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Source</h5>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="offcanvas"
-      aria-label="Close"
-    ></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-8">
+    <div class="container mx-auto">
       <form method="POST" action="{{ url_for('sources.edit_source') }}">
         <div class="row">
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
               <input type="hidden" name="id" id="edit-source-id" />
               <input
@@ -286,7 +254,7 @@
               <label for="edit-name">Source Name</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
               <input
                 type="text"
@@ -301,7 +269,7 @@
           </div>
         </div>
         <div class="row mt-4">
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -315,7 +283,7 @@
               <label for="edit-contact_person">Contact Person</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -329,7 +297,7 @@
               <label for="edit-contact_information">Contact Information</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -345,18 +313,16 @@
           </div>
         </div>
         <div class="row my-4">
-          <div class="col w-auto">
-            <div class="form-floating">
-              <textarea
-                class="form-control"
-                placeholder="Write source description"
-                name="description"
-                id="edit-description"
-                autocomplete="off"
-                style="height: 100px"
-              ></textarea>
-              <label for="edit-description">Source Description</label>
-            </div>
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              placeholder="Write source description"
+              name="description"
+              id="edit-description"
+              autocomplete="off"
+              style="height: 100px"
+            ></textarea>
+            <label for="edit-description">Source Description</label>
           </div>
         </div>
         <button type="submit" class="btn btn-warning">Edit Source</button>

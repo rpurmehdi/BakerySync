@@ -8,7 +8,7 @@ types_bp = Blueprint('types', __name__, url_prefix='/types')
 def types():
     if request.method == 'POST':
         # Get data from the form
-        name = request.form['name']
+        name = request.form['name'].capitalize()
         # Create a new type object and add it to the database
         if "rtype_form" in request.form:
             new_type = RawMaterialType(name=name)
@@ -20,7 +20,7 @@ def types():
             # Attempt to perform a database operation
             db.session.add(new_type)
             db.session.commit()
-            flash('New Typr added successfully', 'success')
+            flash('New Type added successfully', 'success')
             # Redirect to the types page
             return redirect(url_for('types.types'))
         except Exception as e:
@@ -59,23 +59,23 @@ def edit_type():
                 if "rtype_edit" in request.form:
                     has_arrived = type_to_edit.arrivals
                     has_recipe = type_to_edit.recipes
+                    if has_recipe:
+                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
+                        return redirect(url_for('types.types'))
                     if has_arrived:
                         flash(
                             f"{type_to_edit.name} has arrival(s), cannot edit", "danger")
-                        return redirect(url_for('types.types'))
-                    if has_recipe:
-                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
                         return redirect(url_for('types.types'))    
                 else:
                     has_production = type_to_edit.productions
                     has_recipe = type_to_edit.recipes
-                    if has_production:
+                if has_recipe:
+                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
+                        return redirect(url_for('types.types'))
+                if has_production:
                         flash(
                             f"{type_to_edit.name} has been produced, cannot edit", "danger")
                         return redirect(url_for('types.types'))
-                    if has_recipe:
-                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
-                        return redirect(url_for('types.types'))   
                 # edit the found type
                 type_to_edit.name = name
                 db.session.commit()
@@ -98,12 +98,16 @@ def edit_type():
 @types_bp.route('/delete', methods=["POST"])
 def delete_type():
     if request.method == 'POST':
-        id = request.form.get("id")
         try:
             if "rtype_delete" in request.form:
+                id = request.form.get("rtype_delete")
+                print(id)
                 type_to_delete = RawMaterialType.query.get(id)
+                raw = True
             elif "ptype_delete" in request.form:
+                id = request.form.get("ptype_delete")
                 type_to_delete = ProductionType.query.get(id)
+                raw = False
             else:
                 return redirect(url_for('types.types'))
         except:
@@ -111,26 +115,23 @@ def delete_type():
             return redirect(url_for('types.types'))
         try:
             if type_to_delete:
-                if "rtype_delete" in request.form:
+                if raw:
                     has_arrived = type_to_delete.arrivals
                     has_recipe = type_to_delete.recipes
-                    if has_arrived:
-                        flash(
-                            f"{type_to_delete.name} has arrival(s), cannot delete", "danger")
-                        return redirect(url_for('types.types'))
-                    if has_recipe:
-                        flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
-                        return redirect(url_for('types.types'))    
                 else:
                     has_production = type_to_delete.productions
                     has_recipe = type_to_delete.recipes
-                    if has_production:
-                        flash(
-                            f"{type_to_delete.name} has been produced, cannot delete", "danger")
-                        return redirect(url_for('types.types'))
-                    if has_recipe:
-                        flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
-                        return redirect(url_for('types.types'))   
+                if has_recipe:
+                    flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
+                    return redirect(url_for('types.types'))
+                if raw and has_arrived:
+                    flash(
+                        f"{type_to_delete.name} has arrival(s), cannot delete", "danger")
+                    return redirect(url_for('types.types'))
+                if not raw and has_production:
+                    flash(
+                        f"{type_to_delete.name} has been produced, cannot delete", "danger")
+                    return redirect(url_for('types.types'))
                 # Delete the found type
                 db.session.delete(type_to_delete)
                 db.session.commit()

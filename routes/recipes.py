@@ -9,16 +9,16 @@ def recipes():
     if request.method == 'POST':
         # Get data from the form
         try:
-            recipe_name = request.form['recipe_name']
+            recipe_name = request.form['recipe_name'].capitalize()
             description = request.form['description']
             ptype = request.form['production_type']
             rtypes = RawMaterialType.query.all()
             rtype_percents = {}
             for rtype in rtypes:
                 try:
-                    rtype_percent = float(request.form.get(rtype.name, 0))
+                    rtype_percent = float(request.form.get(rtype.name, 0.0))
                 except ValueError:
-                    rtype_percent = 0
+                    rtype_percent = 0.0
                 rtype_percents[rtype.name] = rtype_percent
         except Exception as e:
             flash(f'Invalid data input! - Error: {str(e)}', 'warning')
@@ -41,6 +41,11 @@ def recipes():
             description=description,
             production_type=ptype,
         )
+        duplicate_recipe = Recipe.query.filter_by(name=recipe_name, production_type=ptype).first()
+        if duplicate_recipe:
+            flash(
+                    f'Can not add another recipe with the same name {recipe_name} for production type {ptype}. Recipe names must all be unique for each production.', 'warning')
+            return redirect(url_for('recipes.recipes'))
         try:
             # Attempt to perform a database operation
             db.session.add(new_recipe)
@@ -56,8 +61,8 @@ def recipes():
         try:
             insertions = []
             for rtype in rtypes:
-                raw_percent = int(rtype_percents[rtype.name])
-                if raw_percent is not 0:
+                raw_percent = float(rtype_percents[rtype.name])
+                if raw_percent is not 0.0:
                     insertions.append(recipe_rawmaterial_association.insert().values(
                         recipe_id=new_recipe.id, material_type=rtype.id, quantity_percent=raw_percent))
             for insertion in insertions:
