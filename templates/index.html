@@ -4,7 +4,7 @@
 <!-- and again here!-->
 {% block navbar_title %} Overview {% endblock %}
 <!--head-->
-{% block head %} {% endblock %} {% block main %}
+{% block head %} <script src="https://d3js.org/d3.v5.min.js"></script>{% endblock %} {% block main %}
 <div class="mb-3">
   <p><a href="{{ url_for('types.types') }}">type management</a></p>
   <p><a href="{{ url_for('sources.sources') }}">source management</a></p>
@@ -22,5 +22,40 @@
   </p>
   <p><a href="{{ url_for('shipments.shipments') }}">shipment management</a></p>
 </div>
+<div id="chart-container"></div>
+<script>
+  // Sample data
+  const data = [30, 45, 60, 25, 40];
 
+  // Set the width and height of the chart
+  const width = 400;
+  const height = 300;
+
+  // Create an SVG element inside the chart container
+  const svg = d3.select("#chart-container")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  // Create the bars
+  svg.selectAll("rect")
+    .data(data)
+    .enter()
+    .append("rect")
+    .attr("x", (d, i) => i * (width / data.length))
+    .attr("y", d => height - d)
+    .attr("width", width / data.length - 1)
+    .attr("height", d => d)
+
+
+  // Add labels to the bars
+  svg.selectAll("text")
+    .data(data)
+    .enter()
+    .append("text")
+    .attr("x", (d, i) => i * (width / data.length) + (width / data.length) / 2)
+    .attr("y", d => height - d - 5)
+    .attr("text-anchor", "middle")
+    .text(d => d);
+</script>
 {% endblock %}

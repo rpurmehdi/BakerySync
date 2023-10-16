@@ -1,7 +1,7 @@
 import random
 from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
-from models import db, Production, RawMaterialArrival, ProductionShipment, production_arrival_association, Recipe, ProductionType, RawMaterialType
+from models import db, Production, IngredientArrival, ProductionShipment, production_arrival_association, Recipe, ProductionType, IngredientType
 
 productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 
@@ -57,24 +57,24 @@ def productions():
             return redirect(url_for('productions.productions'))
         try:
             insertions = []
-            for material in recipe.materials:
-                raw_quant = float(request.form[material.name])
-                if raw_quant > material.stock:
+            for ingredient in recipe.ingredients:
+                ing_quant = float(request.form[ingredient.name])
+                if ing_quant > ingredient.stock:
                     raise ValueError(
-                        f"{material.name} quantity can not be more than stock")
+                        f"{ingredient.name} quantity can not be more than stock")
                 sorted_arrivals = sorted(
-                    material.arrivals, key=lambda material: material.arriving_date)
+                    ingredient.arrivals, key=lambda ingredient: ingredient.arriving_date)
                 for arrival in sorted_arrivals:
-                    if raw_quant > 0:
+                    if ing_quant > 0:
                         arr_stock = arrival.stock
-                        if arr_stock > raw_quant:
+                        if arr_stock > ing_quant:
                             insertions.append(production_arrival_association.insert().values(
-                                production_id=new_production.id, arrival_id=arrival.id, quantity=raw_quant))
-                            raw_quant = 0
+                                production_id=new_production.id, arrival_id=arrival.id, quantity=ing_quant))
+                            ing_quant = 0
                         elif arr_stock > 0:
                             insertions.append(production_arrival_association.insert().values(
                                 production_id=new_production.id, arrival_id=arrival.id, quantity=arr_stock))
-                            raw_quant = raw_quant - arr_stock
+                            ing_quant = ing_quant - arr_stock
             for insertion in insertions:
                 db.session.execute(insertion)
             db.session.commit()
@@ -91,9 +91,9 @@ def productions():
         # Retrieve all info from the database
         productions = Production.query.all()
         ptypes = ProductionType.query.all()
-        rtypes = RawMaterialType.query.all()
-        materials = RawMaterialArrival.query.order_by(
-            RawMaterialArrival.arriving_date, RawMaterialArrival.type_id).all()
+        rtypes = IngredientType.query.all()
+        ingredients = IngredientArrival.query.order_by(
+            IngredientArrival.arriving_date, IngredientArrival.type_id).all()
         recipes = Recipe.query.all()
         # make random colors
         colors = []
@@ -108,7 +108,7 @@ def productions():
                 rgba = colors[i-50].replace("0.5", "1")
                 colors.append(rgba)
     context = {
-        'materials': materials,
+        'ingredients': ingredients,
         'recipes': recipes,
         'productions': productions,
         'ptypes': ptypes,
@@ -165,11 +165,11 @@ def search():
     names = []
     percents = []
     stocks = []
-    for material in recipe.materials:
-        ids.append(material.id)
-        names.append(material.name)
-        percents.append(recipe.getp(material.id))
-        stocks.append(material.stock)
+    for ingredient in recipe.ingredients:
+        ids.append(ingredient.id)
+        names.append(ingredient.name)
+        percents.append(recipe.getp(ingredient.id))
+        stocks.append(ingredient.stock)
     response = {
         'ids': ids,
         'names': names,

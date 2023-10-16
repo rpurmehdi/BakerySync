@@ -1,5 +1,5 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
-from models import db, Source, RawMaterialArrival
+from models import db, Source, IngredientArrival
 
 sources_bp = Blueprint('sources', __name__, url_prefix='/sources')
 
@@ -94,7 +94,7 @@ def delete_source():
             source_to_delete = Source.query.get(id)
 
             if source_to_delete:
-                is_referenced = RawMaterialArrival.query.filter_by(
+                is_referenced = IngredientArrival.query.filter_by(
                     source_id=id).first()
                 if is_referenced:
                     flash(f'{source_to_delete.name} is used in Arrivals, cannot delete', 'danger')

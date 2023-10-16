@@ -1,6 +1,6 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from datetime import datetime
-from models import db, RawMaterialType, RawMaterialArrival, Source, production_arrival_association
+from models import db, IngredientType, IngredientArrival, Source, production_arrival_association
 
 arrivals_bp = Blueprint('arrivals', __name__, url_prefix='/arrivals')
 
@@ -14,7 +14,7 @@ def arrivals():
         arriving_date_str = request.form['arriving_date']
         quantity_str = request.form['quantity']
         # validate form data
-        type = RawMaterialType.query.filter_by(
+        type = IngredientType.query.filter_by(
             id=type_id).first()
         source = Source.query.filter_by(
             id=source_id).first()
@@ -35,7 +35,7 @@ def arrivals():
             flash('Quantity is invalid', 'warning')
             return redirect(url_for('arrivals.arrivals'))
         # Create a new arrival object and add it to the database
-        new_arrival = RawMaterialArrival(
+        new_arrival = IngredientArrival(
             type_id=type_id,
             source_id=source_id,
             arriving_date=arriving_date,
@@ -54,13 +54,13 @@ def arrivals():
             return redirect(url_for('arrivals.arrivals'))
 
     else:
-        # Retrieve all arrivals, rtypes and sources from the database
-        arrivals = RawMaterialArrival.query.all()
-        rtypes = RawMaterialType.query.order_by(RawMaterialType.name).all()
+        # Retrieve all arrivals, itypes and sources from the database
+        arrivals = IngredientArrival.query.all()
+        itypes = IngredientType.query.order_by(IngredientType.name).all()
         sources = Source.query.order_by(Source.name).all()
         context = {
             'arrivals': arrivals,
-            'rtypes': rtypes,
+            'itypes': itypes,
             'sources': sources
         }
         return render_template('arrivals.html', **context)
@@ -76,14 +76,14 @@ def edit_arrival():
         arriving_date_str = request.form.get('arriving_date')
         quantity_str = request.form.get('quantity')
         # validate form data
-        type = RawMaterialType.query.filter_by(
+        type = IngredientType.query.filter_by(
             id=type_id).first()
         source = Source.query.filter_by(
             id=source_id).first()
         if type and source:
             try:
                 # Fetch the source to edit from the database
-                arrival_to_edit = RawMaterialArrival.query.get(id)
+                arrival_to_edit = IngredientArrival.query.get(id)
                 arriving_date = datetime.fromisoformat(arriving_date_str)
                 quantity = float(quantity_str)
             except ValueError:
@@ -127,7 +127,7 @@ def delete_arrival():
         id = request.form.get("id")
         try:
             # Attempt to find the arrival by its ID
-            arrival_to_delete = RawMaterialArrival.query.get(id)
+            arrival_to_delete = IngredientArrival.query.get(id)
 
             if arrival_to_delete:
                 is_referenced = db.session.query(

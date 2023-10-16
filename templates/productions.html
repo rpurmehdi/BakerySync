@@ -179,7 +179,7 @@
     >
     <div class="row justify-content-md-center">
       <div class="col chart-container">
-        <canvas id="materialChart" style="max-width: 700px; display: inline"></canvas>
+        <canvas id="ingredientChart" style="max-width: 700px; display: inline"></canvas>
       </div>
       <div class="col chart-container">
         <canvas id="productionChart" style="max-width: 700px; display: inline"></canvas>
@@ -281,14 +281,14 @@
 <!--chart scripts-->
 <script>
   const randColors = {{ colors|safe }};
-  new Chart("materialChart", {
+  new Chart("ingredientChart", {
       type: "bar",
       data: {
-        labels: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}"{{ rtype.name|safe }}", {% endif %}{% endfor %}],
-        datasets: [{% for material in materials %}{% if material.stock > 0 %}{label: "{{ material.source.name|safe }}-{{ material.arriving_date.strftime('%Y-%m-%d') }}",
-        data: [{% for rtype in rtypes %}{% if rtype.stock > 0 %}{% if rtype.id == material.type_id %}{{ material.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
-        backgroundColor: randColors[{{ material.id }} % 50],
-        borderColor: randColors[50 + {{ material.id }} % 100],
+        labels: [{% for itype in itypes %}{% if itype.stock > 0 %}"{{ itype.name|safe }}", {% endif %}{% endfor %}],
+        datasets: [{% for ingredient in ingredients %}{% if ingredient.stock > 0 %}{label: "{{ ingredient.source.name|safe }}-{{ ingredient.arriving_date.strftime('%Y-%m-%d') }}",
+        data: [{% for itype in itypes %}{% if itype.stock > 0 %}{% if itype.id == ingredient.type_id %}{{ ingredient.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
+        backgroundColor: randColors[{{ ingredient.id }} % 50],
+        borderColor: randColors[50 + {{ ingredient.id }} % 100],
         borderWidth: 1
         },
         {% endif %}{% endfor %}],
@@ -296,7 +296,7 @@
       options: {
         title: {
         display: true,
-        text: 'Raw Materials',
+        text: 'Ingredients',
       },
 
         tooltips: {

@@ -1,5 +1,5 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
-from models import db, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, recipe_rawmaterial_association
+from models import db, IngredientType, ProductionType, IngredientArrival, Recipe, Production, recipe_ingredient_association
 
 types_bp = Blueprint('types', __name__, url_prefix='/types')
 
@@ -10,8 +10,8 @@ def types():
         # Get data from the form
         name = request.form['name'].capitalize()
         # Create a new type object and add it to the database
-        if "rtype_form" in request.form:
-            new_type = RawMaterialType(name=name)
+        if "itype_form" in request.form:
+            new_type = IngredientType(name=name)
         elif "ptype_form" in request.form:
             new_type = ProductionType(name=name)
         else:
@@ -33,9 +33,9 @@ def types():
             return redirect(url_for('types.types'))
     else:
         # Retrieve all types from the database
-        rtypes = RawMaterialType.query.all()
+        itypes = IngredientType.query.all()
         ptypes = ProductionType.query.all()
-        return render_template('types.html', rtypes=rtypes, ptypes=ptypes)
+        return render_template('types.html', itypes=itypes, ptypes=ptypes)
 
 
 @types_bp.route('/edit', methods=['POST'])
@@ -45,12 +45,12 @@ def edit_type():
         id = request.form.get('id')
         name = request.form.get('name')
         try:
-            if "rtype_edit" in request.form:
-                type_to_edit = RawMaterialType.query.get(id)
-                raw = True
+            if "itype_edit" in request.form:
+                type_to_edit = IngredientType.query.get(id)
+                ing = True
             elif "ptype_edit" in request.form:
                 type_to_edit = ProductionType.query.get(id)
-                raw = False
+                ing = False
             else:
                 return redirect(url_for('types.types'))
         except:
@@ -58,7 +58,7 @@ def edit_type():
             return redirect(url_for('types.types'))
         try:
             if type_to_edit:
-                if raw:
+                if ing:
                     has_use = type_to_edit.arrivals
                     has_recipe = type_to_edit.recipes
                 else:
@@ -67,11 +67,11 @@ def edit_type():
                 if has_recipe:
                     flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
                     return redirect(url_for('types.types'))
-                if raw and has_use:
+                if ing and has_use:
                     flash(
                         f"{type_to_edit.name} has arrival(s), cannot edit", "danger")
                     return redirect(url_for('types.types'))
-                if not raw and has_use:
+                if not ing and has_use:
                     flash(
                         f"{type_to_edit.name} has been produced, cannot edit", "danger")
                     return redirect(url_for('types.types'))
@@ -98,15 +98,15 @@ def edit_type():
 def delete_type():
     if request.method == 'POST':
         try:
-            if "rtype_delete" in request.form:
-                id = request.form.get("rtype_delete")
+            if "itype_delete" in request.form:
+                id = request.form.get("itype_delete")
                 print(id)
-                type_to_delete = RawMaterialType.query.get(id)
-                raw = True
+                type_to_delete = IngredientType.query.get(id)
+                ing = True
             elif "ptype_delete" in request.form:
                 id = request.form.get("ptype_delete")
                 type_to_delete = ProductionType.query.get(id)
-                raw = False
+                ing = False
             else:
                 return redirect(url_for('types.types'))
         except:
@@ -114,7 +114,7 @@ def delete_type():
             return redirect(url_for('types.types'))
         try:
             if type_to_delete:
-                if raw:
+                if ing:
                     has_use = type_to_delete.arrivals
                     has_recipe = type_to_delete.recipes
                 else:
@@ -123,11 +123,11 @@ def delete_type():
                 if has_recipe:
                     flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
                     return redirect(url_for('types.types'))
-                if raw and has_use:
+                if ing and has_use:
                     flash(
                         f"{type_to_delete.name} has arrival(s), cannot delete", "danger")
                     return redirect(url_for('types.types'))
-                if not raw and has_use:
+                if not ing and has_use:
                     flash(
                         f"{type_to_delete.name} has been produced, cannot delete", "danger")
                     return redirect(url_for('types.types'))

@@ -2,7 +2,7 @@
 <!-- enter the page title here!-->
 {% block title %} BakerySync - Manage Arrivals {% endblock %}
 <!-- and again here!-->
-{% block navbar_title %} Raw Material Arrivals {% endblock %}
+{% block navbar_title %} Ingredient Arrivals {% endblock %}
 <!--head-->
 {% block head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
@@ -42,7 +42,7 @@
     <thead>
       <tr>
         <th>Source</th>
-        <th>Raw Material Type</th>
+        <th>Ingredient Type</th>
         <th>Arriving Date</th>
         <th>Quantity (Kg)</th>
         <th></th>
@@ -125,11 +125,11 @@
             <div class="form-floating">
               <select class="form-select" id="type_id" name="type_id" required>
                 <option selected disabled value="">Select a type</option>
-                {% for rtype in rtypes %}
-                <option value="{{ rtype.id }}">{{ rtype.name|safe }}</option>
+                {% for itype in itypes %}
+                <option value="{{ itype.id }}">{{ itype.name|safe }}</option>
                 {% endfor %}
               </select>
-              <label for="type_id">Raw Material Type</label>
+              <label for="type_id">Ingredient Type</label>
             </div>
           </div>
         </div>
@@ -200,11 +200,11 @@
             <div class="form-floating">
               <input type="hidden" name="id" id="edit-arrival-id" />
               <select class="form-select" id="edit-type_id" name="type_id" required>
-                {% for rtype in rtypes %}
-                <option value="{{ rtype.id }}">{{ rtype.name|safe }}</option>
+                {% for itype in itypes %}
+                <option value="{{ itype.id }}">{{ itype.name|safe }}</option>
                 {% endfor %}
               </select>
-              <label for="edit-type_id">Raw Material Type</label>
+              <label for="edit-type_id">Ingredient Type</label>
             </div>
           </div>
         </div>

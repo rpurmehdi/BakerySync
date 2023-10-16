@@ -3,7 +3,7 @@ from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-from models import db, Source, Destination, RawMaterialType, ProductionType, RawMaterialArrival, Recipe, Production, production_arrival_association, ProductionShipment, recipe_rawmaterial_association
+from models import db, Source, Destination, IngredientType, ProductionType, IngredientArrival, Recipe, Production, production_arrival_association, ProductionShipment, recipe_ingredient_association
 from routes.types import types_bp
 from routes.sources import sources_bp
 from routes.destinations import destinations_bp

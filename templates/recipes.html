@@ -79,7 +79,7 @@
         <th>Name</th>
         <th>Product</th>
         <th>Description</th>
-        <th>Materials</th>
+        <th>Ingredients</th>
         <th></th>
       </tr>
     </thead>
@@ -91,8 +91,8 @@
         <td>{{ recipe.description|safe }}</td>
         <td>
           <p class="m-0">
-            {% for material in recipe.materials %}{% for entry in materials %} {% if entry.recipe_id
-            == recipe.id and entry.material_type == material.id %} {{ material.name|safe }}: {{
+            {% for ingredient in recipe.ingredients %}{% for entry in ingredients %} {% if entry.recipe_id
+            == recipe.id and entry.ingredient_type == ingredient.id %} {{ ingredient.name|safe }}: {{
             entry.quantity_percent|safe }}%; {% endif %}{% endfor %}{% endfor %}
           </p>
         </td>
@@ -183,31 +183,31 @@
           </div>
         </div>
         <div class="text-start" id="checkboxContainer">
-          <h6>Choose raw material types to enter percent:</h6>
-          {% for rtype in rtypes %}
+          <h6>Choose ingredientds to enter percent:</h6>
+          {% for itype in itypes %}
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
               type="checkbox"
-              id="Checkbox-{{ rtype.id }}"
+              id="Checkbox-{{ itype.id }}"
               value=""
-              onclick="toggleVisibility('div-{{ rtype.id }}')"
+              onclick="toggleVisibility('div-{{ itype.id }}')"
             />
-            <label class="form-check-label" for="Checkbox-{{ rtype.id }}">{{ rtype.name|safe }}</label>
+            <label class="form-check-label" for="Checkbox-{{ itype.id }}">{{ itype.name|safe }}</label>
           </div>
           {% endfor %}
         </div>
         <div class="row justify-content-md-center my-2">
-          {% for rtype in rtypes %}
-          <div id="div-{{ rtype.id }}" class="form-floating d-none">
+          {% for itype in itypes %}
+          <div id="div-{{ itype.id }}" class="form-floating d-none">
             <input
               class="form-control form-control-sm percent-input"
               type="number"
               step="0.01"
-              id="inp-{{ rtype.id }}"
-              name="{{ rtype.name|safe }}"
+              id="inp-{{ itype.id }}"
+              name="{{ itype.name|safe }}"
             />
-            <label for="inp-{{ rtype.id }}">{{ rtype.name|safe }} percent</label>
+            <label for="inp-{{ itype.id }}">{{ itype.name|safe }} percent</label>
           </div>
 
           {% endfor %}

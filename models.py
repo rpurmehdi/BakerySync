@@ -21,7 +21,7 @@ class Source(BaseModel):
     location = db.Column(db.String(255))
     description = db.Column(db.String(255))
 
-    arrivals = db.relationship('RawMaterialArrival', backref='source')
+    arrivals = db.relationship('IngredientArrival', backref='source')
 
 
 class Destination(BaseModel):
@@ -35,21 +35,21 @@ class Destination(BaseModel):
     shipments = db.relationship('ProductionShipment', backref='destination')
 
 
-recipe_rawmaterial_association = db.Table(
-    'recipe_rawmaterial_association',
+recipe_ingredient_association = db.Table(
+    'recipe_ingredient_association',
     db.Column('recipe_id', db.Integer, db.ForeignKey('recipe.id')),
-    db.Column('material_type', db.Integer,
-              db.ForeignKey('raw_material_type.id')),
+    db.Column('ingredient_type', db.Integer,
+              db.ForeignKey('ingredient_type.id')),
     db.Column('quantity_percent', db.Float)
 )
 
 
-class RawMaterialType(BaseModel):
+class IngredientType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
-    arrivals = db.relationship('RawMaterialArrival', backref='type')
+    arrivals = db.relationship('IngredientArrival', backref='type')
     recipes = db.relationship(
-        'Recipe', secondary=recipe_rawmaterial_association, back_populates='materials')
+        'Recipe', secondary=recipe_ingredient_association, back_populates='ingredients')
 
     @property
     def stock(self):
@@ -62,7 +62,7 @@ production_arrival_association = db.Table(
     db.Column('production_id', db.Integer,
               db.ForeignKey('production.id')),
     db.Column('arrival_id', db.Integer,
-              db.ForeignKey('raw_material_arrival.id')),
+              db.ForeignKey('ingredient_arrival.id')),
     db.Column('quantity', db.Float)
 )
 
@@ -79,9 +79,9 @@ class ProductionType(BaseModel):
         return total_stock
 
 
-class RawMaterialArrival(BaseModel):
+class IngredientArrival(BaseModel):
     type_id = db.Column(db.Integer, db.ForeignKey(
-        RawMaterialType.id), nullable=False)
+        IngredientType.id), nullable=False)
     source_id = db.Column(db.Integer, db.ForeignKey(Source.id), nullable=False)
     arriving_date = db.Column(db.DateTime, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
@@ -89,7 +89,7 @@ class RawMaterialArrival(BaseModel):
     productions = db.relationship(
         'Production',
         secondary=production_arrival_association,
-        back_populates='materials'
+        back_populates='ingredients'
     )
 
     @property
@@ -106,17 +106,17 @@ class Recipe(BaseModel):
     production_type = db.Column(db.Integer, db.ForeignKey(
         ProductionType.id), nullable=False)
 
-    materials = db.relationship(
-        'RawMaterialType',
-        secondary=recipe_rawmaterial_association,
+    ingredients = db.relationship(
+        'IngredientType',
+        secondary=recipe_ingredient_association,
         back_populates='recipes'
     )
     productions = db.relationship('Production', backref='recipe')
 
-    def getp(self, material_type_id):
-        association = db.session.query(recipe_rawmaterial_association).filter(
-            recipe_rawmaterial_association.c.recipe_id == self.id,
-            recipe_rawmaterial_association.c.material_type == material_type_id
+    def getp(self, ingredient_type_id):
+        association = db.session.query(recipe_ingredient_association).filter(
+            recipe_ingredient_association.c.recipe_id == self.id,
+            recipe_ingredient_association.c.ingredient_type == ingredient_type_id
         ).first()
 
         if association:
@@ -133,8 +133,8 @@ class Production(BaseModel):
     quantity = db.Column(db.Integer, nullable=False)
 
     shipments = db.relationship('ProductionShipment', backref='production')
-    materials = db.relationship(
-        'RawMaterialArrival',
+    ingredients = db.relationship(
+        'IngredientArrival',
         secondary=production_arrival_association,
         back_populates='productions'
     )
