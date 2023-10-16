@@ -47,8 +47,10 @@ def edit_type():
         try:
             if "rtype_edit" in request.form:
                 type_to_edit = RawMaterialType.query.get(id)
+                raw = True
             elif "ptype_edit" in request.form:
                 type_to_edit = ProductionType.query.get(id)
+                raw = False
             else:
                 return redirect(url_for('types.types'))
         except:
@@ -56,26 +58,23 @@ def edit_type():
             return redirect(url_for('types.types'))
         try:
             if type_to_edit:
-                if "rtype_edit" in request.form:
-                    has_arrived = type_to_edit.arrivals
+                if raw:
+                    has_use = type_to_edit.arrivals
                     has_recipe = type_to_edit.recipes
-                    if has_recipe:
-                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
-                        return redirect(url_for('types.types'))
-                    if has_arrived:
-                        flash(
-                            f"{type_to_edit.name} has arrival(s), cannot edit", "danger")
-                        return redirect(url_for('types.types'))    
                 else:
-                    has_production = type_to_edit.productions
+                    has_use = type_to_edit.productions
                     has_recipe = type_to_edit.recipes
                 if has_recipe:
-                        flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
-                        return redirect(url_for('types.types'))
-                if has_production:
-                        flash(
-                            f"{type_to_edit.name} has been produced, cannot edit", "danger")
-                        return redirect(url_for('types.types'))
+                    flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
+                    return redirect(url_for('types.types'))
+                if raw and has_use:
+                    flash(
+                        f"{type_to_edit.name} has arrival(s), cannot edit", "danger")
+                    return redirect(url_for('types.types'))
+                if not raw and has_use:
+                    flash(
+                        f"{type_to_edit.name} has been produced, cannot edit", "danger")
+                    return redirect(url_for('types.types'))
                 # edit the found type
                 type_to_edit.name = name
                 db.session.commit()
