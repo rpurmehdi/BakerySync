@@ -115,19 +115,19 @@ def delete_type():
         try:
             if type_to_delete:
                 if raw:
-                    has_arrived = type_to_delete.arrivals
+                    has_use = type_to_delete.arrivals
                     has_recipe = type_to_delete.recipes
                 else:
-                    has_production = type_to_delete.productions
+                    has_use = type_to_delete.productions
                     has_recipe = type_to_delete.recipes
                 if has_recipe:
                     flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
                     return redirect(url_for('types.types'))
-                if raw and has_arrived:
+                if raw and has_use:
                     flash(
                         f"{type_to_delete.name} has arrival(s), cannot delete", "danger")
                     return redirect(url_for('types.types'))
-                if not raw and has_production:
+                if not raw and has_use:
                     flash(
                         f"{type_to_delete.name} has been produced, cannot delete", "danger")
                     return redirect(url_for('types.types'))
