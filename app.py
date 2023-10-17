@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, render_template, request, url_for, redirect
+from flask import Flask, flash, render_template, request, send_from_directory, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -16,8 +16,13 @@ app = Flask(__name__)
 path = os.path.dirname(os.path.abspath(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(path, 'bakerysync.db')
-
 app.secret_key = 'very_secret_key'
+app.config['CSV_FOLDER'] = 'csvs'  # Set the path to your custom "csvs" folder
+
+@app.route('/csvs/<filename>')
+def serve_csv(filename):
+    csv_folder = app.config['CSV_FOLDER']
+    return send_from_directory(csv_folder, filename)
 
 db.init_app(app)
 
