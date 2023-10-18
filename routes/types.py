@@ -144,3 +144,12 @@ def delete_type():
             return redirect(url_for('types.types'))
     else:
         return redirect(url_for('sources.sources'))
+
+@types_bp.route('/track/itype', methods=['POST'])
+def track():
+    id = request.form.get("itype_track")
+    ingredient = IngredientType.query(id)
+    srock = ingredient.stock
+    arrivals = ingredient.arrivals
+    recipes = ingredient.recipes
+    productions = ingredient.arrivals.productions

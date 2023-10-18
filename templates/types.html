@@ -51,6 +51,13 @@
     editModal.querySelector("#edit-ptype-name").value = ptypeName;
   }
 </script>
+<script>
+  function trackItem(item) {
+    const formName = "track-" + item;
+    document.getElementById(formName).submit();
+    return false; // Prevent the default link behavior
+  }
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
@@ -70,7 +77,21 @@
         <tbody>
           {% for itype in itypes %}
           <tr>
-            <td>{{ itype.name|safe }}</td>
+            <td>
+              <form
+                id="track-{{ itype.id|safe }}"
+                action="{{ url_for('types.track') }}"
+                method="post"
+              >
+                <input type="hidden" name="itype_track" value="{{ itype.id|safe }}" />
+                <a
+                  href="{{ url_for('types.track') }}"
+                  class="itype-link"
+                  onclick="return trackItem('{{ itype.id|safe }}');"
+                  >{{ itype.name|safe }}</a
+                >
+              </form>
+            </td>
             <td>
               <img
                 src="/static/icons/pencil-square.svg"
@@ -132,7 +153,21 @@
         <tbody>
           {% for ptype in ptypes %}
           <tr>
-            <td>{{ ptype.name|safe }}</td>
+            <td>
+              <form
+                id="track-{{ ptype.id|safe }}"
+                action="{{ url_for('types.track') }}"
+                method="post"
+              >
+                <input type="hidden" name="ptype_track" value="{{ ptype.id|safe }}" />
+                <a
+                  href="{{ url_for('types.track') }}"
+                  class="ptype-link"
+                  onclick="return trackItem('{{ ptype.id|safe }}');"
+                  >{{ ptype.name|safe }}</a
+                >
+              </form>
+            </td>
             <td>
               <img
                 src="/static/icons/pencil-square.svg"
@@ -209,9 +244,7 @@
           <label for="itype-name">Ingredient Name</label>
         </div>
 
-        <button name="itype_form" type="submit" class="btn btn-success">
-          Add Ingredient Type
-        </button>
+        <button name="itype_form" type="submit" class="btn btn-success">Add Ingredient Type</button>
       </form>
     </div>
   </div>

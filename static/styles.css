@@ -3,6 +3,11 @@
     color: var(--bs-navbar-brand-color);
 }
 
+.table a {
+    text-decoration: none;
+    color: var(--bs-table-color-state)
+}
+
 .offcanvas.offcanvas-start,
 .offcanvas.offcanvas-end {
     width: calc(1.5 * var(--bs-offcanvas-width));
