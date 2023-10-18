@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} BakerySync - Manage Recipes {% endblock %}
+{% block title %} Manage Recipes {% endblock %}
 <!-- and again here!-->
 {% block navbar_title %} Product Recipes {% endblock %}
 <!--head-->
@@ -90,10 +90,9 @@
         <td>{{ recipe.product.name|safe }}</td>
         <td>{{ recipe.description|safe }}</td>
         <td>
-          <p class="m-0">
-            {% for ingredient in recipe.ingredients %}{% for entry in ingredients %} {% if entry.recipe_id
-            == recipe.id and entry.ingredient_type == ingredient.id %} {{ ingredient.name|safe }}: {{
-            entry.quantity_percent|safe }}%; {% endif %}{% endfor %}{% endfor %}
+          <p class="m-0 text-end">
+            {% for ingredient in recipe.ingredients %}{{ ingredient.name|safe }}: <strong>{{
+            recipe.getp(ingredient.id)|safe }}%</strong><br> {% endfor %}
           </p>
         </td>
         <td>

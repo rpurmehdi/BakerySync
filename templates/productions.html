@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} BakerySync - Manage Productions {% endblock %}
+{% block title %} Manage Productions {% endblock %}
 <!-- and again here!-->
 {% block navbar_title %} Productions {% endblock %}
 <!--head-->
@@ -121,6 +121,7 @@
         <th>Recipe</th>
         <th>Quantity (Kg)</th>
         <th>Production Time</th>
+        <th>Ingredient Usages</th>
         <th></th>
       </tr>
     </thead>
@@ -132,6 +133,13 @@
         <td>{{ production.recipe.name|safe }}</td>
         <td>{{ production.quantity }}</td>
         <td>{{ production.production_time }}</td>
+        <td>
+          <p class="m-0 text-end">
+            {% for ingredient in production.ingredients %}{{ ingredient.type.name|safe }}-{{
+            ingredient.source.name|safe }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+            <strong>{{ production.getu(ingredient.id)|safe }} Kg</strong><br />{% endfor %}
+          </p>
+        </td>
         <td>
           <form
             id="{{ production.type.name|escape_html|safe }} on {{ production.production_time|safe }}"

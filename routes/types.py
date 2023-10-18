@@ -1,5 +1,5 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
-from models import db, IngredientType, ProductionType, IngredientArrival, Recipe, Production, recipe_ingredient_association
+from models import db, IngredientType, ProductionType, production_arrival_association, recipe_ingredient_association
 
 types_bp = Blueprint('types', __name__, url_prefix='/types')
 
@@ -65,7 +65,8 @@ def edit_type():
                     has_use = type_to_edit.productions
                     has_recipe = type_to_edit.recipes
                 if has_recipe:
-                    flash(f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
+                    flash(
+                        f"{type_to_edit.name} is used in recipe(s), cannot edit", "danger")
                     return redirect(url_for('types.types'))
                 if ing and has_use:
                     flash(
@@ -121,7 +122,8 @@ def delete_type():
                     has_use = type_to_delete.productions
                     has_recipe = type_to_delete.recipes
                 if has_recipe:
-                    flash(f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
+                    flash(
+                        f"{type_to_delete.name} is used in recipe(s), cannot delete", "danger")
                     return redirect(url_for('types.types'))
                 if ing and has_use:
                     flash(
@@ -145,11 +147,24 @@ def delete_type():
     else:
         return redirect(url_for('sources.sources'))
 
-@types_bp.route('/track/itype', methods=['POST'])
-def track():
-    id = request.form.get("itype_track")
-    ingredient = IngredientType.query(id)
-    srock = ingredient.stock
-    arrivals = ingredient.arrivals
-    recipes = ingredient.recipes
-    productions = ingredient.arrivals.productions
+
+@types_bp.route('/track/ingredient', methods=['POST'])
+def itrack():
+    try:
+        id = request.form.get("itype_track")
+        ingredient = IngredientType.query.get(id)
+    except Exception as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('types.types'))
+    return render_template('itype.html', ingredient=ingredient)
+
+
+@types_bp.route('/track/production', methods=['POST'])
+def ptrack():
+    try:
+        id = request.form.get("ptype_track")
+        production = ProductionType.query.get(id)
+    except Exception as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('types.types'))
+    return render_template('ptype.html', production=production)

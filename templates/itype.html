@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} {{ ingredient.name|safe }} {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} {{ ingredient.name|safe }} Overview {% endblock %}
+<!--head-->
+{%block head %} {% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-center">
+  <nav>
+    <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+      <button
+        class="nav-link active"
+        id="nav-stock-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-stock"
+        type="button"
+        role="tab"
+        aria-controls="nav-stock"
+        aria-selected="true"
+      >
+      {{ ingredient.name|safe }} Stock
+      </button>
+      <button
+        class="nav-link"
+        id="nav-arrivals-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-arrivals"
+        type="button"
+        role="tab"
+        aria-controls="nav-arrivals"
+        aria-selected="false"
+        tabindex="-1"
+      >
+      {{ ingredient.name|safe }} Arrivals
+      </button>
+      <button
+        class="nav-link"
+        id="nav-recipes-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-recipes"
+        type="button"
+        role="tab"
+        aria-controls="nav-recipes"
+        aria-selected="false"
+        tabindex="-1"
+      >
+      Recipes having {{ ingredient.name|safe }}
+      </button>
+      <button
+        class="nav-link"
+        id="nav-productions-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-productions"
+        type="button"
+        role="tab"
+        aria-controls="nav-productions"
+        aria-selected="false"
+        tabindex="-1"
+      >
+      Productions which used {{ ingredient.name|safe }}
+      </button>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div
+      class="tab-pane fade active show"
+      id="nav-stock"
+      role="tabpanel"
+      aria-labelledby="nav-stock-tab"
+    >
+      <p>
+        <strong>The current stock is {{ingredient.stock}} Kgs.</strong>
+      </p>
+    </div>
+    <div class="tab-pane fade" id="nav-arrivals" role="tabpanel" aria-labelledby="nav-arrivals-tab">
+      <h5 class="mb-4">List of {{ ingredient.name|safe }} arrivals:</h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Ingredient Type</th>
+            <th>Arriving Date</th>
+            <th>Quantity (Kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for arrival in ingredient.arrivals|sort(attribute='arriving_date') %}
+          <tr>
+            <td>{{ arrival.source.name|safe }}</td>
+            <td>{{ arrival.type.name|safe }}</td>
+            <td>{{ arrival.arriving_date.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ arrival.quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane fade" id="nav-recipes" role="tabpanel" aria-labelledby="nav-recipes-tab">
+      <h5 class="mb-4">List of recipes with {{ ingredient.name|safe }}:</h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>{{ ingredient.name|safe }} amount</th>
+            <th>Product</th>
+            <th>Description</th>
+            <th>Other Ingredients</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for recipe in ingredient.recipes %}
+          <tr>
+            <td>{{ recipe.name|safe }}</td>
+            <td>{{ recipe.getp(ingredient.id)|safe }}%</td>
+            <td>{{ recipe.product.name|safe }}</td>
+            <td>{{ recipe.description|safe }}</td>
+            <td>
+              <p class="m-0 text-end">
+                {% for item in recipe.ingredients %}{% if item.id != ingredient.id %}{{ item.name|safe }}: <strong>{{
+                recipe.getp(item.id)|safe }}%</strong><br> {% endif %}{% endfor %}
+              </p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="nav-productions"
+      role="tabpanel"
+      aria-labelledby="nav-productions-tab"
+    >
+      <h5 class="mb-4">List of production instances that had {{ ingredient.name|safe }}</h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Production Type</th>
+            <th>Batch</th>
+            <th>Production Quantity (Kg)</th>
+            <th>Production Time</th>
+            <th>{{ ingredient.name|safe }} Used (Kg)</th>
+            <th>Recipe Used</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for production in ingredient.productions|sort(attribute='production_time') %}
+          <tr>
+            <td>{{ production.type.name|safe }}</td>
+            <td>{{ production.print_batch|safe }}</td>
+            <td>{{ production.quantity }}</td>
+            <td>{{ production.production_time }}</td>
+            <td>{{ production.gets(ingredient.id)|safe }}</td>
+            <td>{{ production.recipe.name|safe }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

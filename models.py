@@ -56,6 +56,19 @@ class IngredientType(BaseModel):
         total_stock = sum(arrival.stock for arrival in self.arrivals)
         return total_stock
 
+    @property
+    def productions(self):
+        matching_productions = Production.query.join(
+            production_arrival_association,
+            Production.id == production_arrival_association.c.production_id
+        ).join(
+            IngredientArrival,
+            production_arrival_association.c.arrival_id == IngredientArrival.id
+        ).filter(
+            IngredientArrival.type_id == self.id
+        ).all()
+        return matching_productions
+
 
 production_arrival_association = db.Table(
     'production_arrival_association',
@@ -77,6 +90,16 @@ class ProductionType(BaseModel):
     def stock(self):
         total_stock = sum(production.stock for production in self.productions)
         return total_stock
+
+    @property
+    def shipments(self):
+        matching_shipments = ProductionShipment.query.join(
+            Production,
+            Production.id == ProductionShipment.production_id
+        ).filter(
+            Production.type_id == self.id
+        ).all()
+        return matching_shipments
 
 
 class IngredientArrival(BaseModel):
@@ -144,6 +167,23 @@ class Production(BaseModel):
         total_shipment = sum(shipment.quantity for shipment in self.shipments)
         stock = self.quantity - total_shipment
         return stock
+
+    def getu(self, ingredient_arrival_id):
+        association = db.session.query(production_arrival_association).filter(
+            production_arrival_association.c.production_id == self.id,
+            production_arrival_association.c.arrival_id == ingredient_arrival_id
+        ).first()
+
+        if association:
+            return association.quantity
+        return 0
+
+    def gets(self, ingredient_type_id):
+        ing = IngredientType.query.get(ingredient_type_id)
+        sum = 0.0
+        for arrival in ing.arrivals:
+            sum += self.getu(arrival.id)
+        return sum
 
 
 class ProductionShipment(BaseModel):

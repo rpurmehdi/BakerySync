@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} BakerySync - Manage Destinations {% endblock %}
+{% block title %} Manage Destinations {% endblock %}
 <!-- and again here!-->
 {% block navbar_title %} Product Destinations {% endblock %}
 <!--head-->
@@ -71,7 +71,7 @@
             name="destination_edit"
             type="button"
             class="edit-destination"
-            title="Edit {{ source.name|safe }}"
+            title="Edit {{ destination.name|safe }}"
             data-bs-toggle="offcanvas"
             data-bs-target="#EditCanvas"
             aria-controls="EditCanvas"
@@ -149,11 +149,11 @@
             <div class="form-floating">
               <select class="form-select" id="type" name="type" required>
                 <option selected disabled value="">Select a type</option>
-                <option value="Wholesaler">Wholesale Distributor</option>
+                <option value="Wholesale Distributor">Wholesale Distributor</option>
                 <option value="Online Retailer">Online Retailer</option>
                 <option value="Local Market">Local Market</option>
-                <option value="Flour Mill">Restaurant</option>
-                <option value="Farm">Hotel</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Hotel">Hotel</option>
               </select>
               <label for="type">Destination type</label>
             </div>
