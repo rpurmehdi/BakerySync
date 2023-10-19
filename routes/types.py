@@ -159,7 +159,7 @@ def itrack():
     return render_template('itype.html', ingredient=ingredient)
 
 
-@types_bp.route('/track/production', methods=['POST'])
+@types_bp.route('/track/product', methods=['POST'])
 def ptrack():
     try:
         id = request.form.get("ptype_track")

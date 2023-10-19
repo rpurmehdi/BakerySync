@@ -1,30 +1,53 @@
 .navbar a {
-    text-decoration: none;
-    color: var(--bs-navbar-brand-color);
+  text-decoration: none;
+  color: var(--bs-navbar-brand-color);
+}
+
+.nav-tabs .nav-link {
+  color: #fffbc7;
+  background-color: #e1a600;
+  border: 1px solid #c74b00;
+}
+
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+  color: #c74b00;
+  background-color: #fffbc7;
 }
 
 .table a {
-    text-decoration: none;
-    color: var(--bs-table-color-state)
+  text-decoration: none;
+  color: var(--bs-table-color-state);
+}
+
+table input {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+td form,
+td strong {
+  display: inline;
 }
 
 .offcanvas.offcanvas-start,
 .offcanvas.offcanvas-end {
-    width: calc(1.5 * var(--bs-offcanvas-width));
+  width: calc(1.5 * var(--bs-offcanvas-width));
 }
 
 .offcanvas.offcanvas-top {
-    height: calc(1.5 * var(--bs-offcanvas-height));
+  height: calc(1.5 * var(--bs-offcanvas-height));
 }
 
 .chart-container {
-    min-width: 500px;
+  min-width: 500px;
 }
 
 .table {
-    --bs-table-striped-bg: lightgray;
+  --bs-table-striped-bg: lightgray;
 }
 
 td {
-    vertical-align: middle;
+  vertical-align: middle;
 }

@@ -71,7 +71,7 @@
       aria-labelledby="nav-stock-tab"
     >
       <p>
-        <strong>The current stock is {{ingredient.stock}} Kgs.</strong>
+        <strong>The current stock of {{ ingredient.name|safe }} is {{ingredient.stock}} Kgs.</strong>
       </p>
     </div>
     <div class="tab-pane fade" id="nav-arrivals" role="tabpanel" aria-labelledby="nav-arrivals-tab">
@@ -80,7 +80,6 @@
         <thead>
           <tr>
             <th>Source</th>
-            <th>Ingredient Type</th>
             <th>Arriving Date</th>
             <th>Quantity (Kg)</th>
           </tr>
@@ -89,7 +88,6 @@
           {% for arrival in ingredient.arrivals|sort(attribute='arriving_date') %}
           <tr>
             <td>{{ arrival.source.name|safe }}</td>
-            <td>{{ arrival.type.name|safe }}</td>
             <td>{{ arrival.arriving_date.strftime('%Y-%m-%d %H:%M') }}</td>
             <td>{{ arrival.quantity }}</td>
           </tr>

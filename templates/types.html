@@ -51,18 +51,6 @@
     editModal.querySelector("#edit-ptype-name").value = ptypeName;
   }
 </script>
-<script>
-  function trackItemi(item) {
-    const formName = "itrack-" + item;
-    document.getElementById(formName).submit();
-    return false; // Prevent the default link behavior
-  }
-  function trackItemp(item) {
-    const formName = "ptrack-" + item;
-    document.getElementById(formName).submit();
-    return false; // Prevent the default link behavior
-  }
-</script>
 {% endblock %}
 <!--body-->
 {%block main %}
@@ -83,18 +71,13 @@
           {% for itype in itypes %}
           <tr>
             <td>
-              <form
-                id="itrack-{{ itype.id|safe }}"
-                action="{{ url_for('types.itrack') }}"
-                method="post"
-              >
+              <form action="{{ url_for('types.itrack') }}" method="post">
                 <input type="hidden" name="itype_track" value="{{ itype.id|safe }}" />
-                <a
-                  href="{{ url_for('types.itrack') }}"
-                  class="itype-link"
-                  onclick="return trackItemi('{{ itype.id|safe }}');"
-                  >{{ itype.name|safe }}</a
-                >
+                <input
+                  title="Track {{ itype.name|safe }}"
+                  type="submit"
+                  value="{{ itype.name|safe }}"
+                />
               </form>
             </td>
             <td>
@@ -159,18 +142,13 @@
           {% for ptype in ptypes %}
           <tr>
             <td>
-              <form
-                id="ptrack-{{ ptype.id|safe }}"
-                action="{{ url_for('types.ptrack') }}"
-                method="post"
-              >
+              <form action="{{ url_for('types.ptrack') }}" method="post">
                 <input type="hidden" name="ptype_track" value="{{ ptype.id|safe }}" />
-                <a
-                  href="{{ url_for('types.ptrack') }}"
-                  class="ptype-link"
-                  onclick="return trackItemp('{{ ptype.id|safe }}');"
-                  >{{ ptype.name|safe }}</a
-                >
+                <input
+                  title="Track {{ ptype.name|safe }}"
+                  type="submit"
+                  value="{{ ptype.name|safe }}"
+                />
               </form>
             </td>
             <td>

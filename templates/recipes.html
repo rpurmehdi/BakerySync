@@ -67,6 +67,18 @@
     }
   }
 </script>
+<script>
+  function trackItemi(item) {
+    const formName = "itrack-" + item;
+    document.getElementById(formName).submit();
+    return false; // Prevent the default link behavior
+  }
+  function trackItemp(item) {
+    const formName = "ptrack-" + item;
+    document.getElementById(formName).submit();
+    return false; // Prevent the default link behavior
+  }
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
@@ -87,13 +99,37 @@
       {% for recipe in recipes|reverse %}
       <tr>
         <td>{{ recipe.name|safe }}</td>
-        <td>{{ recipe.product.name|safe }}</td>
-        <td>{{ recipe.description|safe }}</td>
         <td>
-          <p class="m-0 text-end">
-            {% for ingredient in recipe.ingredients %}{{ ingredient.name|safe }}: <strong>{{
+          <form
+            action="{{ url_for('types.ptrack') }}"
+            method="post"
+          >
+            <input type="hidden" name="ptype_track" value="{{ recipe.product.id|safe }}" />
+            <input
+              title="Track {{ recipe.product.name|safe }}"
+              type="submit"
+              value="{{ recipe.product.name|safe }}"
+            >
+          </form>
+        </td>
+        <td>{{ recipe.description|safe }}</td>
+        <td class="text-end">
+            {% for ingredient in recipe.ingredients %}
+          <form
+            id="itrack-{{ ingredient.id|safe }}"
+            action="{{ url_for('types.itrack') }}"
+            method="post"
+          >
+            <input type="hidden" name="itype_track" value="{{ ingredient.id|safe }}" />
+            <a
+              href="{{ url_for('types.itrack') }}"
+              class="itype-link"
+              title="Track {{ ingredient.name|safe }}"
+              onclick="return trackItemi('{{ ingredient.id|safe }}');"
+              >{{ ingredient.name|safe }}: </a
+            >
+          </form><strong>{{
             recipe.getp(ingredient.id)|safe }}%</strong><br> {% endfor %}
-          </p>
         </td>
         <td>
           <form
