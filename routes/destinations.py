@@ -1,7 +1,8 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import db, Destination, ProductionShipment
 
-destinations_bp = Blueprint('destinations', __name__, url_prefix='/destinations')
+destinations_bp = Blueprint(
+    'destinations', __name__, url_prefix='/destinations')
 
 
 @destinations_bp.route('/', methods=['GET', 'POST'])
@@ -97,7 +98,8 @@ def delete_destination():
                 is_referenced = ProductionShipment.query.filter_by(
                     destination_id=id).first()
                 if is_referenced:
-                    flash(f'{destination_to_delete.name} is used in shipments, cannot delete', 'danger')
+                    flash(
+                        f'{destination_to_delete.name} is used in shipments, cannot delete', 'danger')
                 else:
                     # Delete the found destination
                     db.session.delete(destination_to_delete)
@@ -114,3 +116,19 @@ def delete_destination():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('destinations.destinations'))
     return redirect(url_for('destinations.destinations'))
+
+
+@destinations_bp.route('/track/destination', methods=['POST'])
+def track():
+    try:
+        id = request.form.get("destination_track")
+        destination = Destination.query.get(id)
+    except Exception as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('destinations.destinations'))
+    shipped_types = set()
+    for shipment in destination.shipments:
+        production_type = shipment.production.type
+        shipped_types.add(production_type)
+    unique_types = list(shipped_types)
+    return render_template('destinationtrack.html', destination=destination, shipped_types=unique_types)

@@ -5,31 +5,17 @@
 {% block navbar_title %} Ingredient Arrivals {% endblock %}
 <!--head-->
 {% block head %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script>
-  // Attach the populateModal() function to the edit buttons
-  $(document).ready(function () {
-    const editButtons = document.querySelectorAll(".edit-arrival");
-    editButtons.forEach((button) => {
-      button.addEventListener("click", populateModal);
-    });
-  });
-  // Populate the modal form                                          
-  function populateModal(event) {
-    // Get the modal element
-    const editModal = document.getElementById("EditCanvas");
-    // Get the data attributes from the clicked button
-    const arrivalId = event.target.getAttribute("data-arrival-id");
-    const typeId = event.target.getAttribute("data-arrival-type-id");
-    const sourceId = event.target.getAttribute("data-arrival-source-id");
-    const arrivingDate = event.target.getAttribute("data-arrival-arriving-date");
-    const Quantity = event.target.getAttribute("data-arrival-quantity");
-    // Populate the modal form fields
-    editModal.querySelector("#edit-arrival-id").value = arrivalId;
-    editModal.querySelector("#edit-type_id").value = typeId;
-    editModal.querySelector("#edit-source_id").value = sourceId;
-    editModal.querySelector("#edit-arriving_date").value = arrivingDate;
-    editModal.querySelector("#edit-quantity").value = Quantity;
+  function populateCanvas(arrivalId, typeId, sourceId, arrivingDate, quantity) {
+    // Get the canvas element
+    const editCanvas = document.getElementById("EditCanvas");
+
+    // Populate the canvas form fields
+    editCanvas.querySelector("#edit-arrival-id").value = arrivalId;
+    editCanvas.querySelector("#edit-type_id").value = typeId;
+    editCanvas.querySelector("#edit-source_id").value = sourceId;
+    editCanvas.querySelector("#edit-arriving_date").value = arrivingDate;
+    editCanvas.querySelector("#edit-quantity").value = quantity;
   }
 </script>
 {% endblock %}
@@ -41,10 +27,11 @@
   <table class="table table-striped w-auto mx-auto">
     <thead>
       <tr>
-        <th>Source</th>
         <th>Ingredient Type</th>
+        <th>Source</th>
         <th>Arriving Date</th>
         <th>Quantity (Kg)</th>
+        <th></th>
         <th></th>
         <th></th>
       </tr>
@@ -52,10 +39,22 @@
     <tbody>
       {% for arrival in arrivals|sort(attribute='arriving_date')|reverse %}
       <tr>
-        <td>{{ arrival.source.name|safe }}</td>
         <td>{{ arrival.type.name|safe }}</td>
-        <td>{{ arrival.arriving_date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ arrival.source.name|safe }}</td>
+        <td>{{ arrival.arriving_date.strftime('%Y-%m-%d') }}</td>
         <td>{{ arrival.quantity }}</td>
+        <td>
+          <form action="{{ url_for('arrivals.track') }}" method="post">
+            <input type="hidden" name="arrival_track" value="{{ arrival.id|safe }}" />
+            <input
+              type="image"
+              src="/static/icons/info-square.svg"
+              alt="track"
+              name="arrival_track"
+              title="Track this {{ arrival.type.name|safe }} arrival"
+            />
+          </form>
+        </td>
         <td>
           <img
             src="/static/icons/pencil-square.svg"
@@ -63,20 +62,22 @@
             name="arrival_edit"
             type="button"
             class="edit-arrival"
-            title="Edit {{ arrival.type.name|safe }}"
+            title="Edit this {{ arrival.type.name|safe }} arrival"
             data-bs-toggle="offcanvas"
             data-bs-target="#EditCanvas"
             aria-controls="EditCanvas"
-            data-arrival-id="{{ arrival.id }}"
-            data-arrival-type-id="{{ arrival.type_id }}"
-            data-arrival-source-id="{{ arrival.source_id }}"
-            data-arrival-arriving-date="{{ arrival.arriving_date }}"
-            data-arrival-quantity="{{ arrival.quantity }}"
+            onclick="populateCanvas(
+              '{{ arrival.id }}',
+              '{{ arrival.type_id }}',
+              '{{ arrival.source_id }}',
+              '{{ arrival.arriving_date }}',
+              '{{ arrival.quantity }}'
+            );"
           />
         </td>
         <td>
           <form
-            id="{{ arrival.type.name|escape_html|safe }} from {{ arrival.source.name|escape_html|safe }}"
+            id="del-{{ arrival.id }}"
             action="{{ url_for('arrivals.delete_arrival') }}"
             method="post"
           >
@@ -86,8 +87,8 @@
               alt="delete"
               name="source_delete"
               type="submit"
-              title="Delete {{ arrival.type.name|safe }}"
-              onclick="return confirmDelete('{{ arrival.type.name|escape_html|safe }} from {{ arrival.source.name|escape_html|safe }}');"
+              title="Delete this {{ arrival.type.name|safe }} arrival"
+              onclick="return confirmDelete('del-{{ arrival.id }}', '{{ arrival.type.name|escape_html|safe }} from {{ arrival.source.name|escape_html|safe }}');"
             />
           </form>
         </td>
@@ -139,7 +140,9 @@
               <select class="form-select" id="source_id" name="source_id" required>
                 <option selected disabled value="">Select a source</option>
                 {% for source in sources %}
-                <option value="{{ source.id }}">{{ source.name|safe }} ({{ source.type|safe }})</option>
+                <option value="{{ source.id }}">
+                  {{ source.name|safe }} ({{ source.type|safe }})
+                </option>
                 {% endfor %}
               </select>
               <label for="source_id">Source</label>
@@ -213,7 +216,9 @@
             <div class="form-floating">
               <select class="form-select" id="edit-source_id" name="source_id" required>
                 {% for source in sources %}
-                <option value="{{ source.id }}">{{ source.name|safe }} ({{ source.type|safe }})</option>
+                <option value="{{ source.id }}">
+                  {{ source.name|safe }} ({{ source.type|safe }})
+                </option>
                 {% endfor %}
               </select>
               <label for="edit-source_id">Source</label>

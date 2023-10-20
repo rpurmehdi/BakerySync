@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} {{ shipment.production.type.name|safe }} - {{ shipment.destination.name|safe }} {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} {{ shipment.production.type.name|safe }} - {{ shipment.destination.name|safe }} Tracking {%
+endblock %}
+<!--head-->
+{%block head %} {% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-center">
+  <nav>
+    <div class="mt-3">
+      <h5 style="color: #c74b00">
+        {{ shipment.production.type.name|safe }} from {{ shipment.destination.name|safe }} on {{
+        shipment.shipping_date.strftime('%Y-%m-%d') }}
+      </h5>
+    </div>
+    <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+      <button
+        class="nav-link active"
+        id="nav-sources-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-sources"
+        type="button"
+        role="tab"
+        aria-controls="nav-sources"
+        aria-selected="true"
+
+      >
+        Destination
+      </button>
+      <button
+        class="nav-link"
+        id="nav-productions-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-productions"
+        type="button"
+        role="tab"
+        aria-controls="nav-productions"
+        aria-selected="false"
+        tabindex="-1"
+      >
+        Productions
+      </button>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade active show" id="nav-sources" role="tabpanel" aria-labelledby="nav-sources-tab">
+      <h5 class="mb-4">
+        Destination of {{ shipment.production.type.name|safe|lower }} on {{
+        shipment.shipping_date.strftime('%Y-%m-%d') }}:
+      </h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Destination</th>
+            <th>Contact</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ shipment.destination.name|safe }}</td>
+            <td>
+              {{ shipment.destination.contact_person|safe }}: {{ shipment.destination.contact_information|safe
+              }}
+            </td>
+            <td>{{ shipment.destination.type|safe }}</td>
+            <td>{{ shipment.destination.location|safe }}</td>
+            <td>{{ shipment.destination.description|safe }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="nav-productions"
+      role="tabpanel"
+      aria-labelledby="nav-productions-tab"
+    >
+      <h5 class="mb-4">Production of {{ shipment.production.type.name|safe|lower }} shipped to {{
+        shipment.destination.name|lower|safe }} on {{ shipment.shipping_date.strftime('%Y-%m-%d') }}:</h5>
+        <table class="table table-striped w-auto mx-auto">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Batch</th>
+              <th>Quantity (Kg)</th>
+              <th>Production Time</th>
+              <th>Recipe</th>
+              <th>Ingredient Usages</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ shipment.production.type.name|safe }}</td>
+              <td>{{ shipment.production.print_batch|safe }}</td>
+              <td>{{ shipment.production.quantity }}</td>
+              <td>{{ shipment.production.production_time }}</td>
+              <td>{{ shipment.production.recipe.name|safe }}</td>
+              <td>
+                <p class="m-0 text-end">
+                  {% set sorted_ingredients = shipment.production.ingredients|list|sortgetu(shipment.production)|reverse %}
+                  {% for ingredient in sorted_ingredients %} {{ ingredient.type.name|safe }}-{{
+                  ingredient.source.name|safe }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+                  <strong>{{ shipment.production.getu(ingredient.id)|safe }} Kg</strong><br />{% endfor %}
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

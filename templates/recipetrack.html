@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} {{ recipe.name|safe }} {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} {{ recipe.name|safe }} Tracking {% endblock %}
+<!--head-->
+{%block head %} {% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-center">
+  <nav>
+    <div class="mt-3">
+      <h5 style="color: #c74b00">{{ recipe.name|safe }} - {{recipe.product.name|safe}}</h5>
+    </div>
+    <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+      <button
+        class="nav-link active"
+        id="nav-stock-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-stock"
+        type="button"
+        role="tab"
+        aria-controls="nav-stock"
+        aria-selected="true"
+      >
+        Stock
+      </button>
+      <button
+        class="nav-link"
+        id="nav-ingredients-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-ingredients"
+        type="button"
+        role="tab"
+        aria-controls="nav-ingredients"
+        aria-selected="false"
+        tabindex="-1"
+      >
+        Ingredients
+      </button>
+      <button
+        class="nav-link"
+        id="nav-productions-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-productions"
+        type="button"
+        role="tab"
+        aria-controls="nav-productions"
+        aria-selected="false"
+        tabindex="-1"
+      >
+        Productions
+      </button>
+      <button
+        class="nav-link"
+        id="nav-shipments-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-shipments"
+        type="button"
+        role="tab"
+        aria-controls="nav-shipments"
+        aria-selected="false"
+        tabindex="-1"
+      >
+        Shipments
+      </button>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div
+      class="tab-pane fade active show"
+      id="nav-stock"
+      role="tabpanel"
+      aria-labelledby="nav-stock-tab"
+    >
+      <p>
+        <strong
+          >The current stock of {{recipe.product.name|lower|safe}} produced with {{
+          recipe.name|lower|safe }} recipe is {{ recipe.stock|round(1) }} Kgs.</strong
+        ><br />Total production is {{ recipe.prtotal|round(1) }} Kgs.<br />Total shipment is {{
+        (recipe.prtotal-recipe.stock)|round(1) }} Kgs.
+      </p>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="nav-ingredients"
+      role="tabpanel"
+      aria-labelledby="nav-ingredients-tab"
+    >
+      <h5 class="mb-4">
+        Ingredients of {{ recipe.name|lower|safe }} recipe for {{recipe.product.name|lower|safe}}:
+      </h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Ingredients</th>
+            <th>Quantity (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set sorted_ingredients = recipe.ingredients|list|sortgetp(recipe)|reverse %} {% for
+          ingredient in sorted_ingredients %}
+          <tr>
+            <td>{{ ingredient.name|safe }}</td>
+            <td>{{ recipe.getp(ingredient.id) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="nav-productions"
+      role="tabpanel"
+      aria-labelledby="nav-productions-tab"
+    >
+      <h5 class="mb-4">
+        List of {{recipe.product.name|lower|safe}} production instances with {{
+        recipe.name|lower|safe }} recipe:
+      </h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Batch</th>
+            <th>Production Quantity (Kg)</th>
+            <th>Production Time</th>
+            <th>Ingredient Usages (Kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for production in recipe.productions|sort(attribute='production_time') %}
+          <tr>
+            <td>{{ production.print_batch|safe }}</td>
+            <td>{{ production.quantity }}</td>
+            <td>{{ production.production_time }}</td>
+            <td>
+              <p class="m-0 text-end">
+                {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse
+                %} {% for ingredient in sorted_ingredients %} {{ ingredient.type.name|safe }}-{{
+                ingredient.source.name|safe }} ({{ ingredient.arriving_date.strftime('%y-%m-%d')
+                }}):
+                <strong>{{ production.getu(ingredient.id)|safe }} Kg</strong><br />{% endfor %}
+              </p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="nav-shipments"
+      role="tabpanel"
+      aria-labelledby="nav-shipments-tab"
+    >
+      <h5 class="mb-4">
+        List of shipments of {{recipe.product.name|lower|safe}} produced with {{
+        recipe.name|lower|safe }} recipe:
+      </h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Destination</th>
+            <th>Batch</th>
+            <th>Shipping Date</th>
+            <th>Quantity (Kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for shipment in recipe.shipments|sort(attribute='shipping_date') %}
+          <tr>
+            <td>{{ shipment.destination.name|safe }}</td>
+            <td>{{ shipment.production.print_batch|safe }}</td>
+            <td>{{ shipment.shipping_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ shipment.quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

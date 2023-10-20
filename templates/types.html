@@ -6,26 +6,13 @@
 <!--head-->
 {%block head %}
 <script>
-  // Attach the populateModal() function to the edit buttons
-  $(document).ready(function () {
-    const editButtonsR = document.querySelectorAll(".edit-itype");
-    editButtonsR.forEach((button) => {
-      button.addEventListener("click", populateModalR);
-    });
-  });
+  function populateCanvasI(itypeId, itypeName) {
+    // Get the canvas element
+    const editCanvas = document.getElementById("EditItypeCanvas");
 
-  // Populate the modal form
-  function populateModalR(event) {
-    // Get the modal element
-    const editModal = document.getElementById("EditItypeCanvas");
-
-    // Get the data attributes from the clicked button
-    const itypeId = event.target.getAttribute("data-itype-id");
-    const itypeName = event.target.getAttribute("data-itype-name");
-
-    // Populate the modal form fields
-    editModal.querySelector("#edit-itype-id").value = itypeId;
-    editModal.querySelector("#edit-itype-name").value = itypeName;
+    // Populate the canvas form fields
+    editCanvas.querySelector("#edit-itype-id").value = itypeId;
+    editCanvas.querySelector("#edit-itype-name").value = itypeName;
   }
 </script>
 <script>
@@ -65,18 +52,22 @@
             <th>Ingredient</th>
             <th></th>
             <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {% for itype in itypes %}
           <tr>
+            <td>{{ itype.name|safe }}</td>
             <td>
               <form action="{{ url_for('types.itrack') }}" method="post">
                 <input type="hidden" name="itype_track" value="{{ itype.id|safe }}" />
                 <input
+                  type="image"
+                  src="/static/icons/info-square.svg"
+                  alt="track"
+                  name="itype_track"
                   title="Track {{ itype.name|safe }}"
-                  type="submit"
-                  value="{{ itype.name|safe }}"
                 />
               </form>
             </td>
@@ -86,18 +77,19 @@
                 alt="edit"
                 name="itype_edit"
                 type="button"
-                class="edit-itype"
+                title="Edit {{ itype.name|safe }}"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#EditItypeCanvas"
                 aria-controls="EditItypeCanvas"
-                data-itype-id="{{ itype.id }}"
-                data-itype-name="{{ itype.name|safe }}"
-                title="Edit {{ itype.name|safe }}"
+                onclick="populateCanvasI(
+                '{{ itype.id }}',
+                '{{ itype.name|escape_html|safe }}'
+              );"
               />
             </td>
             <td>
               <form
-                id="{{ itype.name|escape_html|safe }}"
+                id="del-{{ itype.id }}"
                 action="{{ url_for('types.delete_type') }}"
                 method="post"
               >
@@ -108,7 +100,7 @@
                   name="itype_delete"
                   type="submit"
                   title="Delete {{ itype.name|safe }}"
-                  onclick="return confirmDelete('{{ itype.name|escape_html|safe }}');"
+                  onclick="return confirmDelete('del-{{ itype.id }}', '{{ itype.name|escape_html|safe }}');"
                 />
               </form>
             </td>
@@ -136,18 +128,22 @@
             <th>Production</th>
             <th></th>
             <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {% for ptype in ptypes %}
           <tr>
+            <td>{{ ptype.name|safe }}</td>
             <td>
               <form action="{{ url_for('types.ptrack') }}" method="post">
                 <input type="hidden" name="ptype_track" value="{{ ptype.id|safe }}" />
                 <input
+                  type="image"
+                  src="/static/icons/info-square.svg"
+                  alt="track"
+                  name="ptype_track"
                   title="Track {{ ptype.name|safe }}"
-                  type="submit"
-                  value="{{ ptype.name|safe }}"
                 />
               </form>
             </td>
@@ -157,18 +153,19 @@
                 alt="edit"
                 name="ptype_edit"
                 type="button"
-                class="edit-ptype"
+                                title="Edit {{ ptype.name|safe }}"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#EditPtypeCanvas"
                 aria-controls="EditPtypeCanvas"
-                data-ptype-id="{{ ptype.id }}"
-                data-ptype-name="{{ ptype.name|safe }}"
-                title="Edit {{ ptype.name|safe }}"
+                onclick="populateCanvasP(
+                '{{ ptype.id }}',
+                '{{ ptype.name|escape_html|safe }}'
+              );"
               />
             </td>
             <td>
               <form
-                id="{{ ptype.name|escape_html|safe }}"
+                id="del-{{ ptype.id }}"
                 action="{{ url_for('types.delete_type') }}"
                 method="post"
               >
@@ -179,7 +176,7 @@
                   name="ptype_delete"
                   type="submit"
                   title="Delete {{ ptype.name|safe }}"
-                  onclick="return confirmDelete('{{ ptype.name|escape_html|safe }}');"
+                  onclick="return confirmDelete('del-{{ ptype.id }}, {{ ptype.name|escape_html|safe }}');"
                 />
               </form>
             </td>

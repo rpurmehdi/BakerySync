@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} {{ source.name|safe }} {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} {{ source.name|safe }} Tracking {% endblock %}
+<!--head-->
+{%block head %} {% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-center">
+  <nav>
+    <div class="mt-3">
+      <h5 style="color: #c74b00">{{ source.name|safe }}</h5>
+    </div>
+    <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+      <button
+        class="nav-link active"
+        id="nav-stock-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-stock"
+        type="button"
+        role="tab"
+        aria-controls="nav-stock"
+        aria-selected="true"
+      >
+        Stock
+      </button>
+      <button
+        class="nav-link"
+        id="nav-arrivals-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-arrivals"
+        type="button"
+        role="tab"
+        aria-controls="nav-arrivals"
+        aria-selected="false"
+        tabindex="-1"
+      >
+        Arrivals
+      </button>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div
+      class="tab-pane fade active show"
+      id="nav-stock"
+      role="tabpanel"
+      aria-labelledby="nav-stock-tab"
+    >
+      <h5 class="mb-4">The stock of ingredients arrived from {{ source.name|safe|lower }}:</h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Ingredient Type</th>
+            <th>Arrived Quantity (Kg)</th>
+            <th>Used (Kg)</th>
+            <th>Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for type in arrived_types %}
+          <tr>
+            <td>{{ type.name }}</td>
+            <td>{{ source.arrtotal(type.id)|round(1) }}</td>
+            <td>{{ (source.arrtotal(type.id)-source.stktotal(type.id))|round(1) }}</td>
+            <td>{{ source.stktotal(type.id)|round(1) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane fade" id="nav-arrivals" role="tabpanel" aria-labelledby="nav-arrivals-tab">
+      <h5 class="mb-4">Ingredient arrivals from {{ source.name|safe|lower }}:</h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Ingredient Type</th>
+            <th>Arriving Date</th>
+            <th>Quantity (Kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for arrival in source.arrivals|sort(attribute='arriving_date') %}
+          <tr>
+            <td>{{ arrival.type.name|safe }}</td>
+            <td>{{ arrival.arriving_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ arrival.quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

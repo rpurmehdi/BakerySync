@@ -18,11 +18,11 @@
     ></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      function confirmDelete(Item) {
+      function confirmDelete(Item, Message) {
         var confirmMessage =
-          "Are you sure you want to delete '" +
-          Item +
-          "'?\nThis can not be undone!\nNote: you can not delete items that are referenced eslsewhere in the database";
+          "Are you sure you want to delete " +
+          Message +
+          "?\nThis can not be undone!\nNote: you can not delete items that are referenced eslsewhere in the database";
         if (confirm(confirmMessage)) {
           // If confirmed, submit the form
           document.getElementById(Item).submit();

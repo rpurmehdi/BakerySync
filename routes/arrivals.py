@@ -149,3 +149,14 @@ def delete_arrival():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('arrivals.arrivals'))
     return redirect(url_for('arrivals.arrivals'))
+
+
+@arrivals_bp.route('/track/arrival', methods=['POST'])
+def track():
+    try:
+        id = request.form.get("arrival_track")
+        arrival = IngredientArrival.query.get(id)
+    except Exception as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('arrivals.arrivals'))
+    return render_template('arrivaltrack.html', arrival=arrival)

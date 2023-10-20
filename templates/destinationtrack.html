@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} {{ destination.name|safe }} {% endblock %}
+<!-- and again here!-->
+{% block navbar_title %} {{ destination.name|safe }} Tracking {% endblock %}
+<!--head-->
+{%block head %} {% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-center">
+  <nav>
+    <div class="mt-3">
+      <h5 style="color: #c74b00">{{ destination.name|safe }}</h5>
+    </div>
+    <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+      <button
+        class="nav-link active"
+        id="nav-stock-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-stock"
+        type="button"
+        role="tab"
+        aria-controls="nav-stock"
+        aria-selected="true"
+      >
+        Stock
+      </button>
+      <button
+        class="nav-link"
+        id="nav-shipments-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#nav-shipments"
+        type="button"
+        role="tab"
+        aria-controls="nav-shipments"
+        aria-selected="false"
+        tabindex="-1"
+      >
+        Shipments
+      </button>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div
+      class="tab-pane fade active show"
+      id="nav-stock"
+      role="tabpanel"
+      aria-labelledby="nav-stock-tab"
+    >
+      <h5 class="mb-4">The quantity of productions shipped to {{ destination.name|safe|lower }}:</h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Production Type</th>
+            <th>Shipped Quantity (Kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for type in shipped_types %}
+          <tr>
+            <td>{{ type.name }}</td>
+            <td>{{ destination.shptotal(type.id)|round(1) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane fade" id="nav-shipments" role="tabpanel" aria-labelledby="nav-shipments-tab">
+      <h5 class="mb-4">Production shipments to {{ destination.name|safe|lower }}:</h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Production Type</th>
+            <th>Batch</th>
+            <th>Shipping Date</th>
+            <th>Quantity (Kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for shipment in destination.shipments|sort(attribute='shipping_date') %}
+          <tr>
+            <td>{{ shipment.production.type.name|safe }}</td>
+            <td>{{ shipment.production.print_batch|safe }}</td>
+            <td>{{ shipment.shipping_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ shipment.quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

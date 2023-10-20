@@ -5,24 +5,8 @@
 {% block navbar_title %} Productions {% endblock %}
 <!--head-->
 {%block head %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script>
-  function recipeChange(selectedValue) {
-    $("#message").empty();
-    $("#rmContainer").empty();
-    const hiddenSelects = document.querySelectorAll(".recipe-select");
-    hiddenSelects.forEach(function (select) {
-      select.hidden = true;
-      select.removeAttribute("required");
-    });
-    const selectedHiddenSelect = document.getElementById(`recipe${selectedValue}`);
-    if (selectedHiddenSelect) {
-      selectedHiddenSelect.hidden = false;
-      selectedHiddenSelect.setAttribute("required", "required");
-    }
-  }
-</script>
-<script>
+  // script to query raw materials of a certain recipe
   function recSearch(selectedValue) {
     $.ajax({
       type: "POST",
@@ -38,7 +22,8 @@
           const id = response.ids[i];
           const name = response.names[i];
           const percent = response.percents[i];
-          const stock = response.stocks[i];
+          const stock = response.stocks[i].toFixed(1);
+          const text = name + " max: " + stock + " Kgs<br>";
           const formDiv = $("<div>", {
             class: "form-floating",
           });
@@ -59,6 +44,7 @@
           formDiv.append(input);
           formDiv.append(label);
           $("#rmContainer").append(formDiv);
+          $("#message").append(text);
         }
       },
       error: function (err) {
@@ -68,8 +54,27 @@
   }
 </script>
 <script>
+  // script to show&hide the recipe selects
+  function recipeChange(selectedValue) {
+    $("#message").empty();
+    $("#rmContainer").empty();
+    const hiddenSelects = document.querySelectorAll(".recipe-select");
+    hiddenSelects.forEach(function (select) {
+      select.hidden = true;
+      select.removeAttribute("required");
+    });
+    const selectedHiddenSelect = document.getElementById(`recipe${selectedValue}`);
+    if (selectedHiddenSelect) {
+      selectedHiddenSelect.hidden = false;
+      selectedHiddenSelect.setAttribute("required", "required");
+    }
+  }
+</script>
+<script>
+  // script for generating new batch numbers
   document.addEventListener("DOMContentLoaded", function () {
     function updateField() {
+      //list of existing batch numbers
       const BatchNumbers = [{% for production in productions %}"{{ production.print_batch|safe }}", {%endfor %}];
       const productionDateValue =
         document.getElementById("production_date").value;
@@ -116,33 +121,47 @@
   <table class="table table-striped w-auto mx-auto">
     <thead>
       <tr>
-        <th>Type</th>
         <th>Batch</th>
-        <th>Recipe</th>
+        <th>Type</th>
         <th>Quantity (Kg)</th>
         <th>Production Time</th>
+        <th>Recipe</th>
         <th>Ingredient Usages</th>
+        <th></th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       {% for production in productions|sort(attribute='production_time')|reverse %}
       <tr>
-        <td>{{ production.type.name|safe }}</td>
         <td>{{ production.print_batch|safe }}</td>
-        <td>{{ production.recipe.name|safe }}</td>
+        <td>{{ production.type.name|safe }}</td>
         <td>{{ production.quantity }}</td>
         <td>{{ production.production_time }}</td>
+        <td>{{ production.recipe.name|safe }}</td>
         <td>
           <p class="m-0 text-end">
-            {% for ingredient in production.ingredients %}{{ ingredient.type.name|safe }}-{{
+            {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse %}
+            {% for ingredient in sorted_ingredients %} {{ ingredient.type.name|safe }}-{{
             ingredient.source.name|safe }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
             <strong>{{ production.getu(ingredient.id)|safe }} Kg</strong><br />{% endfor %}
           </p>
         </td>
         <td>
+          <form action="{{ url_for('productions.track') }}" method="post">
+            <input type="hidden" name="production_track" value="{{ production.id|safe }}" />
+            <input
+              type="image"
+              src="/static/icons/info-square.svg"
+              alt="track"
+              name="production_track"
+              title="Track {{ production.print_batch|safe }}"
+            />
+          </form>
+        </td>
+        <td>
           <form
-            id="{{ production.type.name|escape_html|safe }} on {{ production.production_time|safe }}"
+            id="del-{{production.id}}"
             action="{{ url_for('productions.delete_production') }}"
             method="post"
           >
@@ -152,8 +171,8 @@
               alt="delete"
               name="production_delete"
               type="submit"
-              title="Delete {{ production.type.name|safe }}"
-              onclick="return confirmDelete('{{ production.type.name|escape_html|safe }} on {{ production.production_time|safe }}');"
+              title="Delete {{ production.print_batch|safe }}"
+              onclick="return confirmDelete('del-{{production.id}}', '{{ production.print_batch|safe }}');"
             />
           </form>
         </td>
@@ -184,15 +203,6 @@
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    >
-    <div class="row justify-content-md-center">
-      <div class="col chart-container">
-        <canvas id="ingredientChart" style="max-width: 700px; display: inline"></canvas>
-      </div>
-      <div class="col chart-container">
-        <canvas id="productionChart" style="max-width: 700px; display: inline"></canvas>
-      </div>
-    </div>
     <div class="container mx-auto mt-3">
       <form method="POST" action="{{url_for('productions.productions')}}">
         <div class="row justify-content-md-center">
@@ -286,95 +296,4 @@
     </div>
   </div>
 </div>
-<!--chart scripts-->
-<script>
-  const randColors = {{ colors|safe }};
-  new Chart("ingredientChart", {
-      type: "bar",
-      data: {
-        labels: [{% for itype in itypes %}{% if itype.stock > 0 %}"{{ itype.name|safe }}", {% endif %}{% endfor %}],
-        datasets: [{% for ingredient in ingredients %}{% if ingredient.stock > 0 %}{label: "{{ ingredient.source.name|safe }}-{{ ingredient.arriving_date.strftime('%Y-%m-%d') }}",
-        data: [{% for itype in itypes %}{% if itype.stock > 0 %}{% if itype.id == ingredient.type_id %}{{ ingredient.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
-        backgroundColor: randColors[{{ ingredient.id }} % 50],
-        borderColor: randColors[50 + {{ ingredient.id }} % 100],
-        borderWidth: 1
-        },
-        {% endif %}{% endfor %}],
-      },
-      options: {
-        title: {
-        display: true,
-        text: 'Ingredients',
-      },
-
-        tooltips: {
-          displayColors: true,
-          callbacks:{
-          mode: 'x',
-          },
-        },
-        scales: {
-          xAxes: [{
-            stacked: true,
-            gridLines: {
-              display: false,
-            }
-          }],
-          yAxes: [{
-            stacked: true,
-            ticks: {
-              beginAtZero: true,
-            },
-          type: 'linear',
-          }]
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: { display: false },
-      },
-    });
-    new Chart("productionChart", {
-        type: "bar",
-        data: {
-          labels: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}"{{ptype.name|safe}}", {% endif %}{% endfor %}],
-          datasets: [{% for production in productions %}{% if production.stock > 0 %}{label: "{{production.print_batch|safe}}-{{ production.production_time.strftime('%Y-%m-%d') }}",
-          data: [{% for ptype in ptypes %}{% if ptype.stock > 0 %}{% if ptype.id == production.type_id %}{{ production.stock }}, {%else%}0,{% endif %}{% endif %}{% endfor %}],
-        backgroundColor: randColors[{{ production.id }} % 50],
-        borderColor: randColors[50 + {{ production.id }} % 100],
-        borderWidth: 1
-          },
-          {% endif %}{% endfor %}],
-        },
-        options: {
-          title: {
-        display: true,
-        text: 'Productions',
-      },
-      tooltips: {
-        displayColors: true,
-        callbacks:{
-          mode: 'x',
-        },
-      },
-      scales: {
-        xAxes: [{
-          stacked: true,
-          gridLines: {
-            display: false,
-          }
-        }],
-        yAxes: [{
-          stacked: true,
-          ticks: {
-            beginAtZero: true,
-          },
-          type: 'linear',
-        }]
-      },
-      responsive: true,
-      maintainAspectRatio: false,
-      legend: { display: false },
-      }
-    });
-</script>
 {% endblock %}

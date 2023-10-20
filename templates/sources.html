@@ -6,36 +6,26 @@
 <!--head-->
 {%block head %}
 <script>
-  // Attach the populateModal() function to the edit buttons
-  $(document).ready(function () {
-    const editButtons = document.querySelectorAll(".edit-source");
-    editButtons.forEach((button) => {
-      button.addEventListener("click", populateModal);
-    });
-  });
+  function populateCanvas(
+    sourceId,
+    sourceName,
+    contactPerson,
+    contactInformation,
+    sourceType,
+    sourceLocation,
+    sourceDescription
+  ) {
+    // Get the canvas element
+    const editCanvas = document.getElementById("EditCanvas");
 
-  // Populate the modal form
-  function populateModal(event) {
-    // Get the modal element
-    const editModal = document.getElementById("EditCanvas");
-
-    // Get the data attributes from the clicked button
-    const sourceId = event.target.getAttribute("data-source-id");
-    const sourceName = event.target.getAttribute("data-source-name");
-    const contactPerson = event.target.getAttribute("data-contact-person");
-    const contactInformation = event.target.getAttribute("data-contact-information");
-    const sourceType = event.target.getAttribute("data-source-type");
-    const sourceLocation = event.target.getAttribute("data-source-location");
-    const sourceDescription = event.target.getAttribute("data-source-description");
-
-    // Populate the modal form fields
-    editModal.querySelector("#edit-source-id").value = sourceId;
-    editModal.querySelector("#edit-name").value = sourceName;
-    editModal.querySelector("#edit-contact_person").value = contactPerson;
-    editModal.querySelector("#edit-contact_information").value = contactInformation;
-    editModal.querySelector("#edit-type").value = sourceType;
-    editModal.querySelector("#edit-location").value = sourceLocation;
-    editModal.querySelector("#edit-description").value = sourceDescription;
+    // Populate the canvas form fields
+    editCanvas.querySelector("#edit-source-id").value = sourceId;
+    editCanvas.querySelector("#edit-name").value = sourceName;
+    editCanvas.querySelector("#edit-contact_person").value = contactPerson;
+    editCanvas.querySelector("#edit-contact_information").value = contactInformation;
+    editCanvas.querySelector("#edit-type").value = sourceType;
+    editCanvas.querySelector("#edit-location").value = sourceLocation;
+    editCanvas.querySelector("#edit-description").value = sourceDescription;
   }
 </script>
 {% endblock %}
@@ -55,6 +45,7 @@
           <th>Description</th>
           <th></th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -66,28 +57,42 @@
           <td>{{ source.location|safe }}</td>
           <td>{{ source.description|safe }}</td>
           <td>
+            <form action="{{ url_for('sources.track') }}" method="post">
+              <input type="hidden" name="source_track" value="{{ source.id|safe }}" />
+              <input
+                type="image"
+                src="/static/icons/info-square.svg"
+                alt="track"
+                name="source_track"
+                title="Track {{ source.name|safe }}"
+              />
+            </form>
+          </td>
+          <td>
             <img
               src="/static/icons/pencil-square.svg"
               alt="edit"
               name="source_edit"
               type="button"
               class="edit-source"
+              title="Edit {{ source.name|safe }}"
               data-bs-toggle="offcanvas"
               data-bs-target="#EditCanvas"
               aria-controls="EditCanvas"
-              data-source-id="{{ source.id }}"
-              data-source-name="{{ source.name|safe }}"
-              data-contact-person="{{ source.contact_person|safe }}"
-              data-contact-information="{{ source.contact_information|safe }}"
-              data-source-type="{{ source.type|safe }}"
-              data-source-location="{{ source.location|safe }}"
-              data-source-description="{{ source.description|safe }}"
-              title="Edit {{ source.name|safe }}"
+              onclick="populateCanvas(
+              '{{ source.id }}',
+              '{{ source.name|escape_html|safe }}',
+              '{{ source.contact_person|escape_html|safe }}',
+              '{{ source.contact_information|escape_html|safe }}',
+              '{{ source.type|escape_html|safe }}',
+              '{{ source.location|escape_html|safe }}',
+              '{{ source.description|escape_html|safe }}'
+            );"
             />
           </td>
           <td>
             <form
-              id="{{ source.name|escape_html|safe }}"
+              id="del-{{ source.id }}"
               action="{{ url_for('sources.delete_source') }}"
               method="post"
             >
@@ -98,7 +103,7 @@
                 name="source_delete"
                 type="submit"
                 title="Delete {{ source.name|safe }}"
-                onclick="return confirmDelete('{{ source.name|escape_html|safe }}');"
+                onclick="return confirmDelete('del-{{ source.id }}', '{{ source.name|escape_html|safe }}');"
               />
             </form>
           </td>

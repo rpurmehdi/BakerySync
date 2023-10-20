@@ -33,7 +33,8 @@ def recipes():
             flash('Invalid data input!', 'warning')
             return redirect(url_for('recipes.recipes'))
         if sum(itype_percents.values()) != 100:
-            flash(f'Invalid data input, percentages sum shouldbe 100 not {sum(itype_percents.values())}', 'warning')
+            flash(
+                f'Invalid data input, percentages sum shouldbe 100 not {sum(itype_percents.values())}', 'warning')
             return redirect(url_for('recipes.recipes'))
         # Create a new recipe object and add it to the database
         new_recipe = Recipe(
@@ -41,10 +42,11 @@ def recipes():
             description=description,
             production_type=ptype,
         )
-        duplicate_recipe = Recipe.query.filter_by(name=recipe_name, production_type=ptype).first()
+        duplicate_recipe = Recipe.query.filter_by(
+            name=recipe_name, production_type=ptype).first()
         if duplicate_recipe:
             flash(
-                    f'Can not add another recipe with the same name {recipe_name} for production type {ptype}. Recipe names must all be unique for each production.', 'warning')
+                f'Can not add another recipe with the same name {recipe_name} for production type {ptype}. Recipe names must all be unique for each production.', 'warning')
             return redirect(url_for('recipes.recipes'))
         try:
             # Attempt to perform a database operation
@@ -123,3 +125,14 @@ def delete_recipe():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('recipes.recipes'))
     return redirect(url_for('recipes.recipes'))
+
+
+@recipes_bp.route('/track/recipe', methods=['POST'])
+def track():
+    try:
+        id = request.form.get("recipe_track")
+        recipe = Recipe.query.get(id)
+    except Exception as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('recipes.recipes'))
+    return render_template('recipetrack.html', recipe=recipe)

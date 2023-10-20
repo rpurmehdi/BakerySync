@@ -23,6 +23,16 @@ class Source(BaseModel):
 
     arrivals = db.relationship('IngredientArrival', backref='source')
 
+    def arrtotal(self, type_id):
+        total_arrival = sum(
+            arrival.quantity for arrival in self.arrivals if arrival.type_id == type_id)
+        return total_arrival
+
+    def stktotal(self, type_id):
+        total_stock = sum(
+            arrival.stock for arrival in self.arrivals if arrival.type_id == type_id)
+        return total_stock
+
 
 class Destination(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
@@ -33,6 +43,11 @@ class Destination(BaseModel):
     description = db.Column(db.String(255))
 
     shipments = db.relationship('ProductionShipment', backref='destination')
+
+    def shptotal(self, type_id):
+        total_shipment = sum(
+            shipment.quantity for shipment in self.shipments if shipment.production.type_id == type_id)
+        return total_shipment
 
 
 recipe_ingredient_association = db.Table(
@@ -69,6 +84,11 @@ class IngredientType(BaseModel):
         ).all()
         return matching_productions
 
+    @property
+    def arrtotal(self):
+        total_arrival = sum(arrival.quantity for arrival in self.arrivals)
+        return total_arrival
+
 
 production_arrival_association = db.Table(
     'production_arrival_association',
@@ -100,6 +120,12 @@ class ProductionType(BaseModel):
             Production.type_id == self.id
         ).all()
         return matching_shipments
+
+    @property
+    def prtotal(self):
+        total_productions = sum(
+            production.quantity for production in self.productions)
+        return total_productions
 
 
 class IngredientArrival(BaseModel):
@@ -146,6 +172,23 @@ class Recipe(BaseModel):
             return association.quantity_percent
         return 0
 
+    @property
+    def shipments(self):
+        shipments = [
+            shipment for production in self.productions for shipment in production.shipments]
+        return shipments
+
+    @property
+    def stock(self):
+        total = sum(production.stock for production in self.productions)
+        return total
+
+    @property
+    def prtotal(self):
+        total_productions = sum(
+            production.quantity for production in self.productions)
+        return total_productions
+
 
 class Production(BaseModel):
     print_batch = db.Column(db.String(255), unique=True, nullable=False)
@@ -180,10 +223,8 @@ class Production(BaseModel):
 
     def gets(self, ingredient_type_id):
         ing = IngredientType.query.get(ingredient_type_id)
-        sum = 0.0
-        for arrival in ing.arrivals:
-            sum += self.getu(arrival.id)
-        return sum
+        total = sum(self.getu(arrival.id) for arrival in ing.arrivals)
+        return total
 
 
 class ProductionShipment(BaseModel):

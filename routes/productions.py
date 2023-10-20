@@ -113,7 +113,6 @@ def productions():
         'productions': productions,
         'ptypes': ptypes,
         'rtypes': rtypes,
-        'colors': colors
     }
     return render_template('productions.html', **context)
 
@@ -160,12 +159,13 @@ def search():
     recipe = Recipe.query.get(data['data'])
     if recipe is None:
         return jsonify({'error': 'Recipe not found'}), 404
-
+    sorted_ingredients = sorted(
+        recipe.ingredients, key=lambda ingredient: recipe.getp(ingredient.id), reverse=True)
     ids = []
     names = []
     percents = []
     stocks = []
-    for ingredient in recipe.ingredients:
+    for ingredient in sorted_ingredients:
         ids.append(ingredient.id)
         names.append(ingredient.name)
         percents.append(recipe.getp(ingredient.id))
@@ -178,3 +178,14 @@ def search():
     }
 
     return jsonify(response)
+
+
+@productions_bp.route('/track/production', methods=['POST'])
+def track():
+    try:
+        id = request.form.get("production_track")
+        production = Production.query.get(id)
+    except Exception as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('productions.productions'))
+    return render_template('productiontrack.html', production=production)

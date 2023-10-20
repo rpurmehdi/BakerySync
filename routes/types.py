@@ -156,7 +156,7 @@ def itrack():
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('types.types'))
-    return render_template('itype.html', ingredient=ingredient)
+    return render_template('itypetrack.html', ingredient=ingredient)
 
 
 @types_bp.route('/track/product', methods=['POST'])
@@ -167,4 +167,4 @@ def ptrack():
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('types.types'))
-    return render_template('ptype.html', production=production)
+    return render_template('ptypetrack.html', production=production)

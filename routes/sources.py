@@ -114,3 +114,16 @@ def delete_source():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('sources.sources'))
     return redirect(url_for('sources.sources'))
+
+@sources_bp.route('/track/source', methods=['POST'])
+def track():
+    try:
+        id = request.form.get("source_track")
+        source = Source.query.get(id)
+    except Exception as e:
+        flash(f'Database error: {str(e)}', 'danger')
+        return redirect(url_for('sources.sources'))
+
+    arrived_types =[arrival.type for arrival in source.arrivals]
+    unique_types = list(set(arrived_types))
+    return render_template('sourcetrack.html', source=source, arrived_types=unique_types)

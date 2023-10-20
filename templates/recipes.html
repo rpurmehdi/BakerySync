@@ -67,18 +67,6 @@
     }
   }
 </script>
-<script>
-  function trackItemi(item) {
-    const formName = "itrack-" + item;
-    document.getElementById(formName).submit();
-    return false; // Prevent the default link behavior
-  }
-  function trackItemp(item) {
-    const formName = "ptrack-" + item;
-    document.getElementById(formName).submit();
-    return false; // Prevent the default link behavior
-  }
-</script>
 {% endblock %}
 <!--body-->
 {%block main %}
@@ -99,41 +87,29 @@
       {% for recipe in recipes|reverse %}
       <tr>
         <td>{{ recipe.name|safe }}</td>
-        <td>
-          <form
-            action="{{ url_for('types.ptrack') }}"
-            method="post"
-          >
-            <input type="hidden" name="ptype_track" value="{{ recipe.product.id|safe }}" />
-            <input
-              title="Track {{ recipe.product.name|safe }}"
-              type="submit"
-              value="{{ recipe.product.name|safe }}"
-            >
-          </form>
-        </td>
+        <td>{{ recipe.product.name|safe }}</td>
         <td>{{ recipe.description|safe }}</td>
         <td class="text-end">
-            {% for ingredient in recipe.ingredients %}
-          <form
-            id="itrack-{{ ingredient.id|safe }}"
-            action="{{ url_for('types.itrack') }}"
-            method="post"
-          >
-            <input type="hidden" name="itype_track" value="{{ ingredient.id|safe }}" />
-            <a
-              href="{{ url_for('types.itrack') }}"
-              class="itype-link"
-              title="Track {{ ingredient.name|safe }}"
-              onclick="return trackItemi('{{ ingredient.id|safe }}');"
-              >{{ ingredient.name|safe }}: </a
-            >
-          </form><strong>{{
-            recipe.getp(ingredient.id)|safe }}%</strong><br> {% endfor %}
+          {% set sorted_ingredients = recipe.ingredients|list|sortgetp(recipe)|reverse %} {% for
+          ingredient in sorted_ingredients %} {{ ingredient.name|safe }}:
+          <strong>{{ recipe.getp(ingredient.id)|safe }}%</strong><br />
+          {% endfor %}
+        </td>
+        <td>
+          <form action="{{ url_for('recipes.track') }}" method="post">
+            <input type="hidden" name="recipe_track" value="{{ recipe.id|safe }}" />
+            <input
+              type="image"
+              src="/static/icons/info-square.svg"
+              alt="track"
+              name="recipe_track"
+              title="Track {{ recipe.name|safe }}"
+            />
+          </form>
         </td>
         <td>
           <form
-            id="{{ recipe.name|escape_html|safe }}"
+            id="del-{{recipe.id}}"
             action="{{ url_for('recipes.delete_recipe') }}"
             method="post"
           >
@@ -144,7 +120,7 @@
               name="recipe_delete"
               type="submit"
               title="Delete {{ recipe.name|safe }}"
-              onclick="return confirmDelete('{{ recipe.name|escape_html|safe }}');"
+              onclick="return confirmDelete('del-{{recipe.id}}', '{{ recipe.name|escape_html|safe }} recipe for {{ recipe.product.name|escape_html|safe }}');"
             />
           </form>
         </td>
@@ -228,7 +204,9 @@
               value=""
               onclick="toggleVisibility('div-{{ itype.id }}')"
             />
-            <label class="form-check-label" for="Checkbox-{{ itype.id }}">{{ itype.name|safe }}</label>
+            <label class="form-check-label" for="Checkbox-{{ itype.id }}"
+              >{{ itype.name|safe }}</label
+            >
           </div>
           {% endfor %}
         </div>

@@ -19,10 +19,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] =\
 app.secret_key = 'very_secret_key'
 app.config['CSV_FOLDER'] = 'csvs'  # Set the path to your custom "csvs" folder
 
+
 @app.route('/csvs/<filename>')
 def serve_csv(filename):
     csv_folder = app.config['CSV_FOLDER']
     return send_from_directory(csv_folder, filename)
+
 
 db.init_app(app)
 
@@ -47,11 +49,21 @@ def after_request(response):
 def escape_html_filter(s):
     result = ""
     for c in s:
-        if c in ["'", "<", ">", "&", '"']:
-            result += "."
+        if c in ["'", '"']:
+            result += "\\" + c
         else:
             result += c
     return result
+
+
+@app.template_filter('sortgetp')
+def sortgetp(ingredients, recipe):
+    return sorted(ingredients, key=lambda x: recipe.getp(x.id))
+
+
+@app.template_filter('sortgetu')
+def sortgetu(ingredients, production):
+    return sorted(ingredients, key=lambda x: production.getu(x.id))
 
 
 @app.route("/", methods=["GET", "POST"])
