@@ -155,12 +155,17 @@ def delete_shipment():
             return redirect(url_for('shipments.shipments'))
     return redirect(url_for('shipments.shipments'))
 
+
 @shipments_bp.route('/track/shipment', methods=['POST'])
 def track():
     try:
         id = request.form.get("shipment_track")
-        shipment = ProductionShipment.query.get(id)
+        return track_shipment(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('shipments.shipments'))
+
+
+def track_shipment(id):
+    shipment = ProductionShipment.query.get(id)
     return render_template('shipmenttrack.html', shipment=shipment)

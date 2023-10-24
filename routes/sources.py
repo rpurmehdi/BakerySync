@@ -97,7 +97,8 @@ def delete_source():
                 is_referenced = IngredientArrival.query.filter_by(
                     source_id=id).first()
                 if is_referenced:
-                    flash(f'{source_to_delete.name} is used in Arrivals, cannot delete', 'danger')
+                    flash(
+                        f'{source_to_delete.name} is used in Arrivals, cannot delete', 'danger')
                 else:
                     # Delete the found source
                     db.session.delete(source_to_delete)
@@ -115,15 +116,19 @@ def delete_source():
             return redirect(url_for('sources.sources'))
     return redirect(url_for('sources.sources'))
 
+
 @sources_bp.route('/track/source', methods=['POST'])
 def track():
     try:
         id = request.form.get("source_track")
-        source = Source.query.get(id)
+        return track_source(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('sources.sources'))
 
-    arrived_types =[arrival.type for arrival in source.arrivals]
+
+def track_source(id):
+    source = Source.query.get(id)
+    arrived_types = [arrival.type for arrival in source.arrivals]
     unique_types = list(set(arrived_types))
     return render_template('sourcetrack.html', source=source, arrived_types=unique_types)

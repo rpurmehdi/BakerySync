@@ -122,10 +122,14 @@ def delete_destination():
 def track():
     try:
         id = request.form.get("destination_track")
-        destination = Destination.query.get(id)
+        return track_destination(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('destinations.destinations'))
+        
+
+def track_destination(id):
+    destination = Destination.query.get(id)
     shipped_types = set()
     for shipment in destination.shipments:
         production_type = shipment.production.type

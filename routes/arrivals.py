@@ -155,8 +155,11 @@ def delete_arrival():
 def track():
     try:
         id = request.form.get("arrival_track")
-        arrival = IngredientArrival.query.get(id)
+        return track_arrival(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('arrivals.arrivals'))
+
+def track_arrival(id):
+    arrival = IngredientArrival.query.get(id)
     return render_template('arrivaltrack.html', arrival=arrival)

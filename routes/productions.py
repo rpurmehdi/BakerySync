@@ -184,8 +184,12 @@ def search():
 def track():
     try:
         id = request.form.get("production_track")
-        production = Production.query.get(id)
+        return track_production(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('productions.productions'))
+
+
+def track_production(id):
+    production = Production.query.get(id)
     return render_template('productiontrack.html', production=production)

@@ -152,10 +152,14 @@ def delete_type():
 def itrack():
     try:
         id = request.form.get("itype_track")
-        ingredient = IngredientType.query.get(id)
+        return track_itype(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('types.types'))
+
+
+def track_itype(id):
+    ingredient = IngredientType.query.get(id)
     return render_template('itypetrack.html', ingredient=ingredient)
 
 
@@ -163,8 +167,12 @@ def itrack():
 def ptrack():
     try:
         id = request.form.get("ptype_track")
-        production = ProductionType.query.get(id)
+        return track_ptype(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('types.types'))
+
+
+def track_ptype(id):
+    production = ProductionType.query.get(id)
     return render_template('ptypetrack.html', production=production)

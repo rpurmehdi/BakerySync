@@ -1,9 +1,11 @@
 import os
+import json
 from flask import Flask, flash, render_template, request, send_from_directory, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-from models import db, Source, Destination, IngredientType, ProductionType, IngredientArrival, Recipe, Production, production_arrival_association, ProductionShipment, recipe_ingredient_association
+from models import *
+from routes.index import index_bp
 from routes.types import types_bp
 from routes.sources import sources_bp
 from routes.destinations import destinations_bp
@@ -66,15 +68,8 @@ def sortgetu(ingredients, production):
     return sorted(ingredients, key=lambda x: production.getu(x.id))
 
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        return render_template(
-            "index.html"
-        )
-    else:
-        return render_template("index.html")
-
+# registering index.py
+app.register_blueprint(index_bp)
 
 # registering types.py
 app.register_blueprint(types_bp)
@@ -96,5 +91,6 @@ app.register_blueprint(productions_bp)
 
 # registering recipes.py
 app.register_blueprint(recipes_bp)
+
 if __name__ == '__main__':
     app.run(debug=True)

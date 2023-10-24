@@ -131,8 +131,12 @@ def delete_recipe():
 def track():
     try:
         id = request.form.get("recipe_track")
-        recipe = Recipe.query.get(id)
+        return track_recipe(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('recipes.recipes'))
+
+
+def track_recipe(id):
+    recipe = Recipe.query.get(id)
     return render_template('recipetrack.html', recipe=recipe)

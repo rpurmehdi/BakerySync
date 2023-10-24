@@ -33,11 +33,11 @@
       }
     </script>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png" />
     <link rel="manifest" href="/static/site.webmanifest" />
-    <link rel="icon" href="/static/favicon.ico" />
+    <link rel="icon" href="/static/images/favicon.ico" />
     {% block head %}{% endblock %}
     <link href="/static/styles.css" rel="stylesheet" />
     <title>BakerySync: {% block title %}{% endblock %}</title>
@@ -45,9 +45,14 @@
   <body>
     <nav class="navbar navbar-expand-lg sticky-top bg-warning-subtle">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">BakerySync</a>
-        <a class="navbar-brand" href="{{ url_for('index') }}">
-          <img src="/static/android-chrome-512x512.png" alt="BakerySyncLogo" width="30" height="30">
+        <a class="navbar-brand" href="{{ url_for('index.index') }}">BakerySync</a>
+        <a class="navbar-brand" href="{{ url_for('index.index') }}">
+          <img
+            src="/static/images/android-chrome-512x512.png"
+            alt="BakerySyncLogo"
+            width="30"
+            height="30"
+          />
         </a>
         <a class="navbar-brand">{% block navbar_title %}{% endblock %}</a>
         <button
@@ -64,30 +69,67 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 Configuration
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{{ url_for('types.types') }}">Manage Types</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('sources.sources') }}">Manage Sources</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('destinations.destinations') }}">Manage Destinations</a></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('types.types') }}">Manage Types</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('sources.sources') }}"
+                    >Manage Sources</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('destinations.destinations') }}"
+                    >Manage Destinations</a
+                  >
+                </li>
               </ul>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{ url_for('recipes.recipes') }}">Recipes</a>
-            </li>            
+              <a class="nav-link active" aria-current="page" href="{{ url_for('recipes.recipes') }}"
+                >Recipes</a
+              >
+            </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{ url_for('productions.productions') }}">Productions</a>
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('productions.productions') }}"
+                >Productions</a
+              >
             </li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 Warehouse
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{{ url_for('arrivals.arrivals') }}">Ingredient Arrival</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('shipments.shipments') }}">Production Shipment</a></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('arrivals.arrivals') }}"
+                    >Ingredient Arrival</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('shipments.shipments') }}"
+                    >Production Shipment</a
+                  >
+                </li>
               </ul>
-            </li>            
+            </li>
           </ul>
         </div>
       </div>
