@@ -1,32 +1,31 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} Overview {% endblock %}
+{% block title %} Track {% endblock %}
 <!-- and again here!-->
-{% block navbar_title %} Overview {% endblock %}
+{% block navbar_title %} Track Result {% endblock %}
 <!--head-->
 {% block head %}
-<script src="https://d3js.org/d3.v6.js"></script>
 {% endblock %} {% block main %}
 <div class="mb-3">
-  <form class="form-inline">
-    <div class="input-group mb-3">
-      <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
-      <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="button">Button</button>
-      </div>
-    </div>
-    <div class="form-group mb-2" action="{{ url_for('index.index') }}" method="post">
-      <label for="track" class="sr-only">Track</label>
-      <input
-        type="search"
-        class="form-control"
-        id="track"
-        autocomplete="on"
-        placeholder="type what to track"
-        required
-      />
-       <button type="submit" class="btn btn-success btn-sm">Track</button> </div>
-
+  <form action="{{ url_for('index.index') }}" method="post">
+    <label for="track">Type what to track</label>
+    <input type="hidden" name="data-type" id="data-type" value=".." />
+    <input type="hidden" name="data-id" id="data-id" value="..." />
+    <input
+      list="trackables"
+      class="form-control"
+      id="track"
+      name="track"
+      autocomplete="off"
+      placeholder="type here..."
+      required
+    />
+    <datalist id="trackables">
+      {% for trackable in trackables %}
+      <option data-type="{{ trackable.type|safe }}" data-id="{{ trackable.id|safe }}">{{ trackable.name|safe }}</option>
+      {% endfor %}
+    </datalist>
+    <button type="submit" class="btn btn-success">Track</button>
   </form>
   <!-- a div where the ingredient graph will take place -->
   <div id="itype_chart"></div>
@@ -152,27 +151,25 @@
   </script>
   <script>
     // Get the form element
-    var form = document.querySelector("form");
-
+    var form = document.querySelector('form');
+  
     // Get the input elements
-    var dataTypeInput = document.getElementById("data-type");
-    var dataIdInput = document.getElementById("data-id");
-
+    var dataTypeInput = document.getElementById('data-type');
+    var dataIdInput = document.getElementById('data-id');
+  
     // Get the input element with the list of trackables
-    var trackInput = document.getElementById("track");
-
+    var trackInput = document.getElementById('track');
+  
     // Add an event listener to the form's submit event
-    form.addEventListener("submit", function (event) {
+    form.addEventListener('submit', function(event) {
       // Find the selected option in the datalist
-      var selectedOption = document.querySelector(
-        '#trackables option[value="' + trackInput.value + '"]'
-      );
-
+      var selectedOption = document.querySelector('#trackables option[value="' + trackInput.value + '"]');
+  
       if (selectedOption) {
         // Get the data-type and data-id attributes from the selected option
-        var dataType = selectedOption.getAttribute("data-type");
-        var dataId = selectedOption.getAttribute("data-id");
-
+        var dataType = selectedOption.getAttribute('data-type');
+        var dataId = selectedOption.getAttribute('data-id');
+  
         // Update the hidden input fields with the selected data
         dataTypeInput.value = dataType;
         dataIdInput.value = dataId;

@@ -28,8 +28,12 @@ def index():
         for ptype in ptypes:
             productiontypes.append((ptype.name, ptype.stock))
         productions_json = json.dumps(productiontypes)
+        return render_template("index.html", ingredients=ingredients_json, productions=productions_json)
+    else:
         # trackables
         trackables = []
+        itypes = IngredientType.query.all()
+        ptypes = ProductionType.query.all()
         sources = Source.query.all()
         destinations = Destination.query.all()
         arrivals = IngredientArrival.query.all()
@@ -92,9 +96,6 @@ def index():
                 "name": f"{shipment.production.type.name} on {shipment.shipping_date} to {shipment.destination.name}",
             }
             trackables.append(trackable)
-
-        return render_template("index.html", ingredients=ingredients_json, productions=productions_json, trackables=trackables)
-    else:
         function_map = {
             "arrival": track_arrival,
             "destination": track_destination,
