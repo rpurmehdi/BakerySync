@@ -7,31 +7,46 @@
 {% block head %}
 <script src="https://d3js.org/d3.v6.js"></script>
 {% endblock %} {% block main %}
-<div class="mb-3">
-  <form class="form-inline">
-    <div class="input-group mb-3">
-      <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
-      <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="button">Button</button>
+<div class="container mx-auto text-center">
+  <form class="form-inline" action="{{ url_for('index.index') }}" method="post">
+    <div class="row g-3 align-items-center">
+      <div class="col-auto">
+        <label for="track" class="col-form-label">Item to track:</label>
+      </div>
+      <div class="col-auto">
+        <div class="input-group my-3">
+          <input
+            type="search"
+            name="track"
+            id="track"
+            class="form-control"
+            placeholder="type what to track"
+            aria-label="type what to track"
+            autocomplete="on"
+            required
+          />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Track</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto">
+        <span id="trackHelpInline" class="form-text"> Must be at least 3 characters long. </span>
       </div>
     </div>
-    <div class="form-group mb-2" action="{{ url_for('index.index') }}" method="post">
-      <label for="track" class="sr-only">Track</label>
-      <input
-        type="search"
-        class="form-control"
-        id="track"
-        autocomplete="on"
-        placeholder="type what to track"
-        required
-      />
-       <button type="submit" class="btn btn-success btn-sm">Track</button> </div>
-
   </form>
-  <!-- a div where the ingredient graph will take place -->
-  <div id="itype_chart"></div>
-  <!-- a div where the production graph will take place -->
-  <div id="ptype_chart"></div>
+  <div class="row mt-4">
+    <div class="col">
+      <h5>Ingredients</h5>
+      <!-- a div where the ingredient graph will take place -->
+      <div id="itype_chart"></div>
+    </div>
+    <div class="col">
+      <h5>Productions</h5>
+      <!-- a div where the production graph will take place -->
+      <div id="ptype_chart"></div>
+    </div>
+  </div>
   <script>
     // Set the dimensions and margins of the graph
     const ingMargin = { top: 30, right: 30, bottom: 100, left: 60 },

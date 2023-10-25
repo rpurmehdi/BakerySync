@@ -1,4 +1,5 @@
 import json
+from difflib import get_close_matches
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import *
 from routes.types import track_itype, track_ptype
@@ -20,13 +21,15 @@ def index():
         ingredienttypes = []
         itypes = IngredientType.query.all()
         for itype in itypes:
-            ingredienttypes.append((itype.name, itype.stock))
+            if itype.stock > 0:
+                ingredienttypes.append((itype.name, itype.stock))
         ingredients_json = json.dumps(ingredienttypes)
         # production stocks
         productiontypes = []
         ptypes = ProductionType.query.all()
         for ptype in ptypes:
-            productiontypes.append((ptype.name, ptype.stock))
+            if ptype.stock > 0:
+                productiontypes.append((ptype.name, ptype.stock))
         productions_json = json.dumps(productiontypes)
         return render_template("index.html", ingredients=ingredients_json, productions=productions_json)
     else:
@@ -42,80 +45,74 @@ def index():
         shipments = ProductionShipment.query.all()
         for itype in itypes:
             trackable = {
-                "type": "itype",
+                "type": url_for('arrivals.track'),
                 "id": itype.id,
                 "name": itype.name,
             }
             trackables.append(trackable)
         for ptype in ptypes:
             trackable = {
-                "type": "ptype",
+                "type": url_for('ptypes.track'),
                 "id": ptype.id,
                 "name": ptype.name,
             }
             trackables.append(trackable)
         for source in sources:
             trackable = {
-                "type": "source",
+                "type": url_for('sources.track'),
                 "id": source.id,
                 "name": source.name,
             }
             trackables.append(trackable)
         for destination in destinations:
             trackable = {
-                "type": "destination",
+                "type": url_for('destinations.track'),
                 "id": destination.id,
                 "name": destination.name,
             }
             trackables.append(trackable)
         for arrival in arrivals:
             trackable = {
-                "type": "arrival",
+                "type": url_for('arrivals.track'),
                 "id": arrival.id,
                 "name": f"{arrival.type.name} on {arrival.arriving_date} from {arrival.source.name}",
             }
             trackables.append(trackable)
         for recipe in recipes:
             trackable = {
-                "type": "recipe",
+                "type": url_for('recipes.track'),
                 "id": recipe.id,
                 "name": f"{recipe.name} recipe for {recipe.product.name}",
             }
             trackables.append(trackable)
         for production in productions:
             trackable = {
-                "type": "production",
+                "type": url_for('productions.track'),
                 "id": production.id,
                 "name": f"{production.type.name} with batch {production.print_batch} on {production.production_time}",
             }
             trackables.append(trackable)
         for shipment in shipments:
             trackable = {
-                "type": "shipment",
+                "type": url_for('shipments.track'),
                 "id": shipment.id,
                 "name": f"{shipment.production.type.name} on {shipment.shipping_date} to {shipment.destination.name}",
             }
             trackables.append(trackable)
-        function_map = {
-            "arrival": track_arrival,
-            "destination": track_destination,
-            "production": track_production,
-            "itype": track_itype,
-            "ptype": track_ptype,
-            "source": track_source,
-            "shipment": track_shipment,
-            "recipe": track_recipe
-        }
-
         try:
-            data_type = request.form.get('data-type')
-            id = request.form.get('data-id')
-            print(request.form.get('data-type'))
-            print(request.form.get('data-id'))
-            if data_type in function_map:
-                return function_map[data_type](id)
-            else:
-                raise NameError("Invalid data type")
+            search_query = request.form.get('track')
+            if len(search_query) < 3:
+                flash('track query must be at least 3 characters long', 'danger')
+                return redirect(url_for('index.index'))
+            exact_matches = []
+            near_matches = []
+            for trackable in trackables:
+                name = trackable.get("name", "")
+                if name == search_query:
+                    exact_matches.append({"name": trackable["name"], "id": trackable["id"], "type": trackable["type"]})
+                elif get_close_matches(search_query, [name], n=1, cutoff=0.6):
+                    near_matches.append({"name": trackable["name"], "id": trackable["id"], "type": trackable["type"]})
+            return render_template("trackresult.html", exact_matches=exact_matches, near_matches=near_matches)
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
             return redirect(url_for('index.index'))
