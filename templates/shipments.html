@@ -47,7 +47,7 @@
         <td>{{ shipment.quantity }}</td>
         <td>
           <form action="{{ url_for('shipments.track') }}" method="post">
-            <input type="hidden" name="shipment_track" value="{{ shipment.id|safe }}" />
+            <input type="hidden" name="track" value="{{ shipment.id|safe }}" />
             <input
               type="image"
               src="/static/icons/info-square.svg"

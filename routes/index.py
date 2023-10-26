@@ -45,14 +45,14 @@ def index():
         shipments = ProductionShipment.query.all()
         for itype in itypes:
             trackable = {
-                "type": url_for('arrivals.track'),
+                "type": url_for('types.itrack'),
                 "id": itype.id,
                 "name": itype.name,
             }
             trackables.append(trackable)
         for ptype in ptypes:
             trackable = {
-                "type": url_for('ptypes.track'),
+                "type": url_for('types.ptrack'),
                 "id": ptype.id,
                 "name": ptype.name,
             }
@@ -75,7 +75,7 @@ def index():
             trackable = {
                 "type": url_for('arrivals.track'),
                 "id": arrival.id,
-                "name": f"{arrival.type.name} on {arrival.arriving_date} from {arrival.source.name}",
+                "name": f"{arrival.type.name} on {arrival.arriving_date.strftime('%Y-%m-%d')} from {arrival.source.name}",
             }
             trackables.append(trackable)
         for recipe in recipes:
@@ -96,23 +96,33 @@ def index():
             trackable = {
                 "type": url_for('shipments.track'),
                 "id": shipment.id,
-                "name": f"{shipment.production.type.name} on {shipment.shipping_date} to {shipment.destination.name}",
+                "name": f"{shipment.production.type.name} on {shipment.shipping_date.strftime('%Y-%m-%d')} to {shipment.destination.name}",
             }
             trackables.append(trackable)
         try:
-            search_query = request.form.get('track')
+            search_query = request.form.get('track').lower()
             if len(search_query) < 3:
                 flash('track query must be at least 3 characters long', 'danger')
                 return redirect(url_for('index.index'))
             exact_matches = []
+            partial_matchesh = []
             near_matches = []
             for trackable in trackables:
-                name = trackable.get("name", "")
+                name = trackable.get("name", "").lower()
                 if name == search_query:
-                    exact_matches.append({"name": trackable["name"], "id": trackable["id"], "type": trackable["type"]})
+                    exact_matches.append(
+                        {"name": trackable["name"], "id": trackable["id"], "type": trackable["type"]})
+                elif search_query in name:
+                    partial_matchesh.append(
+                        {"name": trackable["name"], "id": trackable["id"], "type": trackable["type"]})
                 elif get_close_matches(search_query, [name], n=1, cutoff=0.6):
-                    near_matches.append({"name": trackable["name"], "id": trackable["id"], "type": trackable["type"]})
-            return render_template("trackresult.html", exact_matches=exact_matches, near_matches=near_matches)
+                    near_matches.append(
+                        {"name": trackable["name"], "id": trackable["id"], "type": trackable["type"]})
+                results = []
+                results.extend(exact_matches)
+                results.extend(partial_matchesh)
+                results.extend(near_matches)
+            return render_template("trackresult.html", results=results)
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
             return redirect(url_for('index.index'))

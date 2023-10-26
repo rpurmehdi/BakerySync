@@ -130,7 +130,7 @@ def delete_recipe():
 @recipes_bp.route('/track/recipe', methods=['POST'])
 def track():
     try:
-        id = request.form.get("recipe_track")
+        id = request.form.get("track")
         return track_recipe(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
