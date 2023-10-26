@@ -159,7 +159,7 @@ def delete_shipment():
 @shipments_bp.route('/track/shipment', methods=['POST'])
 def track():
     try:
-        id = request.form.get("shipment_track")
+        id = request.form.get("track")
         return track_shipment(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')

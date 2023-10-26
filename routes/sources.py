@@ -120,7 +120,7 @@ def delete_source():
 @sources_bp.route('/track/source', methods=['POST'])
 def track():
     try:
-        id = request.form.get("source_track")
+        id = request.form.get("track")
         return track_source(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')

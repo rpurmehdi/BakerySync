@@ -151,7 +151,7 @@ def delete_type():
 @types_bp.route('/track/ingredient', methods=['POST'])
 def itrack():
     try:
-        id = request.form.get("itype_track")
+        id = request.form.get("track")
         return track_itype(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
@@ -166,7 +166,7 @@ def track_itype(id):
 @types_bp.route('/track/product', methods=['POST'])
 def ptrack():
     try:
-        id = request.form.get("ptype_track")
+        id = request.form.get("track")
         return track_ptype(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')

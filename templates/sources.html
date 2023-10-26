@@ -58,7 +58,7 @@
           <td>{{ source.description|safe }}</td>
           <td>
             <form action="{{ url_for('sources.track') }}" method="post">
-              <input type="hidden" name="source_track" value="{{ source.id|safe }}" />
+              <input type="hidden" name="track" value="{{ source.id|safe }}" />
               <input
                 type="image"
                 src="/static/icons/info-square.svg"

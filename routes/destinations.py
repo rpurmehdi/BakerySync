@@ -121,7 +121,7 @@ def delete_destination():
 @destinations_bp.route('/track/destination', methods=['POST'])
 def track():
     try:
-        id = request.form.get("destination_track")
+        id = request.form.get("track")
         return track_destination(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')

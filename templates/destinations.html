@@ -57,7 +57,7 @@
         <td>{{ destination.description|safe }}</td>
         <td>
           <form action="{{ url_for('destinations.track') }}" method="post">
-            <input type="hidden" name="destination_track" value="{{ destination.id|safe }}" />
+            <input type="hidden" name="track" value="{{ destination.id|safe }}" />
             <input
               type="image"
               src="/static/icons/info-square.svg"

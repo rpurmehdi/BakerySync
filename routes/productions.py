@@ -183,7 +183,7 @@ def search():
 @productions_bp.route('/track/production', methods=['POST'])
 def track():
     try:
-        id = request.form.get("production_track")
+        id = request.form.get("track")
         return track_production(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')

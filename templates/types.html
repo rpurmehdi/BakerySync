@@ -61,7 +61,7 @@
             <td>{{ itype.name|safe }}</td>
             <td>
               <form action="{{ url_for('types.itrack') }}" method="post">
-                <input type="hidden" name="itype_track" value="{{ itype.id|safe }}" />
+                <input type="hidden" name="track" value="{{ itype.id|safe }}" />
                 <input
                   type="image"
                   src="/static/icons/info-square.svg"
@@ -137,7 +137,7 @@
             <td>{{ ptype.name|safe }}</td>
             <td>
               <form action="{{ url_for('types.ptrack') }}" method="post">
-                <input type="hidden" name="ptype_track" value="{{ ptype.id|safe }}" />
+                <input type="hidden" name="track" value="{{ ptype.id|safe }}" />
                 <input
                   type="image"
                   src="/static/icons/info-square.svg"
@@ -165,7 +165,7 @@
             </td>
             <td>
               <form
-                id="del-{{ ptype.id }}"
+                id="del-p{{ ptype.id }}"
                 action="{{ url_for('types.delete_type') }}"
                 method="post"
               >
@@ -176,7 +176,7 @@
                   name="ptype_delete"
                   type="submit"
                   title="Delete {{ ptype.name|safe }}"
-                  onclick="return confirmDelete('del-{{ ptype.id }}, {{ ptype.name|escape_html|safe }}');"
+                  onclick="return confirmDelete('del-p{{ ptype.id }}', '{{ ptype.name|escape_html|safe }}');"
                 />
               </form>
             </td>

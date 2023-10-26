@@ -154,7 +154,7 @@ def delete_arrival():
 @arrivals_bp.route('/track/arrival', methods=['POST'])
 def track():
     try:
-        id = request.form.get("arrival_track")
+        id = request.form.get("track")
         return track_arrival(id)
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')

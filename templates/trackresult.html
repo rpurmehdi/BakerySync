@@ -1,180 +1,37 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} Track {% endblock %}
+{% block title %} Track Results {% endblock %}
 <!-- and again here!-->
-{% block navbar_title %} Track Result {% endblock %}
+{% block navbar_title %} Track Results {% endblock %}
 <!--head-->
-{% block head %}
-{% endblock %} {% block main %}
-<div class="mb-3">
-  <form action="{{ url_for('index.index') }}" method="post">
-    <label for="track">Type what to track</label>
-    <input type="hidden" name="data-type" id="data-type" value=".." />
-    <input type="hidden" name="data-id" id="data-id" value="..." />
-    <input
-      list="trackables"
-      class="form-control"
-      id="track"
-      name="track"
-      autocomplete="off"
-      placeholder="type here..."
-      required
-    />
-    <datalist id="trackables">
-      {% for trackable in trackables %}
-      <option data-type="{{ trackable.type|safe }}" data-id="{{ trackable.id|safe }}">{{ trackable.name|safe }}</option>
-      {% endfor %}
-    </datalist>
-    <button type="submit" class="btn btn-success">Track</button>
-  </form>
-  <!-- a div where the ingredient graph will take place -->
-  <div id="itype_chart"></div>
-  <!-- a div where the production graph will take place -->
-  <div id="ptype_chart"></div>
-  <script>
-    // Set the dimensions and margins of the graph
-    const ingMargin = { top: 30, right: 30, bottom: 100, left: 60 },
-      ingWidth = 460 - ingMargin.left - ingMargin.right,
-      ingHeight = 400 - ingMargin.top - ingMargin.bottom;
-
-    // Append the svg object to the body of the page
-    const ingSvg = d3
-      .select("#itype_chart")
-      .append("svg")
-      .attr("width", ingWidth + ingMargin.left + ingMargin.right)
-      .attr("height", ingHeight + ingMargin.top + ingMargin.bottom)
-      .append("g")
-      .attr("transform", `translate(${ingMargin.left},${ingMargin.top})`);
-
-    // Parse the Data
-    const ingData = {{ ingredients|safe }}; // Pass ingredients from Flask
-
-    // Calculate the Y axis domain
-    const ingYMax = d3.max(ingData, (d) => d[1]); // Find the maximum value in the data
-    const ingYDomain = [0, ingYMax * 1.1]; // Adjust the maximum value by 10%
-
-    // Y axis
-    const ingY = d3.scaleLinear().domain(ingYDomain).range([ingHeight, 0]);
-    ingSvg.append("g").call(d3.axisLeft(ingY));
-
-    // X axis
-    const ingX = d3.scaleBand()
-      .range([0, ingWidth])
-      .domain(ingData.map((d) => d[0]))
-      .padding(0.2);
-    ingSvg.append("g")
-      .attr("transform", `translate(0, ${ingHeight})`)
-      .call(d3.axisBottom(ingX))
-      .selectAll("text")
-      .attr("transform", "translate(-10,0)rotate(-45)")
-      .style("text-anchor", "end");
-
-    // Bars
-    ingSvg.selectAll("ingbar")
-      .data(ingData)
-      .join("rect")
-      .attr("x", (d) => ingX(d[0]))
-      .attr("y", (d) => ingY(d[1]))
-      .attr("width", ingX.bandwidth())
-      .attr("height", (d) => ingHeight - ingY(d[1]))
-      .attr("fill", "#69b3a2");
-
-    // Text labels above the bars
-    ingSvg.selectAll("inglable")
-      .data(ingData)
-      .join("text")
-      .attr("x", (d) => ingX(d[0]) + ingX.bandwidth() / 2)
-      .attr("y", (d) => ingY(d[1]) - 10) // Adjust the vertical position of the text
-      .text((d) => `${d[1]} Kg`)
-      .attr("text-anchor", "middle")
-      .style("fill", "black")
-      .style("font-size", "12px");
-  </script>
-  <script>
-    // Set the dimensions and margins of the graph
-    const prdMargin = { top: 30, right: 30, bottom: 100, left: 60 },
-      prdWidth = 460 - prdMargin.left - prdMargin.right,
-      prdHeight = 400 - prdMargin.top - prdMargin.bottom;
-
-    // Append the svg object to the body of the page
-    const prdSvg = d3
-      .select("#ptype_chart")
-      .append("svg")
-      .attr("width", prdWidth + prdMargin.left + prdMargin.right)
-      .attr("height", prdHeight + prdMargin.top + prdMargin.bottom)
-      .append("g")
-      .attr("transform", `translate(${prdMargin.left},${prdMargin.top})`);
-
-    // Parse the Data
-    const prdData = {{ productions|safe }}; // Pass ingredients from Flask
-
-    // Calculate the Y axis domain
-    const prdYMax = d3.max(prdData, (d) => d[1]); // Find the maximum value in the data
-    const prdYDomain = [0, prdYMax * 1.1]; // Adjust the maximum value by 10%
-
-    // Y axis
-    const prdY = d3.scaleLinear().domain(prdYDomain).range([prdHeight, 0]);
-    prdSvg.append("g").call(d3.axisLeft(prdY));
-
-    // X axis
-    const prdX = d3.scaleBand()
-      .range([0, prdWidth])
-      .domain(prdData.map((d) => d[0]))
-      .padding(0.2);
-    prdSvg.append("g")
-      .attr("transform", `translate(0, ${prdHeight})`)
-      .call(d3.axisBottom(prdX))
-      .selectAll("text")
-      .attr("transform", "translate(-10,0)rotate(-45)")
-      .style("text-anchor", "end");
-
-    // Bars
-    prdSvg.selectAll("prdbar")
-      .data(prdData)
-      .join("rect")
-      .attr("x", (d) => prdX(d[0]))
-      .attr("y", (d) => prdY(d[1]))
-      .attr("width", prdX.bandwidth())
-      .attr("height", (d) => prdHeight - prdY(d[1]))
-      .attr("fill", "#69b3a2");
-
-    // Text labels above the bars
-    prdSvg.selectAll("prdlabel")
-      .data(prdData)
-      .join("text")
-      .attr("x", (d) => prdX(d[0]) + prdX.bandwidth() / 2)
-      .attr("y", (d) => prdY(d[1]) - 10) // Adjust the vertical position of the text
-      .text((d) => `${d[1]} Kg`)
-      .attr("text-anchor", "middle")
-      .style("fill", "black")
-      .style("font-size", "12px");
-  </script>
-  <script>
-    // Get the form element
-    var form = document.querySelector('form');
-  
-    // Get the input elements
-    var dataTypeInput = document.getElementById('data-type');
-    var dataIdInput = document.getElementById('data-id');
-  
-    // Get the input element with the list of trackables
-    var trackInput = document.getElementById('track');
-  
-    // Add an event listener to the form's submit event
-    form.addEventListener('submit', function(event) {
-      // Find the selected option in the datalist
-      var selectedOption = document.querySelector('#trackables option[value="' + trackInput.value + '"]');
-  
-      if (selectedOption) {
-        // Get the data-type and data-id attributes from the selected option
-        var dataType = selectedOption.getAttribute('data-type');
-        var dataId = selectedOption.getAttribute('data-id');
-  
-        // Update the hidden input fields with the selected data
-        dataTypeInput.value = dataType;
-        dataIdInput.value = dataId;
-      }
-    });
-  </script>
+{%block head %} {% endblock %}
+<!--body-->
+{%block main %}
+<div class="container mx-auto text-center">
+  <!-- List of exact matches -->
+  <div class="container mx-auto">
+    <h3 class="my-4">Track search results</h3>
+    <table class="table w-auto mx-auto">
+      <tbody>
+        {% for result in results %}
+        <tr>
+          <td>{{ result["name"]|safe }}</td>
+          <td>
+            <form action="{{ result['type'] }}" method="post">
+              <input type="hidden" name="track" value="{{ result['id']|safe }}" />
+              <input
+                type="image"
+                src="/static/icons/arrow-right-square.svg"
+                alt="track"
+                name="track"
+                title="Go to track page"
+              />
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
