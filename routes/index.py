@@ -2,13 +2,6 @@ import json
 from difflib import get_close_matches
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import *
-from routes.types import track_itype, track_ptype
-from routes.sources import track_source
-from routes.destinations import track_destination
-from routes.arrivals import track_arrival
-from routes.shipments import track_shipment
-from routes.productions import track_production
-from routes.recipes import track_recipe
 
 index_bp = Blueprint(
     'index', __name__, url_prefix='')
@@ -35,47 +28,47 @@ def index():
     else:
         # trackables
         trackables = []
-        itypes = IngredientType.query.all()
-        ptypes = ProductionType.query.all()
-        sources = Source.query.all()
-        destinations = Destination.query.all()
-        arrivals = IngredientArrival.query.all()
+        itypes = IngredientType.query.order_by(IngredientType.name).all()
+        ptypes = ProductionType.query.order_by(ProductionType.name).all()
+        sources = Source.query.order_by(Source.name).all()
+        destinations = Destination.query.order_by(Destination.name).all()
+        arrivals = IngredientArrival.query.order_by(IngredientArrival.arriving_date).all()
         recipes = Recipe.query.all()
-        productions = Production.query.all()
-        shipments = ProductionShipment.query.all()
+        productions = Production.query.order_by(Production.production_time).all()
+        shipments = ProductionShipment.query.order_by(ProductionShipment.shipping_date).all()
         for itype in itypes:
             trackable = {
                 "type": url_for('types.itrack'),
                 "id": itype.id,
-                "name": itype.name,
+                "name": f"type: {itype.name}",
             }
             trackables.append(trackable)
         for ptype in ptypes:
             trackable = {
                 "type": url_for('types.ptrack'),
                 "id": ptype.id,
-                "name": ptype.name,
+                "name": f"type: {ptype.name}",
             }
             trackables.append(trackable)
         for source in sources:
             trackable = {
                 "type": url_for('sources.track'),
                 "id": source.id,
-                "name": source.name,
+                "name": f"source: {source.name}",
             }
             trackables.append(trackable)
         for destination in destinations:
             trackable = {
                 "type": url_for('destinations.track'),
                 "id": destination.id,
-                "name": destination.name,
+                "name": f"destination: {destination.name}",
             }
             trackables.append(trackable)
         for arrival in arrivals:
             trackable = {
                 "type": url_for('arrivals.track'),
                 "id": arrival.id,
-                "name": f"{arrival.type.name} on {arrival.arriving_date.strftime('%Y-%m-%d')} from {arrival.source.name}",
+                "name": f"arrival of {arrival.type.name} on {arrival.arriving_date.strftime('%Y-%m-%d')} from {arrival.source.name}",
             }
             trackables.append(trackable)
         for recipe in recipes:
@@ -89,14 +82,14 @@ def index():
             trackable = {
                 "type": url_for('productions.track'),
                 "id": production.id,
-                "name": f"{production.type.name} with batch {production.print_batch} on {production.production_time}",
+                "name": f"production of {production.type.name} with batch {production.print_batch} on {production.production_time}",
             }
             trackables.append(trackable)
         for shipment in shipments:
             trackable = {
                 "type": url_for('shipments.track'),
                 "id": shipment.id,
-                "name": f"{shipment.production.type.name} on {shipment.shipping_date.strftime('%Y-%m-%d')} to {shipment.destination.name}",
+                "name": f"shipment of {shipment.production.type.name} with batch {shipment.production.print_batch} on {shipment.shipping_date.strftime('%Y-%m-%d')} to {shipment.destination.name}",
             }
             trackables.append(trackable)
         try:

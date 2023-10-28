@@ -8,34 +8,19 @@
 <script>
   function populateCanvasI(itypeId, itypeName) {
     // Get the canvas element
-    const editCanvas = document.getElementById("EditItypeCanvas");
+    const editICanvas = document.getElementById("EditItypeCanvas");
 
     // Populate the canvas form fields
-    editCanvas.querySelector("#edit-itype-id").value = itypeId;
-    editCanvas.querySelector("#edit-itype-name").value = itypeName;
+    editICanvas.querySelector("#edit-itype-id").value = itypeId;
+    editICanvas.querySelector("#edit-itype-name").value = itypeName;
   }
-</script>
-<script>
-  // Attach the populateModal() function to the edit buttons
-  $(document).ready(function () {
-    const editButtonsP = document.querySelectorAll(".edit-ptype");
-    editButtonsP.forEach((button) => {
-      button.addEventListener("click", populateModalP);
-    });
-  });
+  function populateCanvasP(ptypeId, ptypeName) {
+    // Get the canvas element
+    const editPCanvas = document.getElementById("EditPtypeCanvas");
 
-  // Populate the modal form
-  function populateModalP(event) {
-    // Get the modal element
-    const editModal = document.getElementById("EditPtypeCanvas");
-
-    // Get the data attributes from the clicked button
-    const ptypeId = event.target.getAttribute("data-ptype-id");
-    const ptypeName = event.target.getAttribute("data-ptype-name");
-
-    // Populate the modal form fields
-    editModal.querySelector("#edit-ptype-id").value = ptypeId;
-    editModal.querySelector("#edit-ptype-name").value = ptypeName;
+    // Populate the canvas form fields
+    editPCanvas.querySelector("#edit-ptype-id").value = ptypeId;
+    editPCanvas.querySelector("#edit-ptype-name").value = ptypeName;
   }
 </script>
 {% endblock %}
