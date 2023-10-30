@@ -1,40 +1,11 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
 {% block title %} Overview {% endblock %}
-<!-- and again here!-->
-{% block navbar_title %} Overview {% endblock %}
 <!--head-->
 {% block head %}
 <script src="https://d3js.org/d3.v6.js"></script>
 {% endblock %} {% block main %}
 <div class="container mx-auto text-center">
-  <form class="form-inline" action="{{ url_for('index.index') }}" method="post">
-    <div class="row g-3 align-items-center">
-      <div class="col-auto">
-        <label for="track" class="col-form-label">Item to track:</label>
-      </div>
-      <div class="col-auto">
-        <div class="input-group my-3">
-          <input
-            type="search"
-            name="track"
-            id="track"
-            class="form-control"
-            placeholder="type what to track"
-            aria-label="type what to track"
-            autocomplete="on"
-            required
-          />
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="submit">Track</button>
-          </div>
-        </div>
-      </div>
-      <div class="col-auto">
-        <span id="trackHelpInline" class="form-text"> Must be at least 3 characters long. </span>
-      </div>
-    </div>
-  </form>
   <div class="row mt-4">
     <div class="col">
       <h5>Ingredients</h5>

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1, width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="BakerySync ERP system" />
+    <meta name="author" content="rpurmehdi" />
 
-    <!-- http://getbootstrap.com/docs/5.3/ -->
+    <!-- bootstrap css and js from http://getbootstrap.com/docs/5.3/ -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -17,6 +18,11 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Dosis&display=swap" rel="stylesheet" />
+    <!-- script for deleting an item from a table -->
     <script>
       function confirmDelete(Item, Message) {
         var confirmMessage =
@@ -32,29 +38,30 @@
         }
       }
     </script>
-
+    <!-- icons and manifest file -->
     <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png" />
     <link rel="manifest" href="/static/site.webmanifest" />
     <link rel="icon" href="/static/images/favicon.ico" />
+    <!-- head block for templates -->
     {% block head %}{% endblock %}
+    <!-- custom style -->
     <link href="/static/styles.css" rel="stylesheet" />
+    <!-- page title -->
     <title>BakerySync: {% block title %}{% endblock %}</title>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg sticky-top bg-warning-subtle">
+    <nav class="navbar navbar-expand-lg sticky-top bg-warning-subtle shadow">
       <div class="container-fluid">
+        <img
+          src="/static/images/android-chrome-512x512.png"
+          alt="BakerySyncLogo"
+          class="navbar-brand py-0"
+          width="30"
+          height="30"
+        />
         <a class="navbar-brand" href="{{ url_for('index.index') }}">BakerySync</a>
-        <a class="navbar-brand" href="{{ url_for('index.index') }}">
-          <img
-            src="/static/images/android-chrome-512x512.png"
-            alt="BakerySyncLogo"
-            width="30"
-            height="30"
-          />
-        </a>
-        <a class="navbar-brand">{% block navbar_title %}{% endblock %}</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -78,7 +85,7 @@
               >
                 Configuration
               </a>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu bg-warning-subtle">
                 <li>
                   <a class="dropdown-item" href="{{ url_for('types.types') }}">Manage Types</a>
                 </li>
@@ -95,13 +102,13 @@
               </ul>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{ url_for('recipes.recipes') }}"
+              <a class="nav-link" aria-current="page" href="{{ url_for('recipes.recipes') }}"
                 >Recipes</a
               >
             </li>
             <li class="nav-item">
               <a
-                class="nav-link active"
+                class="nav-link"
                 aria-current="page"
                 href="{{ url_for('productions.productions') }}"
                 >Productions</a
@@ -117,7 +124,7 @@
               >
                 Warehouse
               </a>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu bg-warning-subtle">
                 <li>
                   <a class="dropdown-item" href="{{ url_for('arrivals.arrivals') }}"
                     >Ingredient Arrival</a
@@ -131,6 +138,30 @@
               </ul>
             </li>
           </ul>
+          <form class="form-inline" action="{{ url_for('index.index') }}" method="post">
+            <div class="row g-3 align-items-center">
+              <div class="col-auto">
+                <div class="input-group my-0">
+                  <input
+                    type="search"
+                    name="track"
+                    id="track"
+                    class="form-control"
+                    placeholder="type what to track"
+                    aria-label="type what to track"
+                    autocomplete="on"
+                    title="Must be at least 3 characters long"
+                    required
+                  />
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">
+                      <img src="/static/icons/search.svg" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </nav>

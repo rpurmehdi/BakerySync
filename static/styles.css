@@ -1,6 +1,15 @@
+body {
+  font-family: 'Dosis', sans-serif;
+}
+
+
 .navbar a {
   text-decoration: none;
   color: var(--bs-navbar-brand-color);
+}
+
+.nav-link:hover {
+  color: #c74b00;
 }
 
 .nav-tabs .nav-link {

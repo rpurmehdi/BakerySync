@@ -32,10 +32,13 @@ def index():
         ptypes = ProductionType.query.order_by(ProductionType.name).all()
         sources = Source.query.order_by(Source.name).all()
         destinations = Destination.query.order_by(Destination.name).all()
-        arrivals = IngredientArrival.query.order_by(IngredientArrival.arriving_date).all()
+        arrivals = IngredientArrival.query.order_by(
+            IngredientArrival.arriving_date).all()
         recipes = Recipe.query.all()
-        productions = Production.query.order_by(Production.production_time).all()
-        shipments = ProductionShipment.query.order_by(ProductionShipment.shipping_date).all()
+        productions = Production.query.order_by(
+            Production.production_time).all()
+        shipments = ProductionShipment.query.order_by(
+            ProductionShipment.shipping_date).all()
         for itype in itypes:
             trackable = {
                 "type": url_for('types.itrack'),
@@ -115,7 +118,7 @@ def index():
                 results.extend(exact_matches)
                 results.extend(partial_matchesh)
                 results.extend(near_matches)
-            return render_template("trackresult.html", results=results)
+            return render_template("trackresult.html", results=results, search_query=search_query)
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
             return redirect(url_for('index.index'))
