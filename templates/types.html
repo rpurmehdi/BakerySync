@@ -21,6 +21,35 @@
     editPCanvas.querySelector("#edit-ptype-name").value = ptypeName;
   }
 </script>
+<!-- arrival_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#itype_table").dataTable({
+      columnDefs: [
+        {
+          targets: [-1, -2, -3],
+          orderable: false,
+        },
+      ],
+    });
+    $("#ptype_table").dataTable({
+      columnDefs: [
+        {
+          targets: [-1, -2, -3],
+          orderable: false,
+        },
+      ],
+    });
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var itable = $("#itype_table").DataTable();
+    var ptable = $("#ptype_table").DataTable();
+    itable.columns.adjust().draw();
+    ptable.columns.adjust().draw();
+  });
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
@@ -29,7 +58,7 @@
     <div class="col">
       <h3 class="my-4">Existing Ingredient Types</h3>
       <!-- List of existing ingredient types -->
-      <table class="table table-striped w-auto mx-auto">
+      <table id="itype_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
             <th>Ingredient</th>
@@ -41,16 +70,16 @@
         <tbody>
           {% for itype in itypes %}
           <tr>
-            <td>{{ itype.name|safe }}</td>
+            <td>{{ itype.name }}</td>
             <td>
               <form action="{{ url_for('types.itrack') }}" method="post">
-                <input type="hidden" name="track" value="{{ itype.id|safe }}" />
+                <input type="hidden" name="track" value="{{ itype.id }}" />
                 <input
                   type="image"
-                  src="/static/icons/info-square.svg"
+                  src="/static/icons/arrow-right-square.svg"
                   alt="track"
                   name="itype_track"
-                  title="Track {{ itype.name|safe }}"
+                  title="Track {{ itype.name }}"
                 />
               </form>
             </td>
@@ -60,13 +89,13 @@
                 alt="edit"
                 name="itype_edit"
                 type="button"
-                title="Edit {{ itype.name|safe }}"
+                title="Edit {{ itype.name }}"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#EditItypeCanvas"
                 aria-controls="EditItypeCanvas"
                 onclick="populateCanvasI(
                 '{{ itype.id }}',
-                '{{ itype.name|escape_html|safe }}'
+                '{{ itype.name|escape_html }}'
               );"
               />
             </td>
@@ -82,8 +111,8 @@
                   alt="delete"
                   name="itype_delete"
                   type="submit"
-                  title="Delete {{ itype.name|safe }}"
-                  onclick="return confirmDelete('del-{{ itype.id }}', '{{ itype.name|escape_html|safe }}');"
+                  title="Delete {{ itype.name }}"
+                  onclick="return confirmDelete('del-{{ itype.id }}', '{{ itype.name|escape_html }}');"
                 />
               </form>
             </td>
@@ -103,12 +132,12 @@
     </div>
     <div class="vr px-0"></div>
     <div class="col">
-      <h3 class="my-4">Existing Production Types</h3>
-      <!-- List of existing production types -->
-      <table class="table table-striped w-auto mx-auto">
+      <h3 class="my-4">Existing Product Types</h3>
+      <!-- List of existing product types -->
+      <table id="ptype_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
-            <th>Production</th>
+            <th>Product</th>
             <th></th>
             <th></th>
             <th></th>
@@ -117,16 +146,16 @@
         <tbody>
           {% for ptype in ptypes %}
           <tr>
-            <td>{{ ptype.name|safe }}</td>
+            <td>{{ ptype.name }}</td>
             <td>
               <form action="{{ url_for('types.ptrack') }}" method="post">
-                <input type="hidden" name="track" value="{{ ptype.id|safe }}" />
+                <input type="hidden" name="track" value="{{ ptype.id }}" />
                 <input
                   type="image"
-                  src="/static/icons/info-square.svg"
+                  src="/static/icons/arrow-right-square.svg"
                   alt="track"
                   name="ptype_track"
-                  title="Track {{ ptype.name|safe }}"
+                  title="Track {{ ptype.name }}"
                 />
               </form>
             </td>
@@ -136,13 +165,13 @@
                 alt="edit"
                 name="ptype_edit"
                 type="button"
-                                title="Edit {{ ptype.name|safe }}"
+                title="Edit {{ ptype.name }}"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#EditPtypeCanvas"
                 aria-controls="EditPtypeCanvas"
                 onclick="populateCanvasP(
                 '{{ ptype.id }}',
-                '{{ ptype.name|escape_html|safe }}'
+                '{{ ptype.name|escape_html }}'
               );"
               />
             </td>
@@ -158,8 +187,8 @@
                   alt="delete"
                   name="ptype_delete"
                   type="submit"
-                  title="Delete {{ ptype.name|safe }}"
-                  onclick="return confirmDelete('del-p{{ ptype.id }}', '{{ ptype.name|escape_html|safe }}');"
+                  title="Delete {{ ptype.name }}"
+                  onclick="return confirmDelete('del-p{{ ptype.id }}', '{{ ptype.name|escape_html }}');"
                 />
               </form>
             </td>
@@ -174,7 +203,7 @@
         data-bs-target="#AddPtypeCanvas"
         aria-controls="AddPtypeCanvas"
       >
-        + Add New Production Type
+        + Add New Product Type
       </button>
     </div>
   </div>
@@ -248,7 +277,7 @@
     </div>
   </div>
 </div>
-<!-- offcanvas to add a new production -->
+<!-- offcanvas to add a new product -->
 <div
   class="offcanvas offcanvas-end text-start"
   data-bs-scroll="true"
@@ -257,7 +286,7 @@
   aria-labelledby="AddPtypeCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="AddPtypeCanvasLabel">Add New Production Type</h5>
+    <h5 class="offcanvas-title" id="AddPtypeCanvasLabel">Add New Product Type</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
@@ -271,17 +300,17 @@
             name="name"
             autocomplete="off"
             required
-            placeholder="Enter the production name"
+            placeholder="Enter the product name"
           />
-          <label for="ptype-name">Production Name</label>
+          <label for="ptype-name">Product Name</label>
         </div>
 
-        <button name="ptype_form" type="submit" class="btn btn-success">Add Production Type</button>
+        <button name="ptype_form" type="submit" class="btn btn-success">Add Product Type</button>
       </form>
     </div>
   </div>
 </div>
-<!-- offcanvas for production type editing -->
+<!-- offcanvas for product type editing -->
 <div
   class="offcanvas offcanvas-end text-start"
   data-bs-scroll="true"
@@ -290,7 +319,7 @@
   aria-labelledby="EditPtypeCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="EditPtypeCanvasLabel">Edit Production Type</h5>
+    <h5 class="offcanvas-title" id="EditPtypeCanvasLabel">Edit Product Type</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
@@ -307,11 +336,11 @@
             required
             placeholder="Enter the Ingredient type name"
           />
-          <label for="edit-ptype-name">Production Type Name</label>
+          <label for="edit-ptype-name">Product Type Name</label>
         </div>
 
         <button name="ptype_edit" type="submit" class="btn btn-warning">
-          Edit Production Type
+          Edit Product Type
         </button>
       </form>
     </div>

@@ -16,18 +16,38 @@
     editCanvas.querySelector("#edit-quantity").value = quantity;
   }
 </script>
+<!-- shipment_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#shipment_table").dataTable({
+      order: [0, "dsc"],
+      columnDefs: [
+        {
+          targets: [-1, -2, -3],
+          orderable: false,
+        },
+      ],
+    });
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var table = $("#shipment_table").DataTable();
+    table.columns.adjust().draw();
+  });
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
   <h3 class="my-4">Existing Shipments</h3>
   <!-- List of existing shipments -->
-  <table class="table table-striped w-auto mx-auto">
+  <table id="shipment_table" class="table table-striped w-auto mx-auto">
     <thead>
       <tr>
-        <th>Destination</th>
-        <th>Production</th>
         <th>Shipping Date</th>
+        <th>Destination</th>
+        <th>Product</th>
         <th>Quantity (Kg)</th>
         <th></th>
         <th></th>
@@ -35,23 +55,21 @@
       </tr>
     </thead>
     <tbody>
-      {% for shipment in shipments|sort(attribute='shipping_date')|reverse %}
+      {% for shipment in shipments %}
       <tr>
-        <td>{{ shipment.destination.name|safe }}</td>
-        <td>
-          {{ shipment.production.type.name|safe }} : {{ shipment.production.print_batch|safe }}
-        </td>
         <td>{{ shipment.shipping_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ shipment.destination.name }}</td>
+        <td>{{ shipment.production.type.name }} : {{ shipment.production.print_batch }}</td>
         <td>{{ shipment.quantity }}</td>
         <td>
           <form action="{{ url_for('shipments.track') }}" method="post">
-            <input type="hidden" name="track" value="{{ shipment.id|safe }}" />
+            <input type="hidden" name="track" value="{{ shipment.id }}" />
             <input
               type="image"
-              src="/static/icons/info-square.svg"
+              src="/static/icons/arrow-right-square.svg"
               alt="track"
               name="shipment_track"
-              title="Track this {{ shipment.production.type.name|safe }} shipment"
+              title="Track this {{ shipment.production.type.name }} shipment"
             />
           </form>
         </td>
@@ -62,7 +80,7 @@
             name="shipment_edit"
             type="button"
             class="edit-shipment"
-            title="Edit this {{ shipment.production.type.name|safe }} shipment"
+            title="Edit this {{ shipment.production.type.name }} shipment"
             data-bs-toggle="offcanvas"
             data-bs-target="#EditCanvas"
             aria-controls="EditCanvas"
@@ -87,8 +105,8 @@
               alt="delete"
               name="source_delete"
               type="submit"
-              title="Delete this {{ shipment.production.type.name|safe }} shipment"
-              onclick="return confirmDelete('del-{{ shipment.id }}', '{{ shipment.production.type.name|escape_html|safe }} to {{ shipment.destination.name|escape_html|safe }}');"
+              title="Delete this {{ shipment.production.type.name }} shipment"
+              onclick="return confirmDelete('del-{{ shipment.id }}', '{{ shipment.production.type.name|escape_html }} to {{ shipment.destination.name|escape_html }}');"
             />
           </form>
         </td>
@@ -130,7 +148,7 @@
                 {% for production in productions|sort(attribute='production_time') %} {% if
                 production.stock > 0 %}
                 <option value="{{ production.id }}">
-                  {{ production.type.name|safe }} : {{ production.print_batch|safe }}
+                  {{ production.type.name }} : {{ production.print_batch }}
                 </option>
                 {% endif %} {% endfor %}
               </select>
@@ -145,7 +163,7 @@
                 <option selected disabled value="">Select a destination</option>
                 {% for destination in destinations %}
                 <option value="{{ destination.id }}">
-                  {{ destination.name|safe }} ({{ destination.type|safe }})
+                  {{ destination.name }} ({{ destination.type }})
                 </option>
                 {% endfor %}
               </select>
@@ -209,7 +227,7 @@
               <select class="form-select" id="edit-production_id" name="production_id" required>
                 {% for production in productions|sort(attribute='production_time') %}
                 <option value="{{ production.id }}">
-                  {{ production.type.name|safe }} : {{ production.print_batch|safe }}
+                  {{ production.type.name }} : {{ production.print_batch }}
                 </option>
                 {% endfor %}
               </select>
@@ -223,7 +241,7 @@
               <select class="form-select" id="edit-destination_id" name="destination_id" required>
                 {% for destination in destinations %}
                 <option value="{{ destination.id }}">
-                  {{ destination.name|safe }} ({{ destination.type|safe }})
+                  {{ destination.name }} ({{ destination.type }})
                 </option>
                 {% endfor %}
               </select>

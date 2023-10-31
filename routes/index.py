@@ -1,4 +1,6 @@
 import json
+import datetime
+import calendar
 from difflib import get_close_matches
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import *
@@ -9,27 +11,83 @@ index_bp = Blueprint(
 
 @index_bp.route("/", methods=['GET', 'POST'])
 def index():
+    # Dashboard
     if request.method == 'GET':
+        current_date = datetime.datetime.now()
+        current_year = current_date.year
+        current_month = current_date.month
+        current_month_name = datetime.datetime.now().strftime('%B')
+
+        # arrivals of the month
+        ingredients = IngredientType.query.order_by(IngredientType.name).all()
+        month_arrivals = []
+        for ingredient in ingredients:
+            sum = 0
+            for arrival in ingredient.arrivals:
+                if arrival.arriving_date.strftime('%y-%m-%d').startswith(f"{current_year % 100:02d}-{current_month:02d}"):
+                    sum += arrival.quantity
+            if sum > 0:
+                month_arrivals.append((ingredient.name, sum))
+        arrivals_json = json.dumps(month_arrivals)
+
+        # shipments of the month
+        products = ProductType.query.order_by(ProductType.name).all()
+        month_shipments = []
+        for product in products:
+            sum = 0
+            for shipment in product.shipments:
+                if shipment.shipping_date.strftime('%y-%m-%d').startswith(f"{current_year % 100:02d}-{current_month:02d}"):
+                    sum += shipment.quantity
+            if sum > 0:
+                month_shipments.append((product.name, sum))
+        shipments_json = json.dumps(month_shipments)
+
+        # production / day in month
+        productions = Production.query.all()
+
+        # Generate a list of "YY-MM-DD" strings for each day in the current month
+        days_in_month = calendar.monthrange(current_year, current_month)[1]
+        days = [f"{current_year % 100:02d}-{current_month:02d}-{day:02d}" for day in range(
+            1, days_in_month + 1)]
+        month_production = []
+        for day in days:
+            sum = 0
+            for production in productions:
+                if production.production_time.strftime('%y-%m-%d').startswith(day):
+                    sum += production.quantity
+            month_production.append((day, sum))
+            productions_json = json.dumps(month_production)
+
         # ingredient stocks
         ingredienttypes = []
-        itypes = IngredientType.query.all()
-        for itype in itypes:
-            if itype.stock > 0:
-                ingredienttypes.append((itype.name, itype.stock))
+        for ingredient in ingredients:
+            if ingredient.stock > 0:
+                ingredienttypes.append((ingredient.name, ingredient.stock))
         ingredients_json = json.dumps(ingredienttypes)
-        # production stocks
-        productiontypes = []
-        ptypes = ProductionType.query.all()
-        for ptype in ptypes:
-            if ptype.stock > 0:
-                productiontypes.append((ptype.name, ptype.stock))
-        productions_json = json.dumps(productiontypes)
-        return render_template("index.html", ingredients=ingredients_json, productions=productions_json)
-    else:
+
+        # product stocks
+        producttypes = []
+        for product in products:
+            if product.stock > 0:
+                producttypes.append((product.name, product.stock))
+        products_json = json.dumps(producttypes)
+
+        context = {
+            'month': current_month_name,
+            'ingredients': ingredients_json,
+            'products': products_json,
+            'montharrivals': arrivals_json,
+            'monthshipments': shipments_json,
+            'monthproductions': productions_json
+        }
+        return render_template("index.html", **context)
+
+    # Track
+    if request.method == 'POST':
         # trackables
         trackables = []
         itypes = IngredientType.query.order_by(IngredientType.name).all()
-        ptypes = ProductionType.query.order_by(ProductionType.name).all()
+        ptypes = ProductType.query.order_by(ProductType.name).all()
         sources = Source.query.order_by(Source.name).all()
         destinations = Destination.query.order_by(Destination.name).all()
         arrivals = IngredientArrival.query.order_by(
@@ -37,8 +95,8 @@ def index():
         recipes = Recipe.query.all()
         productions = Production.query.order_by(
             Production.production_time).all()
-        shipments = ProductionShipment.query.order_by(
-            ProductionShipment.shipping_date).all()
+        shipments = ProductShipment.query.order_by(
+            ProductShipment.shipping_date).all()
         for itype in itypes:
             trackable = {
                 "type": url_for('types.itrack'),
@@ -78,7 +136,7 @@ def index():
             trackable = {
                 "type": url_for('recipes.track'),
                 "id": recipe.id,
-                "name": f"{recipe.name} recipe for {recipe.product.name}",
+                "name": f"{recipe.name} recipe for {recipe.type.name}",
             }
             trackables.append(trackable)
         for production in productions:
@@ -99,7 +157,7 @@ def index():
             search_query = request.form.get('track').lower()
             if len(search_query) < 3:
                 flash('track query must be at least 3 characters long', 'danger')
-                return redirect(url_for('index.index'))
+                return render_template("trackresult.html", results=[], search_query="")
             exact_matches = []
             partial_matchesh = []
             near_matches = []
@@ -121,4 +179,4 @@ def index():
             return render_template("trackresult.html", results=results, search_query=search_query)
         except Exception as e:
             flash(f'Error: {str(e)}', 'danger')
-            return redirect(url_for('index.index'))
+            return render_template("trackresult.html", results=[], search_query="")

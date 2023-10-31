@@ -1,7 +1,7 @@
 import random
 from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
-from models import db, Production, IngredientArrival, ProductionShipment, production_arrival_association, Recipe, ProductionType, IngredientType
+from models import db, Production, IngredientArrival, ProductShipment, production_arrival_association, Recipe, ProductType, IngredientType
 
 productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
 
@@ -12,7 +12,7 @@ def productions():
         # Get data from the form
         try:
             print_batch = request.form['batch_number']
-            type_id = request.form['production_types']
+            type_id = request.form['product']
             production_time_str = request.form['production_date']
             recipe_id = request.form["recipe" + str(type_id)]
             quantity_str = request.form['quantity']
@@ -90,7 +90,7 @@ def productions():
     else:
         # Retrieve all info from the database
         productions = Production.query.all()
-        ptypes = ProductionType.query.all()
+        ptypes = ProductType.query.all()
         rtypes = IngredientType.query.all()
         ingredients = IngredientArrival.query.order_by(
             IngredientArrival.arriving_date, IngredientArrival.type_id).all()
@@ -126,7 +126,7 @@ def delete_production():
             production_to_delete = Production.query.get(id)
 
             if production_to_delete:
-                is_referenced = ProductionShipment.query.filter_by(
+                is_referenced = ProductShipment.query.filter_by(
                     production_id=id).first()
                 if is_referenced:
                     flash(

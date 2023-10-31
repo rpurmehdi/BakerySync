@@ -65,13 +65,33 @@
     }
   }
 </script>
+<!-- recipe_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#recipe_table").dataTable({
+      order: [],
+      columnDefs: [
+        {
+          targets: [-1, -2, -3],
+          orderable: false,
+        },
+      ],
+    });
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var table = $("#recipe_table").DataTable();
+    table.columns.adjust().draw();
+  });
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
   <!-- List of existing recipes -->
   <h3 class="my-4">Existing Recipes</h3>
-  <table class="table table-striped w-auto mx-auto">
+  <table id="recipe_table" class="table table-striped w-auto mx-auto">
     <thead>
       <tr>
         <th>Name</th>
@@ -79,29 +99,30 @@
         <th>Description</th>
         <th>Ingredients</th>
         <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       {% for recipe in recipes|reverse %}
       <tr>
-        <td>{{ recipe.name|safe }}</td>
-        <td>{{ recipe.product.name|safe }}</td>
-        <td>{{ recipe.description|safe }}</td>
+        <td>{{ recipe.name }}</td>
+        <td>{{ recipe.type.name }}</td>
+        <td>{{ recipe.description }}</td>
         <td class="text-end">
           {% set sorted_ingredients = recipe.ingredients|list|sortgetp(recipe)|reverse %} {% for
-          ingredient in sorted_ingredients %} {{ ingredient.name|safe }}:
-          <strong>{{ recipe.getp(ingredient.id)|safe }}%</strong><br />
+          ingredient in sorted_ingredients %} {{ ingredient.name }}:
+          <strong>{{ recipe.getp(ingredient.id) }}%</strong><br />
           {% endfor %}
         </td>
         <td>
           <form action="{{ url_for('recipes.track') }}" method="post">
-            <input type="hidden" name="track" value="{{ recipe.id|safe }}" />
+            <input type="hidden" name="track" value="{{ recipe.id }}" />
             <input
               type="image"
-              src="/static/icons/info-square.svg"
+              src="/static/icons/arrow-right-square.svg"
               alt="track"
               name="recipe_track"
-              title="Track {{ recipe.name|safe }}"
+              title="Track {{ recipe.name }}"
             />
           </form>
         </td>
@@ -117,8 +138,8 @@
               alt="delete"
               name="recipe_delete"
               type="submit"
-              title="Delete {{ recipe.name|safe }}"
-              onclick="return confirmDelete('del-{{recipe.id}}', '{{ recipe.name|escape_html|safe }} recipe for {{ recipe.product.name|escape_html|safe }}');"
+              title="Delete {{ recipe.name }}"
+              onclick="return confirmDelete('del-{{recipe.id}}', '{{ recipe.name|escape_html }} recipe for {{ recipe.type.name|escape_html }}');"
             />
           </form>
         </td>
@@ -168,13 +189,13 @@
           </div>
           <div class="col-6">
             <div class="form-floating">
-              <select class="form-select" id="production_type" name="production_type" required>
-                <option selected disabled value="">Select a type</option>
+              <select class="form-select" id="product" name="product" required>
+                <option selected disabled value="">Select a product</option>
                 {% for ptype in ptypes %}
-                <option value="{{ ptype.id }}">{{ ptype.name|safe }}</option>
+                <option value="{{ ptype.id }}">{{ ptype.name }}</option>
                 {% endfor %}
               </select>
-              <label for="production_type">Production type</label>
+              <label for="product">Product type</label>
             </div>
           </div>
         </div>
@@ -202,9 +223,7 @@
               value=""
               onclick="toggleVisibility('div-{{ itype.id }}')"
             />
-            <label class="form-check-label" for="Checkbox-{{ itype.id }}"
-              >{{ itype.name|safe }}</label
-            >
+            <label class="form-check-label" for="Checkbox-{{ itype.id }}">{{ itype.name }}</label>
           </div>
           {% endfor %}
         </div>
@@ -216,9 +235,9 @@
               type="number"
               step="0.01"
               id="inp-{{ itype.id }}"
-              name="{{ itype.name|safe }}"
+              name="{{ itype.name }}"
             />
-            <label for="inp-{{ itype.id }}">{{ itype.name|safe }} percent</label>
+            <label for="inp-{{ itype.id }}">{{ itype.name }} percent</label>
           </div>
 
           {% endfor %}

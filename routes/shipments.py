@@ -1,6 +1,6 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from datetime import datetime
-from models import db, ProductionShipment, Destination, Production
+from models import db, ProductShipment, Destination, Production
 
 shipments_bp = Blueprint('shipments', __name__, url_prefix='/shipments')
 
@@ -38,7 +38,7 @@ def shipments():
             flash('Can not add! - Shipping date can not be before production', 'warning')
             return redirect(url_for('shipments.shipments'))
         # Create a new shipment object and add it to the database
-        new_shipment = ProductionShipment(
+        new_shipment = ProductShipment(
             production_id=production_id,
             destination_id=destination_id,
             shipping_date=shipping_date,
@@ -59,7 +59,7 @@ def shipments():
 
     else:
         # Retrieve all shipments, productions and destinations from the database
-        shipments = ProductionShipment.query.all()
+        shipments = ProductShipment.query.all()
         productions = Production.query.order_by(
             Production.type_id, Production.production_time).all()
         destinations = Destination.query.order_by(Destination.name).all()
@@ -88,7 +88,7 @@ def edit_shipment():
         if production and destination:
             try:
                 # Fetch the source to edit from the database
-                shipment_to_edit = ProductionShipment.query.get(id)
+                shipment_to_edit = ProductShipment.query.get(id)
                 shipping_date = datetime.fromisoformat(shipping_date_str)
                 quantity = float(quantity_str)
             except ValueError:
@@ -136,7 +136,7 @@ def delete_shipment():
         id = request.form.get("id")
         try:
             # Attempt to find the shipment by its ID
-            shipment_to_delete = ProductionShipment.query.get(id)
+            shipment_to_delete = ProductShipment.query.get(id)
 
             if shipment_to_delete:
                 # Delete the found shipment
@@ -167,5 +167,5 @@ def track():
 
 
 def track_shipment(id):
-    shipment = ProductionShipment.query.get(id)
+    shipment = ProductShipment.query.get(id)
     return render_template('shipmenttrack.html', shipment=shipment)

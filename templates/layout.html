@@ -22,6 +22,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Dosis&display=swap" rel="stylesheet" />
+    <!-- table search and sort from datatables.net -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
     <!-- script for deleting an item from a table -->
     <script>
       function confirmDelete(Item, Message) {
@@ -132,7 +135,7 @@
                 </li>
                 <li>
                   <a class="dropdown-item" href="{{ url_for('shipments.shipments') }}"
-                    >Production Shipment</a
+                    >Product Shipment</a
                   >
                 </li>
               </ul>

@@ -1,5 +1,5 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
-from models import db, Destination, ProductionShipment
+from models import db, Destination, ProductShipment
 
 destinations_bp = Blueprint(
     'destinations', __name__, url_prefix='/destinations')
@@ -95,7 +95,7 @@ def delete_destination():
             destination_to_delete = Destination.query.get(id)
 
             if destination_to_delete:
-                is_referenced = ProductionShipment.query.filter_by(
+                is_referenced = ProductShipment.query.filter_by(
                     destination_id=id).first()
                 if is_referenced:
                     flash(
@@ -132,7 +132,7 @@ def track_destination(id):
     destination = Destination.query.get(id)
     shipped_types = set()
     for shipment in destination.shipments:
-        production_type = shipment.production.type
-        shipped_types.add(production_type)
+        product = shipment.production.type
+        shipped_types.add(product)
     unique_types = list(shipped_types)
     return render_template('destinationtrack.html', destination=destination, shipped_types=unique_types)

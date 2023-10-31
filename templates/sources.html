@@ -26,6 +26,26 @@
     editCanvas.querySelector("#edit-description").value = sourceDescription;
   }
 </script>
+<!-- source_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#source_table").dataTable({
+      order: [],
+      columnDefs: [
+        {
+          targets: [-1, -2, -3],
+          orderable: false,
+        },
+      ],
+    });
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var table = $("#source_table").DataTable();
+    table.columns.adjust().draw();
+  });
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
@@ -33,7 +53,7 @@
   <!-- List of existing sources -->
   <div class="container mx-auto">
     <h3 class="my-4">Existing Sources</h3>
-    <table class="table table-striped w-auto mx-auto">
+    <table id="source_table" class="table table-striped w-auto mx-auto">
       <thead>
         <tr>
           <th>Source</th>
@@ -49,20 +69,20 @@
       <tbody>
         {% for source in sources %}
         <tr>
-          <td>{{ source.name|safe }}</td>
-          <td>{{ source.contact_person|safe }}: {{ source.contact_information|safe }}</td>
-          <td>{{ source.type|safe }}</td>
-          <td>{{ source.location|safe }}</td>
-          <td>{{ source.description|safe }}</td>
+          <td>{{ source.name }}</td>
+          <td>{{ source.contact_person }}: {{ source.contact_information }}</td>
+          <td>{{ source.type }}</td>
+          <td>{{ source.location }}</td>
+          <td>{{ source.description }}</td>
           <td>
             <form action="{{ url_for('sources.track') }}" method="post">
-              <input type="hidden" name="track" value="{{ source.id|safe }}" />
+              <input type="hidden" name="track" value="{{ source.id }}" />
               <input
                 type="image"
-                src="/static/icons/info-square.svg"
+                src="/static/icons/arrow-right-square.svg"
                 alt="track"
                 name="source_track"
-                title="Track {{ source.name|safe }}"
+                title="Track {{ source.name }}"
               />
             </form>
           </td>
@@ -73,18 +93,18 @@
               name="source_edit"
               type="button"
               class="edit-source"
-              title="Edit {{ source.name|safe }}"
+              title="Edit {{ source.name }}"
               data-bs-toggle="offcanvas"
               data-bs-target="#EditCanvas"
               aria-controls="EditCanvas"
               onclick="populateCanvas(
               '{{ source.id }}',
-              '{{ source.name|escape_html|safe }}',
-              '{{ source.contact_person|escape_html|safe }}',
-              '{{ source.contact_information|escape_html|safe }}',
-              '{{ source.type|escape_html|safe }}',
-              '{{ source.location|escape_html|safe }}',
-              '{{ source.description|escape_html|safe }}'
+              '{{ source.name|escape_html }}',
+              '{{ source.contact_person|escape_html }}',
+              '{{ source.contact_information|escape_html }}',
+              '{{ source.type|escape_html }}',
+              '{{ source.location|escape_html }}',
+              '{{ source.description|escape_html }}'
             );"
             />
           </td>
@@ -100,8 +120,8 @@
                 alt="delete"
                 name="source_delete"
                 type="submit"
-                title="Delete {{ source.name|safe }}"
-                onclick="return confirmDelete('del-{{ source.id }}', '{{ source.name|escape_html|safe }}');"
+                title="Delete {{ source.name }}"
+                onclick="return confirmDelete('del-{{ source.id }}', '{{ source.name|escape_html }}');"
               />
             </form>
           </td>

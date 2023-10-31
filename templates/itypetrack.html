@@ -1,13 +1,40 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ ingredient.name|safe }} {% endblock %}
+{% block title %} {{ ingredient.name }} {% endblock %}
 <!--head-->
-{%block head %} {% endblock %}
+{%block head %}
+<!-- arrival, recipe and production table search and sort from datatables.net -->
+<script>
+  // Load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#arrival_table").dataTable({
+      order: [0, "dsc"],
+    });
+    $("#recipe_table").dataTable({
+      order: [],
+    });
+    $("#production_table").dataTable({
+      order: [0, "dsc"],
+    });
+  });
+  function tableAdjust() {
+    var aTable = $("#arrival_table").DataTable();
+    var rTable = $("#recipe_table").DataTable();
+    var pTable = $("#production_table").DataTable();
+    aTable.columns.adjust().draw();
+    rTable.columns.adjust().draw();
+    pTable.columns.adjust().draw();
+  }
+
+  // An event listener to re-adjust column width on window resize
+  window.addEventListener("resize", tableAdjust);
+</script>
+{% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
   <nav>
-    <div class="mt-3"><h5 style="color: #c74b00">{{ ingredient.name|safe }}</h5></div>
+    <div class="mt-3"><h5 style="color: #c74b00">{{ ingredient.name }}</h5></div>
     <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
       <button
         class="nav-link active"
@@ -31,6 +58,7 @@
         aria-controls="nav-arrivals"
         aria-selected="false"
         tabindex="-1"
+        onclick="tableAdjust()"
       >
         Arrivals
       </button>
@@ -44,6 +72,7 @@
         aria-controls="nav-recipes"
         aria-selected="false"
         tabindex="-1"
+        onclick="tableAdjust()"
       >
         Recipes
       </button>
@@ -57,6 +86,7 @@
         aria-controls="nav-productions"
         aria-selected="false"
         tabindex="-1"
+        onclick="tableAdjust()"
       >
         Productions
       </button>
@@ -71,7 +101,7 @@
     >
       <p>
         <strong
-          >The current stock of {{ ingredient.name|lower|safe }} is {{ ingredient.stock|round(1) }}
+          >The current stock of {{ ingredient.name|lower }} is {{ ingredient.stock|round(1) }}
           Kgs.</strong
         ><br />
         Total arrival is {{ ingredient.arrtotal|round(1) }} Kgs.<br />
@@ -79,20 +109,20 @@
       </p>
     </div>
     <div class="tab-pane fade" id="nav-arrivals" role="tabpanel" aria-labelledby="nav-arrivals-tab">
-      <h5 class="mb-4">List of {{ ingredient.name|lower|safe }} arrivals:</h5>
-      <table class="table table-striped w-auto mx-auto">
+      <h5 class="mb-4">List of {{ ingredient.name|lower }} arrivals:</h5>
+      <table id="arrival_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
-            <th>Source</th>
             <th>Arriving Date</th>
+            <th>Source</th>
             <th>Quantity (Kg)</th>
           </tr>
         </thead>
         <tbody>
-          {% for arrival in ingredient.arrivals|sort(attribute='arriving_date') %}
+          {% for arrival in ingredient.arrivals %}
           <tr>
-            <td>{{ arrival.source.name|safe }}</td>
             <td>{{ arrival.arriving_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ arrival.source.name }}</td>
             <td>{{ arrival.quantity }}</td>
           </tr>
           {% endfor %}
@@ -100,12 +130,12 @@
       </table>
     </div>
     <div class="tab-pane fade" id="nav-recipes" role="tabpanel" aria-labelledby="nav-recipes-tab">
-      <h5 class="mb-4">List of recipes with {{ ingredient.name|lower|safe }}:</h5>
-      <table class="table table-striped w-auto mx-auto">
+      <h5 class="mb-4">List of recipes with {{ ingredient.name|lower }}:</h5>
+      <table id="recipe_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
             <th>Name</th>
-            <th>{{ ingredient.name|safe }} amount</th>
+            <th>{{ ingredient.name }} amount</th>
             <th>Product</th>
             <th>Description</th>
             <th>Other Ingredients</th>
@@ -114,15 +144,15 @@
         <tbody>
           {% for recipe in ingredient.recipes %}
           <tr>
-            <td>{{ recipe.name|safe }}</td>
-            <td>{{ recipe.getp(ingredient.id)|safe }}%</td>
-            <td>{{ recipe.product.name|safe }}</td>
-            <td>{{ recipe.description|safe }}</td>
+            <td>{{ recipe.name }}</td>
+            <td>{{ recipe.getp(ingredient.id) }}%</td>
+            <td>{{ recipe.type.name }}</td>
+            <td>{{ recipe.description }}</td>
             <td>
               <p class="m-0 text-end">
                 {% set sorted_ingredients = recipe.ingredients|list|sortgetp(recipe)|reverse %} {%
-                for item in sorted_ingredients %}{% if item.id != ingredient.id %}{{ item.name|safe
-                }}: <strong>{{ recipe.getp(item.id)|safe }}%</strong><br />
+                for item in sorted_ingredients %}{% if item.id != ingredient.id %}{{ item.name }}:
+                <strong>{{ recipe.getp(item.id) }}%</strong><br />
                 {% endif %}{% endfor %}
               </p>
             </td>
@@ -137,35 +167,34 @@
       role="tabpanel"
       aria-labelledby="nav-productions-tab"
     >
-      <h5 class="mb-4">List of production instances that had {{ ingredient.name|lower|safe }}:</h5>
-      <table class="table table-striped w-auto mx-auto">
+      <h5 class="mb-4">List of production instances that had {{ ingredient.name|lower }}:</h5>
+      <table id="production_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
-            <th>Production Type</th>
+            <th>Production Time</th>
+            <th>Product</th>
             <th>Batch</th>
             <th>Production Quantity (Kg)</th>
-            <th>Production Time</th>
-            <th>{{ ingredient.name|safe }} Used (Kg)</th>
+            <th>{{ ingredient.name }} Used (Kg)</th>
             <th>Recipe</th>
-            <th>Other Ingredient Usages</th>
+            <th>Ingredient Usages</th>
           </tr>
         </thead>
         <tbody>
-          {% for production in ingredient.productions|sort(attribute='production_time') %}
+          {% for production in ingredient.productions %}
           <tr>
-            <td>{{ production.type.name|safe }}</td>
-            <td>{{ production.print_batch|safe }}</td>
-            <td>{{ production.quantity }}</td>
             <td>{{ production.production_time }}</td>
-            <td>{{ production.gets(ingredient.id)|safe }}</td>
-            <td>{{ production.recipe.name|safe }}</td>
+            <td>{{ production.type.name }}</td>
+            <td>{{ production.print_batch }}</td>
+            <td>{{ production.quantity }}</td>
+            <td>{{ production.gets(ingredient.id) }}</td>
+            <td>{{ production.recipe.name }}</td>
             <td>
               <p class="m-0 text-end">
-                {% set sorted_ingredients =
-                production.recipe.ingredients|list|sortgetp(production.recipe)|reverse %} {% for item in
-                sorted_ingredients %}{% if item.id != ingredient.id %}{{ item.name|safe }}:
-                <strong>{{ production.gets(item.id)|safe }}%</strong><br />
-                {% endif %}{% endfor %}
+                {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse
+                %} {% for item in sorted_ingredients %} {{ item.type.name }}-{{ item.source.name }}
+                ({{ item.arriving_date.strftime('%y-%m-%d') }}):
+                <strong>{{ production.getu(item.id) }} Kg</strong><br />{% endfor %}
               </p>
             </td>
           </tr>

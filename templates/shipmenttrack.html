@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ shipment.production.type.name|safe }} - {{ shipment.destination.name|safe }} {% endblock %}
+{% block title %} {{ shipment.production.type.name }} - {{ shipment.destination.name }} {% endblock %}
 <!--head-->
 {%block head %} {% endblock %}
 <!--body-->
@@ -9,7 +9,7 @@
   <nav>
     <div class="mt-3">
       <h5 style="color: #c74b00">
-        {{ shipment.production.type.name|safe }} from {{ shipment.destination.name|safe }} on {{
+        {{ shipment.production.type.name }} to {{ shipment.destination.name }} on {{
         shipment.shipping_date.strftime('%Y-%m-%d') }}
       </h5>
     </div>
@@ -38,14 +38,14 @@
         aria-selected="false"
         tabindex="-1"
       >
-        Productions
+        Production
       </button>
     </div>
   </nav>
   <div class="tab-content" id="nav-tabContent">
     <div class="tab-pane fade active show" id="nav-sources" role="tabpanel" aria-labelledby="nav-sources-tab">
       <h5 class="mb-4">
-        Destination of {{ shipment.production.type.name|safe|lower }} on {{
+        Destination of {{ shipment.production.type.name|lower }} on {{
         shipment.shipping_date.strftime('%Y-%m-%d') }}:
       </h5>
       <table class="table table-striped w-auto mx-auto">
@@ -60,14 +60,14 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ shipment.destination.name|safe }}</td>
+            <td>{{ shipment.destination.name }}</td>
             <td>
-              {{ shipment.destination.contact_person|safe }}: {{ shipment.destination.contact_information|safe
+              {{ shipment.destination.contact_person }}: {{ shipment.destination.contact_information
               }}
             </td>
-            <td>{{ shipment.destination.type|safe }}</td>
-            <td>{{ shipment.destination.location|safe }}</td>
-            <td>{{ shipment.destination.description|safe }}</td>
+            <td>{{ shipment.destination.type }}</td>
+            <td>{{ shipment.destination.location }}</td>
+            <td>{{ shipment.destination.description }}</td>
           </tr>
         </tbody>
       </table>
@@ -78,12 +78,11 @@
       role="tabpanel"
       aria-labelledby="nav-productions-tab"
     >
-      <h5 class="mb-4">Production of {{ shipment.production.type.name|safe|lower }} shipped to {{
-        shipment.destination.name|lower|safe }} on {{ shipment.shipping_date.strftime('%Y-%m-%d') }}:</h5>
+      <h5 class="mb-4">Production of {{ shipment.production.type.name|lower }} shipped to {{
+        shipment.destination.name|lower }} on {{ shipment.shipping_date.strftime('%Y-%m-%d') }}:</h5>
         <table class="table table-striped w-auto mx-auto">
           <thead>
             <tr>
-              <th>Type</th>
               <th>Batch</th>
               <th>Quantity (Kg)</th>
               <th>Production Time</th>
@@ -94,17 +93,16 @@
           </thead>
           <tbody>
             <tr>
-              <td>{{ shipment.production.type.name|safe }}</td>
-              <td>{{ shipment.production.print_batch|safe }}</td>
+              <td>{{ shipment.production.print_batch }}</td>
               <td>{{ shipment.production.quantity }}</td>
               <td>{{ shipment.production.production_time }}</td>
-              <td>{{ shipment.production.recipe.name|safe }}</td>
+              <td>{{ shipment.production.recipe.name }}</td>
               <td>
                 <p class="m-0 text-end">
                   {% set sorted_ingredients = shipment.production.ingredients|list|sortgetu(shipment.production)|reverse %}
-                  {% for ingredient in sorted_ingredients %} {{ ingredient.type.name|safe }}-{{
-                  ingredient.source.name|safe }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
-                  <strong>{{ shipment.production.getu(ingredient.id)|safe }} Kg</strong><br />{% endfor %}
+                  {% for ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
+                  ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+                  <strong>{{ shipment.production.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
                 </p>
               </td>
             </tr>

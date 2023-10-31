@@ -73,16 +73,16 @@
   document.addEventListener("DOMContentLoaded", function () {
     function updateField() {
       //list of existing batch numbers
-      const BatchNumbers = [{% for production in productions %}"{{ production.print_batch|safe }}", {%endfor %}];
+      const BatchNumbers = [{% for production in productions %}"{{ production.print_batch }}", {%endfor %}];
       const productionDateValue =
         document.getElementById("production_date").value;
-      const productionTypeValue =
-        document.getElementById("production_types").value;
+      const productTypeValue =
+        document.getElementById("product").value;
       const selectedDate = new Date(productionDateValue);
       const year = selectedDate.getFullYear().toString().slice(-2);
       const month = (selectedDate.getMonth() + 1).toString().padStart(2, "0");
       const date = selectedDate.getDate().toString().padStart(2, "0");
-      const typeid = productionTypeValue.toString().padStart(3, "0");
+      const typeid = productTypeValue.toString().padStart(3, "0");
       if (!productionDateValue) {
         return;
       }
@@ -106,8 +106,28 @@
       .getElementById("production_date")
       .addEventListener("change", updateField);
     document
-      .getElementById("production_types")
+      .getElementById("product")
       .addEventListener("change", updateField);
+  });
+</script>
+<!-- production_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#production_table").dataTable({
+      order: [0, "dsc"],
+      columnDefs: [
+        {
+          targets: [-1, -2, -3],
+          orderable: false,
+        },
+      ],
+    });
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var table = $("#production_table").DataTable();
+    table.columns.adjust().draw();
   });
 </script>
 {% endblock %}
@@ -116,13 +136,13 @@
 <div class="container mx-auto text-center">
   <!-- List of existing productions -->
   <h3 class="my-4">Existing Productions</h3>
-  <table class="table table-striped w-auto mx-auto">
+  <table id="production_table" class="table table-striped w-auto mx-auto">
     <thead>
       <tr>
-        <th>Batch</th>
-        <th>Type</th>
-        <th>Quantity (Kg)</th>
         <th>Production Time</th>
+        <th>Batch</th>
+        <th>Product</th>
+        <th>Quantity (Kg)</th>
         <th>Recipe</th>
         <th>Ingredient Usages</th>
         <th></th>
@@ -130,30 +150,30 @@
       </tr>
     </thead>
     <tbody>
-      {% for production in productions|sort(attribute='production_time')|reverse %}
+      {% for production in productions %}
       <tr>
-        <td>{{ production.print_batch|safe }}</td>
-        <td>{{ production.type.name|safe }}</td>
-        <td>{{ production.quantity }}</td>
         <td>{{ production.production_time }}</td>
-        <td>{{ production.recipe.name|safe }}</td>
+        <td>{{ production.print_batch }}</td>
+        <td>{{ production.type.name }}</td>
+        <td>{{ production.quantity }}</td>
+        <td>{{ production.recipe.name }}</td>
         <td>
           <p class="m-0 text-end">
             {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse %}
-            {% for ingredient in sorted_ingredients %} {{ ingredient.type.name|safe }}-{{
-            ingredient.source.name|safe }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
-            <strong>{{ production.getu(ingredient.id)|safe }} Kg</strong><br />{% endfor %}
+            {% for ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
+            ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+            <strong>{{ production.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
           </p>
         </td>
         <td>
           <form action="{{ url_for('productions.track') }}" method="post">
-            <input type="hidden" name="track" value="{{ production.id|safe }}" />
+            <input type="hidden" name="track" value="{{ production.id }}" />
             <input
               type="image"
-              src="/static/icons/info-square.svg"
+              src="/static/icons/arrow-right-square.svg"
               alt="track"
               name="production_track"
-              title="Track {{ production.print_batch|safe }}"
+              title="Track {{ production.print_batch }}"
             />
           </form>
         </td>
@@ -169,8 +189,8 @@
               alt="delete"
               name="production_delete"
               type="submit"
-              title="Delete {{ production.print_batch|safe }}"
-              onclick="return confirmDelete('del-{{production.id}}', '{{ production.print_batch|safe }}');"
+              title="Delete {{ production.print_batch }}"
+              onclick="return confirmDelete('del-{{production.id}}', '{{ production.print_batch }}');"
             />
           </form>
         </td>
@@ -232,17 +252,17 @@
             <div class="form-floating">
               <select
                 class="form-select my-1"
-                id="production_types"
-                name="production_types"
+                id="product"
+                name="product"
                 onchange="recipeChange(this.value);"
                 required
               >
-                <option selected disabled value="">Select a Production Type</option>
+                <option selected disabled value="">Select a Product</option>
                 {% for ptype in ptypes %}
-                <option value="{{ ptype.id }}">{{ ptype.name|safe }}</option>
+                <option value="{{ ptype.id }}">{{ ptype.name }}</option>
                 {% endfor %}
               </select>
-              <label for="production_types">Production Type</label>
+              <label for="product">Product</label>
             </div>
             <div class="form-floating">
               <input class="form-select my-1 recipe-select" id="recipe0" name="recipe0" readonly />
@@ -254,8 +274,8 @@
                 hidden
               >
                 <option value="" disabled selected>Select a recipe</option>
-                {% for recipe in recipes %}{% if recipe.production_type == ptype.id %}
-                <option value="{{ recipe.id }}">{{ recipe.name|safe }}</option>
+                {% for recipe in recipes %}{% if recipe.type == ptype.id %}
+                <option value="{{ recipe.id }}">{{ recipe.name }}</option>
                 {% endif %}{% endfor %}</select
               >{% endfor %}
               <label for="recipe0">Recipe</label>

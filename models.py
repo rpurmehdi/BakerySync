@@ -42,7 +42,7 @@ class Destination(BaseModel):
     location = db.Column(db.String(255))
     description = db.Column(db.String(255))
 
-    shipments = db.relationship('ProductionShipment', backref='destination')
+    shipments = db.relationship('ProductShipment', backref='destination')
 
     def shptotal(self, type_id):
         total_shipment = sum(
@@ -100,11 +100,11 @@ production_arrival_association = db.Table(
 )
 
 
-class ProductionType(BaseModel):
+class ProductType(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
 
     productions = db.relationship('Production', backref='type')
-    recipes = db.relationship('Recipe', backref='product')
+    recipes = db.relationship('Recipe', backref='type')
 
     @property
     def stock(self):
@@ -113,9 +113,9 @@ class ProductionType(BaseModel):
 
     @property
     def shipments(self):
-        matching_shipments = ProductionShipment.query.join(
+        matching_shipments = ProductShipment.query.join(
             Production,
-            Production.id == ProductionShipment.production_id
+            Production.id == ProductShipment.production_id
         ).filter(
             Production.type_id == self.id
         ).all()
@@ -152,8 +152,8 @@ class IngredientArrival(BaseModel):
 class Recipe(BaseModel):
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255))
-    production_type = db.Column(db.Integer, db.ForeignKey(
-        ProductionType.id), nullable=False)
+    product = db.Column(db.Integer, db.ForeignKey(
+        ProductType.id), nullable=False)
 
     ingredients = db.relationship(
         'IngredientType',
@@ -193,12 +193,12 @@ class Recipe(BaseModel):
 class Production(BaseModel):
     print_batch = db.Column(db.String(255), unique=True, nullable=False)
     type_id = db.Column(db.Integer, db.ForeignKey(
-        ProductionType.id), nullable=False)
+        ProductType.id), nullable=False)
     production_time = db.Column(db.DateTime, nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    shipments = db.relationship('ProductionShipment', backref='production')
+    shipments = db.relationship('ProductShipment', backref='production')
     ingredients = db.relationship(
         'IngredientArrival',
         secondary=production_arrival_association,
@@ -227,7 +227,7 @@ class Production(BaseModel):
         return total
 
 
-class ProductionShipment(BaseModel):
+class ProductShipment(BaseModel):
     production_id = db.Column(db.Integer, db.ForeignKey(
         Production.id), nullable=False)
     destination_id = db.Column(

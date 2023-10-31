@@ -26,13 +26,33 @@
     editCanvas.querySelector("#edit-description").value = destinationDescription;
   }
 </script>
+<!-- destination_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#destination_table").dataTable({
+      order: [],
+      columnDefs: [
+        {
+          targets: [-1, -2, -3],
+          orderable: false,
+        },
+      ],
+    });
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var table = $("#destination_table").DataTable();
+    table.columns.adjust().draw();
+  });
+</script>
 {% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
   <!-- List of existing destinations -->
   <h3 class="my-4">Existing Destinations</h3>
-  <table class="table table-striped w-auto mx-auto">
+  <table id="destination_table" class="table table-striped w-auto mx-auto">
     <thead>
       <tr>
         <th>Destination</th>
@@ -48,20 +68,20 @@
     <tbody>
       {% for destination in destinations %}
       <tr>
-        <td>{{ destination.name|safe }}</td>
-        <td>{{ destination.contact_person|safe }}: {{ destination.contact_information|safe }}</td>
-        <td>{{ destination.type|safe }}</td>
-        <td>{{ destination.location|safe }}</td>
-        <td>{{ destination.description|safe }}</td>
+        <td>{{ destination.name }}</td>
+        <td>{{ destination.contact_person }}: {{ destination.contact_information }}</td>
+        <td>{{ destination.type }}</td>
+        <td>{{ destination.location }}</td>
+        <td>{{ destination.description }}</td>
         <td>
           <form action="{{ url_for('destinations.track') }}" method="post">
-            <input type="hidden" name="track" value="{{ destination.id|safe }}" />
+            <input type="hidden" name="track" value="{{ destination.id }}" />
             <input
               type="image"
-              src="/static/icons/info-square.svg"
+              src="/static/icons/arrow-right-square.svg"
               alt="track"
               name="destination_track"
-              title="Track {{ destination.name|safe }}"
+              title="Track {{ destination.name }}"
             />
           </form>
         </td>
@@ -72,18 +92,18 @@
             name="destination_edit"
             type="button"
             class="edit-destination"
-            title="Edit {{ destination.name|safe }}"
+            title="Edit {{ destination.name }}"
             data-bs-toggle="offcanvas"
             data-bs-target="#EditCanvas"
             aria-controls="EditCanvas"
             onclick="populateCanvas(
               '{{ destination.id }}',
-              '{{ destination.name|escape_html|safe }}',
-              '{{ destination.contact_person|escape_html|safe }}',
-              '{{ destination.contact_information|escape_html|safe }}',
-              '{{ destination.type|escape_html|safe }}',
-              '{{ destination.location|escape_html|safe }}',
-              '{{ destination.description|escape_html|safe }}'
+              '{{ destination.name|escape_html }}',
+              '{{ destination.contact_person|escape_html }}',
+              '{{ destination.contact_information|escape_html }}',
+              '{{ destination.type|escape_html }}',
+              '{{ destination.location|escape_html }}',
+              '{{ destination.description|escape_html }}'
             );"
           />
         </td>
@@ -99,8 +119,8 @@
             alt="delete"
             name="destination_delete"
             type="submit"
-            title="Delete {{ destination.name|safe }}"
-            onclick="return confirmDelete('del-{{ destination.id }}', '{{ destination.name|escape_html|safe }}');"
+            title="Delete {{ destination.name }}"
+            onclick="return confirmDelete('del-{{ destination.id }}', '{{ destination.name|escape_html }}');"
           />
         </form>
         </td>

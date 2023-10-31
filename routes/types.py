@@ -1,5 +1,5 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
-from models import db, IngredientType, ProductionType, production_arrival_association, recipe_ingredient_association
+from models import db, IngredientType, ProductType, production_arrival_association, recipe_ingredient_association
 
 types_bp = Blueprint('types', __name__, url_prefix='/types')
 
@@ -13,7 +13,7 @@ def types():
         if "itype_form" in request.form:
             new_type = IngredientType(name=name)
         elif "ptype_form" in request.form:
-            new_type = ProductionType(name=name)
+            new_type = ProductType(name=name)
         else:
             return redirect(url_for('types.types'))
         try:
@@ -34,7 +34,7 @@ def types():
     else:
         # Retrieve all types from the database
         itypes = IngredientType.query.all()
-        ptypes = ProductionType.query.all()
+        ptypes = ProductType.query.all()
         return render_template('types.html', itypes=itypes, ptypes=ptypes)
 
 
@@ -49,7 +49,7 @@ def edit_type():
                 type_to_edit = IngredientType.query.get(id)
                 ing = True
             elif "ptype_edit" in request.form:
-                type_to_edit = ProductionType.query.get(id)
+                type_to_edit = ProductType.query.get(id)
                 ing = False
             else:
                 return redirect(url_for('types.types'))
@@ -106,7 +106,7 @@ def delete_type():
                 ing = True
             elif "ptype_delete" in request.form:
                 id = request.form.get("ptype_delete")
-                type_to_delete = ProductionType.query.get(id)
+                type_to_delete = ProductType.query.get(id)
                 ing = False
             else:
                 return redirect(url_for('types.types'))
@@ -174,5 +174,5 @@ def ptrack():
 
 
 def track_ptype(id):
-    production = ProductionType.query.get(id)
-    return render_template('ptypetrack.html', production=production)
+    product = ProductType.query.get(id)
+    return render_template('ptypetrack.html', product=product)

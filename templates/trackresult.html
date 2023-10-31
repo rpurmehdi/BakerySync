@@ -40,10 +40,10 @@
       <tbody>
         {% for result in results %}
         <tr>
-          <td>{{ result["name"]|safe }}</td>
+          <td>{{ result["name"] }}</td>
           <td>
             <form action="{{ result['type'] }}" method="post">
-              <input type="hidden" name="track" value="{{ result['id']|safe }}" />
+              <input type="hidden" name="track" value="{{ result['id'] }}" />
               <input
                 type="image"
                 src="/static/icons/arrow-right-square.svg"

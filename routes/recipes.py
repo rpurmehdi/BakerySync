@@ -1,5 +1,5 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
-from models import db, recipe_ingredient_association, Recipe, ProductionType, IngredientType, Production
+from models import db, recipe_ingredient_association, Recipe, ProductType, IngredientType, Production
 
 recipes_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
 
@@ -11,7 +11,7 @@ def recipes():
         try:
             recipe_name = request.form['recipe_name'].capitalize()
             description = request.form['description']
-            ptype = request.form['production_type']
+            ptype = request.form['product']
             itypes = IngredientType.query.all()
             itype_percents = {}
             for itype in itypes:
@@ -25,9 +25,9 @@ def recipes():
             return redirect(url_for('recipes.recipes'))
         if recipe_name and ptype:
             try:
-                production = ProductionType.query.get(ptype)
+                product = ProductType.query.get(ptype)
             except:
-                flash('Invalid production type input!', 'warning')
+                flash('Invalid product input!', 'warning')
                 return redirect(url_for('recipes.recipes'))
         else:
             flash('Invalid data input!', 'warning')
@@ -40,13 +40,13 @@ def recipes():
         new_recipe = Recipe(
             name=recipe_name,
             description=description,
-            production_type=ptype,
+            product=ptype,
         )
         duplicate_recipe = Recipe.query.filter_by(
-            name=recipe_name, production_type=ptype).first()
+            name=recipe_name, product=ptype).first()
         if duplicate_recipe:
             flash(
-                f'Can not add another recipe with the same name {recipe_name} for production type {ptype}. Recipe names must all be unique for each production.', 'warning')
+                f'Can not add another recipe with the same name {recipe_name} for product {ptype}. Recipe names must all be unique for each production.', 'warning')
             return redirect(url_for('recipes.recipes'))
         try:
             # Attempt to perform a database operation
@@ -82,7 +82,7 @@ def recipes():
     else:
         # Retrieve all info from the database
         recipes = Recipe.query.all()
-        ptypes = ProductionType.query.all()
+        ptypes = ProductType.query.all()
         itypes = IngredientType.query.all()
         ingredients = db.session.query(recipe_ingredient_association).all()
         context = {

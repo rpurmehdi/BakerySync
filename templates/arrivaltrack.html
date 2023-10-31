@@ -1,15 +1,32 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ arrival.type.name|safe }} - {{ arrival.source.name|safe }} {% endblock %}
+{% block title %} {{ arrival.type.name }} - {{ arrival.source.name }} {% endblock %}
 <!--head-->
-{%block head %} {% endblock %}
+{%block head %}
+<!-- production_table search and sort from datatables.net -->
+<script>
+  // Load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#production_table").dataTable({
+      order: [0, "dsc"],
+    });
+  });
+  function tableAdjust() {
+    var table = $("#production_table").DataTable();
+    table.columns.adjust().draw();
+  }
+
+  // An event listener to re-adjust column width on window resize
+  window.addEventListener("resize", tableAdjust);
+</script>
+{% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
   <nav>
     <div class="mt-3">
       <h5 style="color: #c74b00">
-        {{ arrival.type.name|safe }} from {{ arrival.source.name|safe }} on {{
+        {{ arrival.type.name }} from {{ arrival.source.name }} on {{
         arrival.arriving_date.strftime('%Y-%m-%d') }}
       </h5>
     </div>
@@ -49,6 +66,7 @@
         aria-controls="nav-productions"
         aria-selected="false"
         tabindex="-1"
+        onclick="tableAdjust()"
       >
         Productions
       </button>
@@ -63,9 +81,9 @@
     >
       <p>
         <strong
-          >The current stock of {{ arrival.type.name|safe|lower }} arrived from {{
-          arrival.source.name|lower|safe }} on {{ arrival.arriving_date.strftime('%Y-%m-%d') }} is
-          {{ arrival.stock|round(1) }} Kgs.</strong
+          >The current stock of {{ arrival.type.name|lower }} arrived from {{
+          arrival.source.name|lower }} on {{ arrival.arriving_date.strftime('%Y-%m-%d') }} is {{
+          arrival.stock|round(1) }} Kgs.</strong
         ><br />
         Arrived quantity is {{ arrival.quantity|round(1) }} Kgs.<br />
         Total usage is {{ (arrival.quantity-arrival.stock)|round(1) }} Kgs.
@@ -73,8 +91,7 @@
     </div>
     <div class="tab-pane fade" id="nav-sources" role="tabpanel" aria-labelledby="nav-sources-tab">
       <h5 class="mb-4">
-        Source of {{ arrival.type.name|safe|lower }} on {{
-        arrival.arriving_date.strftime('%Y-%m-%d') }}:
+        Source of {{ arrival.type.name|lower }} on {{ arrival.arriving_date.strftime('%Y-%m-%d') }}:
       </h5>
       <table class="table table-striped w-auto mx-auto">
         <thead>
@@ -88,14 +105,11 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ arrival.source.name|safe }}</td>
-            <td>
-              {{ arrival.source.contact_person|safe }}: {{ arrival.source.contact_information|safe
-              }}
-            </td>
-            <td>{{ arrival.source.type|safe }}</td>
-            <td>{{ arrival.source.location|safe }}</td>
-            <td>{{ arrival.source.description|safe }}</td>
+            <td>{{ arrival.source.name }}</td>
+            <td>{{ arrival.source.contact_person }}: {{ arrival.source.contact_information }}</td>
+            <td>{{ arrival.source.type }}</td>
+            <td>{{ arrival.source.location }}</td>
+            <td>{{ arrival.source.description }}</td>
           </tr>
         </tbody>
       </table>
@@ -106,40 +120,41 @@
       role="tabpanel"
       aria-labelledby="nav-productions-tab"
     >
-      <h5 class="mb-4">List of production instances that used {{ arrival.type.name|safe|lower }} arrived from {{
-        arrival.source.name|lower|safe }} on {{ arrival.arriving_date.strftime('%Y-%m-%d') }}:</h5>
-        <table class="table table-striped w-auto mx-auto">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Batch</th>
-              <th>Quantity (Kg)</th>
-              <th>Production Time</th>
-              <th>Recipe</th>
-              <th>Ingredient Usages</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for production in arrival.productions|sort(attribute='production_time') %}
-            <tr>
-              <td>{{ production.type.name|safe }}</td>
-              <td>{{ production.print_batch|safe }}</td>
-              <td>{{ production.quantity }}</td>
-              <td>{{ production.production_time }}</td>
-              <td>{{ production.recipe.name|safe }}</td>
-              <td>
-                <p class="m-0 text-end">
-                  {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse %}
-                  {% for ingredient in sorted_ingredients %} {{ ingredient.type.name|safe }}-{{
-                  ingredient.source.name|safe }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
-                  <strong>{{ production.getu(ingredient.id)|safe }} Kg</strong><br />{% endfor %}
-                </p>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <h5 class="mb-4">
+        List of production instances that used {{ arrival.type.name|lower }} arrived from {{
+        arrival.source.name|lower }} on {{ arrival.arriving_date.strftime('%Y-%m-%d') }}:
+      </h5>
+      <table id="production_table" class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Production Time</th>
+            <th>Type</th>
+            <th>Batch</th>
+            <th>Quantity (Kg)</th>
+            <th>Recipe</th>
+            <th>Ingredient Usages</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for production in arrival.productions %}
+          <tr>
+            <td>{{ production.production_time }}</td>
+            <td>{{ production.type.name }}</td>
+            <td>{{ production.print_batch }}</td>
+            <td>{{ production.quantity }}</td>
+            <td>{{ production.recipe.name }}</td>
+            <td>
+              <p class="m-0 text-end">
+                {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse
+                %} {% for ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
+                ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+                <strong>{{ production.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
+              </p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

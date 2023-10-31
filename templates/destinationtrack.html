@@ -1,14 +1,31 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ destination.name|safe }} {% endblock %}
+{% block title %} {{ destination.name }} {% endblock %}
 <!--head-->
-{%block head %} {% endblock %}
+{%block head %}
+<!-- shipment_table search and sort from datatables.net -->
+<script>
+  // Load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#shipment_table").dataTable({
+      order: [0, "dsc"],
+    });
+  });
+  function tableAdjust() {
+    var table = $("#shipment_table").DataTable();
+    table.columns.adjust().draw();
+  }
+
+  // An event listener to re-adjust column width on window resize
+  window.addEventListener("resize", tableAdjust);
+</script>
+{% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
   <nav>
     <div class="mt-3">
-      <h5 style="color: #c74b00">{{ destination.name|safe }}</h5>
+      <h5 style="color: #c74b00">{{ destination.name }}</h5>
     </div>
     <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
       <button
@@ -33,6 +50,7 @@
         aria-controls="nav-shipments"
         aria-selected="false"
         tabindex="-1"
+        onclick="tableAdjust()"
       >
         Shipments
       </button>
@@ -45,11 +63,11 @@
       role="tabpanel"
       aria-labelledby="nav-stock-tab"
     >
-      <h5 class="mb-4">The quantity of productions shipped to {{ destination.name|safe|lower }}:</h5>
+      <h5 class="mb-4">The quantity of products shipped to {{ destination.name|lower }}:</h5>
       <table class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
-            <th>Production Type</th>
+            <th>Product</th>
             <th>Shipped Quantity (Kg)</th>
           </tr>
         </thead>
@@ -63,23 +81,28 @@
         </tbody>
       </table>
     </div>
-    <div class="tab-pane fade" id="nav-shipments" role="tabpanel" aria-labelledby="nav-shipments-tab">
-      <h5 class="mb-4">Production shipments to {{ destination.name|safe|lower }}:</h5>
-      <table class="table table-striped w-auto mx-auto">
+    <div
+      class="tab-pane fade"
+      id="nav-shipments"
+      role="tabpanel"
+      aria-labelledby="nav-shipments-tab"
+    >
+      <h5 class="mb-4">Product shipments to {{ destination.name|lower }}:</h5>
+      <table id="shipment_table" class="table table-striped w-auto mx-auto nowrap">
         <thead>
           <tr>
-            <th>Production Type</th>
-            <th>Batch</th>
             <th>Shipping Date</th>
+            <th>Product</th>
+            <th>Batch</th>
             <th>Quantity (Kg)</th>
           </tr>
         </thead>
         <tbody>
           {% for shipment in destination.shipments|sort(attribute='shipping_date') %}
           <tr>
-            <td>{{ shipment.production.type.name|safe }}</td>
-            <td>{{ shipment.production.print_batch|safe }}</td>
             <td>{{ shipment.shipping_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ shipment.production.type.name }}</td>
+            <td>{{ shipment.production.print_batch }}</td>
             <td>{{ shipment.quantity }}</td>
           </tr>
           {% endfor %}

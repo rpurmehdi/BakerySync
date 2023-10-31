@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ source.name|safe }} {% endblock %}
+{% block title %} {{ source.name }} {% endblock %}
 <!--head-->
 {%block head %} {% endblock %}
 <!--body-->
@@ -8,7 +8,7 @@
 <div class="container mx-auto text-center">
   <nav>
     <div class="mt-3">
-      <h5 style="color: #c74b00">{{ source.name|safe }}</h5>
+      <h5 style="color: #c74b00">{{ source.name }}</h5>
     </div>
     <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
       <button
@@ -45,7 +45,7 @@
       role="tabpanel"
       aria-labelledby="nav-stock-tab"
     >
-      <h5 class="mb-4">The stock of ingredients arrived from {{ source.name|safe|lower }}:</h5>
+      <h5 class="mb-4">The stock of ingredients arrived from {{ source.name|lower }}:</h5>
       <table class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
@@ -68,7 +68,7 @@
       </table>
     </div>
     <div class="tab-pane fade" id="nav-arrivals" role="tabpanel" aria-labelledby="nav-arrivals-tab">
-      <h5 class="mb-4">Ingredient arrivals from {{ source.name|safe|lower }}:</h5>
+      <h5 class="mb-4">Ingredient arrivals from {{ source.name|lower }}:</h5>
       <table class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
@@ -80,7 +80,7 @@
         <tbody>
           {% for arrival in source.arrivals|sort(attribute='arriving_date') %}
           <tr>
-            <td>{{ arrival.type.name|safe }}</td>
+            <td>{{ arrival.type.name }}</td>
             <td>{{ arrival.arriving_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ arrival.quantity }}</td>
           </tr>
