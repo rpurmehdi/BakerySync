@@ -19,7 +19,6 @@
 {% endblock %} {% block main %}
 <div class="container mx-auto text-center">
   <div class="row mt-4">
-
     <div class="col">
       <div class="card border-x-secondary border-secondary shadow h-100 py-2">
         <div class="card-body">
@@ -29,13 +28,13 @@
                 Select Year and Month:
               </div>
               <form id="dateForm" class="form-inline secondary text-secondary">
-                <div class="input-group my-0">
+                <div class="input-group justify-content-center my-0">
                   <div class="input-group-append mx-1">
                     <label for="year">Year:</label>
                     <select class="form-control-sm text-secondary" name="year" id="year">
                       <!-- years already in database -->
                       {% for item in years|sort %}
-                      <option value="{{ item }}" {% if item|int==year|int %}selected{% endif %}>
+                      <option value="{{ item }}" {% if item|int==year %}selected{% endif %}>
                         {{ item }}
                       </option>
                       {% endfor %}
@@ -74,7 +73,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                Shipment sum of {{ month }}
+                Shipment sum of {{ month }} {{ year }}
               </div>
               <div class="h5 mb-0 font-weight-bold text-success">{{ shipmentsum }} Kg</div>
             </div>
@@ -88,7 +87,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                Production sum of {{ month }}
+                Production sum of {{ month }} {{ year }}
               </div>
               <div class="h5 mb-0 font-weight-bold text-primary">{{ datasum }} Kg</div>
             </div>
@@ -97,33 +96,54 @@
       </div>
     </div>
   </div>
-  <div class="row mt-4">
-    <div class="col">
-      <!-- a column where the production graph will take place -->
+  <div class="row mt-3">
+    <div class="col mt-4">
+      <!-- where the ingredient graph will take place -->
       <div class="card border-x-secondary border-secondary shadow">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-      <div id="productionsum_chart"></div></div></div></div>
+        <div class="card-body align-items-center">
+          <div id="itype_chart"></div>
+        </div>
+      </div>
     </div>
-    <div class="col">
-      <!-- a div where the product graph will take place -->
-      <div id="ptype_chart"></div>
+    <div class="col mt-4">
+      <!-- where the product graph will take place -->
+      <div class="card border-x-secondary border-secondary shadow">
+        <div class="card-body align-items-center">
+          <div id="ptype_chart"></div>
+        </div>
+      </div>
     </div>
-    <div class="col">
-      <!-- a div where the production / day graph will take place -->
-      <div id="production_chart"></div>
+    <div class="col mt-4">
+      <!-- where the production graph will take place -->
+      <div class="card border-x-secondary border-secondary shadow">
+        <div class="card-body align-items-center">
+          <div id="productionsum_chart"></div>
+        </div>
+      </div>
     </div>
-    <div class="col">
-      <!-- a div where the ingredient graph will take place -->
-      <div id="itype_chart"></div>
+    <div class="col mt-4">
+      <!-- where the production / day graph will take place -->
+      <div class="card border-x-secondary border-secondary shadow">
+        <div class="card-body align-items-center">
+          <div id="production_chart"></div>
+        </div>
+      </div>
     </div>
-    <div class="col">
-      <!-- a div where the arrival graph will take place -->
-      <div id="arrival_chart"></div>
+    <div class="col mt-4">
+      <!-- where the arrival graph will take place -->
+      <div class="card border-x-secondary border-secondary shadow">
+        <div class="card-body align-items-center">
+          <div id="arrival_chart"></div>
+        </div>
+      </div>
     </div>
-    <div class="col">
-      <!-- a div where the shipment graph will take place -->
-      <div id="shipment_chart"></div>
+    <div class="col mt-4">
+      <!-- where the shipment graph will take place -->
+      <div class="card border-x-secondary border-secondary shadow">
+        <div class="card-body align-items-center">
+          <div id="shipment_chart"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -131,15 +151,11 @@
 <!-- charts script -->
 <script>
   // Define a function to create a chart
-  function createChart(chartId, data, title, text, chartWidth, chartColor) {
-    // Check if the data array is empty
-    if (data.length === 0) {
-      // Return early and do not create the chart
-      return;
-    }
+  function createChart(chartId, data, title, text, chartColor) {
+
     // Set the dimensions and margins of the graph
-    const margin = { top: 30, right: 30, bottom: 100, left: 60 },
-      width = chartWidth - margin.left - margin.right,
+    const margin = { top: 25, right: 5, bottom: 50, left: 35 },
+      width = 430 - margin.left - margin.right,
       height = 320 - margin.top - margin.bottom;
 
     // Append the svg object to the specified element
@@ -150,7 +166,18 @@
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-
+    // Check if the data array is empty
+    if (data.length === 0) {
+      // add text "No data available"
+      svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "17px")
+        .text("No data available for " + title);
+      // Return early and do not create the chart
+      return;
+    }
     // Calculate the Y axis domain
     const maxY = d3.max(data, (d) => d[1]); // Find the maximum value in the data
     const yDomain = [0, maxY * 1.1]; // Adjust the maximum value by 10%
@@ -163,12 +190,12 @@
     const x = d3.scaleBand()
       .range([0, width])
       .domain(data.map((d) => d[0]))
-      .padding(0.2);
+      .padding(0.4);
     svg.append("g")
       .attr("transform", `translate(0, ${height})`)
       .call(d3.axisBottom(x))
       .selectAll("text")
-      .attr("transform", "translate(-10,0)rotate(-45)")
+      .attr("transform", "translate(-2,0)rotate(-20)")
       .style("text-anchor", "end");
 
     // Bars
@@ -190,14 +217,14 @@
       .text((d) => text ? `${d[1]} Kg` : "")
       .attr("text-anchor", "middle")
       .style("fill", "black")
-      .style("font-size", "12px");
+      .style("font-size", "11px");
 
-    // Add a title
+    // Add title
     svg.append("text")
       .attr("x", width / 2)
       .attr("y", -10)
       .attr("text-anchor", "middle")
-      .style("font-size", "16px")
+      .style("font-size", "18px")
       .text(title);
   }
 
@@ -209,12 +236,13 @@
   const productionsData = {{ monthproductions| safe }};
   const productionsumData = {{ productionsum| safe }};
 
-  createChart("#itype_chart", ingredientsData, "Current Ingredients Stock", true, 320, "#69b3a2");
-  createChart("#ptype_chart", productsData, "Current Products Stock", true, 320);
-  createChart("#productionsum_chart", productionsumData, "Productions of {{ month|safe }}", true, 320);
-  createChart("#arrival_chart", arrivalsData, "Arrivals of {{ month|safe }}", true, 320);
-  createChart("#shipment_chart", shipmentsData, "Shipments of {{ month|safe }}", true, 320);
-  createChart("#production_chart", productionsData, "Production quantity of {{ month|safe }}", false, 450);
+  createChart("#itype_chart", ingredientsData, "Current Ingredients Stock", true, "#ffc107");
+  createChart("#ptype_chart", productsData, "Current Products Stock", true, "#2653d4");
+  createChart("#productionsum_chart", productionsumData, "Productions of {{ month|safe }} {{ year|safe }}", true, "#6610f2");
+  createChart("#arrival_chart", arrivalsData, "Arrivals of {{ month|safe }} {{ year|safe }}", true, "#fd7e14");
+  createChart("#shipment_chart", shipmentsData, "Shipments of {{ month|safe }} {{ year|safe }}", true, "#198754");
+  createChart("#production_chart", productionsData, "Production quantity of {{ month|safe }} {{ year|safe }}", false, "#4e73df");
 </script>
-</div>
+
+
 {% endblock %}

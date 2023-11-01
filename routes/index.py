@@ -25,7 +25,7 @@ def index():
         for ingredient in ingredients:
             sum = 0
             for arrival in ingredient.arrivals:
-                years.add(arrival.arriving_date.strftime("%y"))
+                years.add(arrival.arriving_date.strftime("%Y"))
                 if arrival.arriving_date.strftime("%y-%m-%d").startswith(
                     f"{current_year % 100:02d}-{current_month:02d}"
                 ):
@@ -42,9 +42,9 @@ def index():
         for product in products:
             shipsum = 0
             for shipment in product.shipments:
-                years.add(shipment.shipping_date.strftime("%y"))
-                if shipment.shipping_date.strftime("%y-%m-%d").startswith(
-                    f"{current_year % 100:02d}-{current_month:02d}"
+                years.add(shipment.shipping_date.strftime("%Y"))
+                if shipment.shipping_date.strftime("%Y-%m-%d").startswith(
+                    f"{current_year}-{current_month:02d}"
                 ):
                     shipsum += shipment.quantity
             if shipsum > 0:
@@ -52,9 +52,9 @@ def index():
                 shipmentsum += shipsum
             prdsum = 0
             for production in product.productions:
-                years.add(production.production_time.strftime("%y"))
-                if production.production_time.strftime("%y-%m-%d").startswith(
-                    f"{current_year % 100:02d}-{current_month:02d}"
+                years.add(production.production_time.strftime("%Y"))
+                if production.production_time.strftime("%Y-%m-%d").startswith(
+                    f"{current_year}-{current_month:02d}"
                 ):
                     prdsum += production.quantity
             if prdsum > 0:
@@ -68,7 +68,7 @@ def index():
         # Generate a list of "YY-MM-DD" strings for each day in the current month
         days_in_month = calendar.monthrange(current_year, current_month)[1]
         days = [
-            f"{current_year % 100:02d}-{current_month:02d}-{day:02d}"
+            f"{current_year}-{current_month:02d}-{day:02d}"
             for day in range(1, days_in_month + 1)
         ]
         month_production = []
@@ -76,7 +76,7 @@ def index():
         for day in days:
             sum = 0
             for production in productions:
-                if production.production_time.strftime("%y-%m-%d").startswith(day):
+                if production.production_time.strftime("%Y-%m-%d").startswith(day):
                     sum += production.quantity
             datasum += sum
             month_production.append((day.split("-")[2], sum))

@@ -14,4 +14,4 @@ The BakerySync ERP System is a comprehensive software solution designed to strea
 
 - **Inventory Control**: Manage in-stock ingredients and finished bakery products, tracking quantities and availability.
 
-- **Tracking**: Trace ingredients, sourced, destinatin, bakery product batch numbers and everything else for quality control and recall purposes.
+- **Tracking**: Track ingredients, sourced, destinatin, bakery product batch numbers and everything else for quality control and recall purposes.
