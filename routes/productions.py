@@ -95,18 +95,7 @@ def productions():
         ingredients = IngredientArrival.query.order_by(
             IngredientArrival.arriving_date, IngredientArrival.type_id).all()
         recipes = Recipe.query.all()
-        # make random colors
-        colors = []
-        for i in range(100):
-            if i < 50:
-                red = random.randint(0, 150)
-                green = random.randint(50, 255)
-                blue = random.randint(50, 255)
-                rgba = f"rgba({red}, {green}, {blue}, 0.5)"
-                colors.append(rgba)
-            else:
-                rgba = colors[i-50].replace("0.5", "1")
-                colors.append(rgba)
+        
     context = {
         'ingredients': ingredients,
         'recipes': recipes,

@@ -274,7 +274,7 @@
                 hidden
               >
                 <option value="" disabled selected>Select a recipe</option>
-                {% for recipe in recipes %}{% if recipe.type == ptype.id %}
+                {% for recipe in recipes %}{% if recipe.product == ptype.id %}
                 <option value="{{ recipe.id }}">{{ recipe.name }}</option>
                 {% endif %}{% endfor %}</select
               >{% endfor %}

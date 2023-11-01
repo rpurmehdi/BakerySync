@@ -5,7 +5,18 @@ body {
 .navbar a {
   text-decoration: none;
 }
+.border-left-primary {
+  border-left: 0.25rem solid rgba(var(--bs-primary-rgb), var(--bs-border-opacity)) !important;
+}
 
+.border-left-success {
+  border-left: 0.25rem solid rgba(var(--bs-success-rgb), var(--bs-border-opacity)) !important;
+}
+
+.border-x-secondary{
+  border-left: 0.25rem solid rgba(var(--bs-secondary-rgb), var(--bs-border-opacity)) !important;
+  border-right: 0.25rem solid rgba(var(--bs-secondary-rgb), var(--bs-border-opacity)) !important;
+}
 
 .nav-tabs .nav-link {
   color: #fffbc7;
