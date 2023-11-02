@@ -1,7 +1,10 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import db, Source, IngredientArrival
 
+# blueprint to register in app.py
 sources_bp = Blueprint('sources', __name__, url_prefix='/sources')
+
+# route to handle show and add
 
 
 @sources_bp.route('/', methods=['GET', 'POST'])
@@ -46,6 +49,8 @@ def sources():
         sources = Source.query.all()
         return render_template('sources.html', sources=sources)
 
+# route to handle edit
+
 
 @sources_bp.route('/edit', methods=['POST'])
 def edit_source():
@@ -84,6 +89,8 @@ def edit_source():
             return redirect(url_for('sources.sources'))
     return redirect(url_for('sources.sources'))
 
+# route to handle delete
+
 
 @sources_bp.route('/delete', methods=["POST"])
 def delete_source():
@@ -115,6 +122,8 @@ def delete_source():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('sources.sources'))
     return redirect(url_for('sources.sources'))
+
+# route to handle track
 
 
 @sources_bp.route('/track/source', methods=['POST'])

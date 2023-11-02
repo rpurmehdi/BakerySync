@@ -3,6 +3,7 @@
 {% block title %} Manage Types {% endblock %}
 <!--head-->
 {%block head %}
+<!-- script to populate edit canvas based on the item selected for edit -->
 <script>
   function populateCanvasI(itypeId, itypeName) {
     // Get the canvas element
@@ -339,9 +340,7 @@
           <label for="edit-ptype-name">Product Type Name</label>
         </div>
 
-        <button name="ptype_edit" type="submit" class="btn btn-warning">
-          Edit Product Type
-        </button>
+        <button name="ptype_edit" type="submit" class="btn btn-warning">Edit Product Type</button>
       </form>
     </div>
   </div>

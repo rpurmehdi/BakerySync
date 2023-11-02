@@ -162,7 +162,7 @@
             {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse %}
             {% for ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
             ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
-            <strong>{{ production.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
+            <strong>{{ production.getu(ingredient.id)|round(1) }} Kg</strong><br />{% endfor %}
           </p>
         </td>
         <td>
@@ -258,7 +258,7 @@
                 required
               >
                 <option selected disabled value="">Select a Product</option>
-                {% for ptype in ptypes %}
+                {% for ptype in ptypes|sort(attribute='name') %}
                 <option value="{{ ptype.id }}">{{ ptype.name }}</option>
                 {% endfor %}
               </select>
@@ -274,7 +274,8 @@
                 hidden
               >
                 <option value="" disabled selected>Select a recipe</option>
-                {% for recipe in recipes %}{% if recipe.product == ptype.id %}
+                {% for recipe in recipes|sort(attribute='name') %}{% if recipe.product == ptype.id
+                %}
                 <option value="{{ recipe.id }}">{{ recipe.name }}</option>
                 {% endif %}{% endfor %}</select
               >{% endfor %}

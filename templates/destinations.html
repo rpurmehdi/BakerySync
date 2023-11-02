@@ -3,6 +3,7 @@
 {% block title %} Manage Destinations {% endblock %}
 <!--head-->
 {% block head %}
+<!-- script to populate edit canvas based on the item selected for edit -->
 <script>
   function populateCanvas(
     destinationId,
@@ -109,20 +110,20 @@
         </td>
         <td>
           <form
-          id="del-{{ destination.id }}"
-          action="{{ url_for('destinations.delete_destination') }}"
-          method="post"
-        >
-          <input type="hidden" name="id" value="{{ destination.id }}" />
-          <img
-            src="/static/icons/x-square.svg"
-            alt="delete"
-            name="destination_delete"
-            type="submit"
-            title="Delete {{ destination.name }}"
-            onclick="return confirmDelete('del-{{ destination.id }}', '{{ destination.name|escape_html }}');"
-          />
-        </form>
+            id="del-{{ destination.id }}"
+            action="{{ url_for('destinations.delete_destination') }}"
+            method="post"
+          >
+            <input type="hidden" name="id" value="{{ destination.id }}" />
+            <img
+              src="/static/icons/x-square.svg"
+              alt="delete"
+              name="destination_delete"
+              type="submit"
+              title="Delete {{ destination.name }}"
+              onclick="return confirmDelete('del-{{ destination.id }}', '{{ destination.name|escape_html }}');"
+            />
+          </form>
         </td>
       </tr>
       {% endfor %}

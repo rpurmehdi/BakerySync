@@ -9,6 +9,12 @@
   document.addEventListener("DOMContentLoaded", function () {
     $("#production_table").dataTable({
       order: [0, "dsc"],
+      columnDefs: [
+        {
+          targets: [-1],
+          orderable: false,
+        },
+      ],
     });
   });
   function tableAdjust() {

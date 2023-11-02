@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-# Bsae Models
+# Bsae Model
 
 
 class BaseModel(db.Model):
@@ -26,12 +26,12 @@ class Source(BaseModel):
     def arrtotal(self, type_id):
         total_arrival = sum(
             arrival.quantity for arrival in self.arrivals if arrival.type_id == type_id)
-        return total_arrival
+        return round(total_arrival, 1)
 
     def stktotal(self, type_id):
         total_stock = sum(
             arrival.stock for arrival in self.arrivals if arrival.type_id == type_id)
-        return total_stock
+        return round(total_stock, 1)
 
 
 class Destination(BaseModel):
@@ -47,7 +47,7 @@ class Destination(BaseModel):
     def shptotal(self, type_id):
         total_shipment = sum(
             shipment.quantity for shipment in self.shipments if shipment.production.type_id == type_id)
-        return total_shipment
+        return round(total_shipment, 1)
 
 
 recipe_ingredient_association = db.Table(
@@ -69,7 +69,7 @@ class IngredientType(BaseModel):
     @property
     def stock(self):
         total_stock = sum(arrival.stock for arrival in self.arrivals)
-        return total_stock
+        return round(total_stock, 1)
 
     @property
     def productions(self):
@@ -87,7 +87,7 @@ class IngredientType(BaseModel):
     @property
     def arrtotal(self):
         total_arrival = sum(arrival.quantity for arrival in self.arrivals)
-        return total_arrival
+        return round(total_arrival, 1)
 
 
 production_arrival_association = db.Table(
@@ -109,7 +109,7 @@ class ProductType(BaseModel):
     @property
     def stock(self):
         total_stock = sum(production.stock for production in self.productions)
-        return total_stock
+        return round(total_stock, 1)
 
     @property
     def shipments(self):
@@ -125,7 +125,7 @@ class ProductType(BaseModel):
     def prtotal(self):
         total_productions = sum(
             production.quantity for production in self.productions)
-        return total_productions
+        return round(total_productions, 1)
 
 
 class IngredientArrival(BaseModel):
@@ -146,7 +146,7 @@ class IngredientArrival(BaseModel):
         total_usage = db.session.query(db.func.sum(production_arrival_association.c.quantity)).filter(
             production_arrival_association.c.arrival_id == self.id).scalar()
         stock = self.quantity - (total_usage or 0)
-        return stock
+        return round(stock, 1)
 
 
 class Recipe(BaseModel):
@@ -169,7 +169,7 @@ class Recipe(BaseModel):
         ).first()
 
         if association:
-            return association.quantity_percent
+            return round(association.quantity_percent, 2)
         return 0
 
     @property
@@ -181,13 +181,13 @@ class Recipe(BaseModel):
     @property
     def stock(self):
         total = sum(production.stock for production in self.productions)
-        return total
+        return round(total, 1)
 
     @property
     def prtotal(self):
         total_productions = sum(
             production.quantity for production in self.productions)
-        return total_productions
+        return round(total_productions, 1)
 
 
 class Production(BaseModel):
@@ -209,7 +209,7 @@ class Production(BaseModel):
     def stock(self):
         total_shipment = sum(shipment.quantity for shipment in self.shipments)
         stock = self.quantity - total_shipment
-        return stock
+        return round(stock, 1)
 
     def getu(self, ingredient_arrival_id):
         association = db.session.query(production_arrival_association).filter(
@@ -218,13 +218,13 @@ class Production(BaseModel):
         ).first()
 
         if association:
-            return association.quantity
+            return round(association.quantity, 1)
         return 0
 
     def gets(self, ingredient_type_id):
         ing = IngredientType.query.get(ingredient_type_id)
         total = sum(self.getu(arrival.id) for arrival in ing.arrivals)
-        return total
+        return round(total, 1)
 
 
 class ProductShipment(BaseModel):

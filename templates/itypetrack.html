@@ -12,9 +12,21 @@
     });
     $("#recipe_table").dataTable({
       order: [],
+      columnDefs: [
+        {
+          targets: [-1, -2],
+          orderable: false,
+        },
+      ],
     });
     $("#production_table").dataTable({
       order: [0, "dsc"],
+      columnDefs: [
+        {
+          targets: [-1],
+          orderable: false,
+        },
+      ],
     });
   });
   function tableAdjust() {

@@ -1,7 +1,10 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import db, IngredientType, ProductType
 
+# blueprint to register in app.py
 types_bp = Blueprint('types', __name__, url_prefix='/types')
+
+# route to handle show and add
 
 
 @types_bp.route('/', methods=['GET', 'POST'])
@@ -36,6 +39,8 @@ def types():
         itypes = IngredientType.query.all()
         ptypes = ProductType.query.all()
         return render_template('types.html', itypes=itypes, ptypes=ptypes)
+
+# route to handle edit
 
 
 @types_bp.route('/edit', methods=['POST'])
@@ -94,6 +99,8 @@ def edit_type():
     else:
         return redirect(url_for('types.types'))
 
+# route to handle delete
+
 
 @types_bp.route('/delete', methods=["POST"])
 def delete_type():
@@ -101,7 +108,6 @@ def delete_type():
         try:
             if "itype_delete" in request.form:
                 id = request.form.get("itype_delete")
-                print(id)
                 type_to_delete = IngredientType.query.get(id)
                 ing = True
             elif "ptype_delete" in request.form:
@@ -147,6 +153,8 @@ def delete_type():
     else:
         return redirect(url_for('sources.sources'))
 
+# route to handle ingredient track
+
 
 @types_bp.route('/track/ingredient', methods=['POST'])
 def itrack():
@@ -161,6 +169,8 @@ def itrack():
 def track_itype(id):
     ingredient = IngredientType.query.get(id)
     return render_template('itypetrack.html', ingredient=ingredient)
+
+# route to handle product track
 
 
 @types_bp.route('/track/product', methods=['POST'])

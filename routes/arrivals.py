@@ -2,7 +2,10 @@ from flask import flash, render_template, request, Blueprint, redirect, url_for
 from datetime import datetime
 from models import db, IngredientType, IngredientArrival, Source, production_arrival_association
 
+# blueprint to register in app.py
 arrivals_bp = Blueprint('arrivals', __name__, url_prefix='/arrivals')
+
+# route to handle show and add
 
 
 @arrivals_bp.route('/', methods=['GET', 'POST'])
@@ -65,6 +68,8 @@ def arrivals():
         }
         return render_template('arrivals.html', **context)
 
+# route to handle edit
+
 
 @arrivals_bp.route('/edit', methods=['POST'])
 def edit_arrival():
@@ -120,6 +125,8 @@ def edit_arrival():
         return redirect(url_for('arrivals.arrivals'))
     return redirect(url_for('arrivals.arrivals'))
 
+# route to handle delete
+
 
 @arrivals_bp.route('/delete', methods=["POST"])
 def delete_arrival():
@@ -150,6 +157,8 @@ def delete_arrival():
             return redirect(url_for('arrivals.arrivals'))
     return redirect(url_for('arrivals.arrivals'))
 
+# route to handle track
+
 
 @arrivals_bp.route('/track/arrival', methods=['POST'])
 def track():
@@ -159,6 +168,7 @@ def track():
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('arrivals.arrivals'))
+
 
 def track_arrival(id):
     arrival = IngredientArrival.query.get(id)

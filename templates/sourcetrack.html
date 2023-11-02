@@ -2,7 +2,23 @@
 <!-- enter the page title here!-->
 {% block title %} {{ source.name }} {% endblock %}
 <!--head-->
-{%block head %} {% endblock %}
+{%block head %}
+<!-- stock_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#stock_table").dataTable({});
+    $("#arrival_table").dataTable({});
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var stable = $("#stock_table").DataTable();
+    stable.columns.adjust().draw();
+    var atable = $("#arrival_table").DataTable();
+    atable.columns.adjust().draw();
+  });
+</script>
+{% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
@@ -46,7 +62,7 @@
       aria-labelledby="nav-stock-tab"
     >
       <h5 class="mb-4">The stock of ingredients arrived from {{ source.name|lower }}:</h5>
-      <table class="table table-striped w-auto mx-auto">
+      <table id="stock_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
             <th>Ingredient Type</th>
@@ -69,7 +85,7 @@
     </div>
     <div class="tab-pane fade" id="nav-arrivals" role="tabpanel" aria-labelledby="nav-arrivals-tab">
       <h5 class="mb-4">Ingredient arrivals from {{ source.name|lower }}:</h5>
-      <table class="table table-striped w-auto mx-auto">
+      <table id="arrival_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
             <th>Ingredient Type</th>

@@ -1,8 +1,11 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import db, Destination, ProductShipment
 
+# blueprint to register in app.py
 destinations_bp = Blueprint(
     'destinations', __name__, url_prefix='/destinations')
+
+# route to handle show and add
 
 
 @destinations_bp.route('/', methods=['GET', 'POST'])
@@ -47,6 +50,8 @@ def destinations():
         destinations = Destination.query.all()
         return render_template('destinations.html', destinations=destinations)
 
+# route to handle edit
+
 
 @destinations_bp.route('/edit', methods=['POST'])
 def edit_destination():
@@ -85,6 +90,8 @@ def edit_destination():
             return redirect(url_for('destinations.destinations'))
     return redirect(url_for('destinations.destinations'))
 
+# route to handle delete
+
 
 @destinations_bp.route('/delete', methods=["POST"])
 def delete_destination():
@@ -117,6 +124,8 @@ def delete_destination():
             return redirect(url_for('destinations.destinations'))
     return redirect(url_for('destinations.destinations'))
 
+# route to handle track
+
 
 @destinations_bp.route('/track/destination', methods=['POST'])
 def track():
@@ -126,7 +135,7 @@ def track():
     except Exception as e:
         flash(f'Database error: {str(e)}', 'danger')
         return redirect(url_for('destinations.destinations'))
-        
+
 
 def track_destination(id):
     destination = Destination.query.get(id)

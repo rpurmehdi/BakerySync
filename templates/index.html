@@ -154,7 +154,7 @@
   function createChart(chartId, data, title, text, chartColor) {
 
     // Set the dimensions and margins of the graph
-    const margin = { top: 25, right: 5, bottom: 50, left: 35 },
+    const margin = { top: 25, right: 5, bottom: 70, left: 35 },
       width = 430 - margin.left - margin.right,
       height = 320 - margin.top - margin.bottom;
 
@@ -195,7 +195,7 @@
       .attr("transform", `translate(0, ${height})`)
       .call(d3.axisBottom(x))
       .selectAll("text")
-      .attr("transform", "translate(-2,0)rotate(-20)")
+      .attr("transform", "translate(-4,0)rotate(-45)")
       .style("text-anchor", "end");
 
     // Bars
@@ -214,7 +214,7 @@
       .join("text")
       .attr("x", (d) => x(d[0]) + x.bandwidth() / 2)
       .attr("y", (d) => y(d[1]) - 10) // Adjust the vertical position of the text
-      .text((d) => text ? `${d[1]} Kg` : "")
+      .text((d) => text ? `${d[1]}` : "")
       .attr("text-anchor", "middle")
       .style("fill", "black")
       .style("font-size", "11px");
@@ -236,12 +236,12 @@
   const productionsData = {{ monthproductions| safe }};
   const productionsumData = {{ productionsum| safe }};
 
-  createChart("#itype_chart", ingredientsData, "Current Ingredients Stock", true, "#ffc107");
-  createChart("#ptype_chart", productsData, "Current Products Stock", true, "#2653d4");
-  createChart("#productionsum_chart", productionsumData, "Productions of {{ month|safe }} {{ year|safe }}", true, "#6610f2");
-  createChart("#arrival_chart", arrivalsData, "Arrivals of {{ month|safe }} {{ year|safe }}", true, "#fd7e14");
-  createChart("#shipment_chart", shipmentsData, "Shipments of {{ month|safe }} {{ year|safe }}", true, "#198754");
-  createChart("#production_chart", productionsData, "Production quantity of {{ month|safe }} {{ year|safe }}", false, "#4e73df");
+  createChart("#itype_chart", ingredientsData, "Current Ingredients Stock (Kg)", true, "#ffc107");
+  createChart("#ptype_chart", productsData, "Current Products Stock (Kg)", true, "#2653d4");
+  createChart("#productionsum_chart", productionsumData, "Productions of {{ month|safe }} {{ year|safe }} (Kg)", true, "#6610f2");
+  createChart("#arrival_chart", arrivalsData, "Arrivals of {{ month|safe }} {{ year|safe }} (Kg)", true, "#fd7e14");
+  createChart("#shipment_chart", shipmentsData, "Shipments of {{ month|safe }} {{ year|safe }} (Kg)", true, "#198754");
+  createChart("#production_chart", productionsData, "Production quantity of {{ month|safe }} {{ year|safe }} (Kg)", false, "#4e73df");
 </script>
 
 

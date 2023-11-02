@@ -5,15 +5,20 @@ from difflib import get_close_matches
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import *
 
+# blueprint to register in app.py
 index_bp = Blueprint("index", __name__, url_prefix="")
+
+# route to handle dashboard and track
 
 
 @index_bp.route("/", methods=["GET", "POST"])
 def index():
     # Dashboard
     if request.method == "GET":
-        current_year = int(request.args.get("year", datetime.datetime.now().year))
-        current_month = int(request.args.get("month", datetime.datetime.now().month))
+        current_year = int(request.args.get(
+            "year", datetime.datetime.now().year))
+        current_month = int(request.args.get(
+            "month", datetime.datetime.now().month))
         current_month_name = datetime.date(current_year, current_month, 1).strftime(
             "%B"
         )
@@ -126,8 +131,10 @@ def index():
             IngredientArrival.arriving_date
         ).all()
         recipes = Recipe.query.all()
-        productions = Production.query.order_by(Production.production_time).all()
-        shipments = ProductShipment.query.order_by(ProductShipment.shipping_date).all()
+        productions = Production.query.order_by(
+            Production.production_time).all()
+        shipments = ProductShipment.query.order_by(
+            ProductShipment.shipping_date).all()
         for itype in itypes:
             trackable = {
                 "type": url_for("types.itrack"),

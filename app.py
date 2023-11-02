@@ -11,19 +11,22 @@ from routes.productions import productions_bp
 from routes.recipes import recipes_bp
 app = Flask(__name__)
 
+# path to database file
 path = os.path.dirname(os.path.abspath(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(path, 'bakerysync.db')
+
+# secret key
 app.secret_key = 'very_secret_key'
 
+# initiate the app
 db.init_app(app)
 
+# create database and tables if not created
 with app.app_context():
     db.create_all()
 
-
-def create_tables():
-    db.create_all()
+# set HTTP response headers that prevent caching
 
 
 @app.after_request
@@ -33,6 +36,8 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
+
+# escape HTML entities for java script
 
 
 @app.template_filter('escape_html')
@@ -45,10 +50,14 @@ def escape_html_filter(s):
             result += c
     return result
 
+# sort ingredients based on recipe.getp
+
 
 @app.template_filter('sortgetp')
 def sortgetp(ingredients, recipe):
     return sorted(ingredients, key=lambda x: recipe.getp(x.id))
+
+# sort ingredients based on production.getu
 
 
 @app.template_filter('sortgetu')

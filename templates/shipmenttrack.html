@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ shipment.production.type.name }} - {{ shipment.destination.name }} {% endblock %}
+{% block title %} {{ shipment.production.type.name }} - {{ shipment.destination.name }} {% endblock
+%}
 <!--head-->
 {%block head %} {% endblock %}
 <!--body-->
@@ -23,7 +24,6 @@
         role="tab"
         aria-controls="nav-sources"
         aria-selected="true"
-
       >
         Destination
       </button>
@@ -43,7 +43,12 @@
     </div>
   </nav>
   <div class="tab-content" id="nav-tabContent">
-    <div class="tab-pane fade active show" id="nav-sources" role="tabpanel" aria-labelledby="nav-sources-tab">
+    <div
+      class="tab-pane fade active show"
+      id="nav-sources"
+      role="tabpanel"
+      aria-labelledby="nav-sources-tab"
+    >
       <h5 class="mb-4">
         Destination of {{ shipment.production.type.name|lower }} on {{
         shipment.shipping_date.strftime('%Y-%m-%d') }}:
@@ -78,36 +83,39 @@
       role="tabpanel"
       aria-labelledby="nav-productions-tab"
     >
-      <h5 class="mb-4">Production of {{ shipment.production.type.name|lower }} shipped to {{
-        shipment.destination.name|lower }} on {{ shipment.shipping_date.strftime('%Y-%m-%d') }}:</h5>
-        <table class="table table-striped w-auto mx-auto">
-          <thead>
-            <tr>
-              <th>Batch</th>
-              <th>Quantity (Kg)</th>
-              <th>Production Time</th>
-              <th>Recipe</th>
-              <th>Ingredient Usages</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{{ shipment.production.print_batch }}</td>
-              <td>{{ shipment.production.quantity }}</td>
-              <td>{{ shipment.production.production_time }}</td>
-              <td>{{ shipment.production.recipe.name }}</td>
-              <td>
-                <p class="m-0 text-end">
-                  {% set sorted_ingredients = shipment.production.ingredients|list|sortgetu(shipment.production)|reverse %}
-                  {% for ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
-                  ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
-                  <strong>{{ shipment.production.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
-                </p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <h5 class="mb-4">
+        Production of {{ shipment.production.type.name|lower }} shipped to {{
+        shipment.destination.name|lower }} on {{ shipment.shipping_date.strftime('%Y-%m-%d') }}:
+      </h5>
+      <table class="table table-striped w-auto mx-auto">
+        <thead>
+          <tr>
+            <th>Batch</th>
+            <th>Quantity (Kg)</th>
+            <th>Production Time</th>
+            <th>Recipe</th>
+            <th>Ingredient Usages</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ shipment.production.print_batch }}</td>
+            <td>{{ shipment.production.quantity }}</td>
+            <td>{{ shipment.production.production_time }}</td>
+            <td>{{ shipment.production.recipe.name }}</td>
+            <td>
+              <p class="m-0 text-end">
+                {% set sorted_ingredients =
+                shipment.production.ingredients|list|sortgetu(shipment.production)|reverse %} {% for
+                ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
+                ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+                <strong>{{ shipment.production.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

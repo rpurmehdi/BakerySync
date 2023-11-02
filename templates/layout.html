@@ -17,6 +17,7 @@
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
+    <!-- jquery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,6 +56,7 @@
     <title>BakerySync: {% block title %}{% endblock %}</title>
   </head>
   <body>
+    <!-- navbar -->
     <nav class="navbar navbar-expand-lg sticky-top bg-warning-subtle shadow">
       <div class="container-fluid">
         <img
@@ -141,6 +143,7 @@
               </ul>
             </li>
           </ul>
+          <!-- track search input form -->
           <form class="form-inline" action="{{ url_for('index.index') }}" method="post">
             <div class="row g-3 align-items-center">
               <div class="col-auto">
@@ -168,7 +171,7 @@
         </div>
       </div>
     </nav>
-
+    <!-- handle flash messages if exist -->
     {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for
     category, message in messages %}
     <div
@@ -180,7 +183,7 @@
     </div>
     {% endfor %}
     <script>
-      // Automatically close alerts after 10 seconds
+      //Script to automatically close alerts after 10 seconds
       document.addEventListener("DOMContentLoaded", function () {
         const alerts = document.querySelectorAll(".alert");
 

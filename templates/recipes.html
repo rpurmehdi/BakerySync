@@ -73,7 +73,7 @@
       order: [],
       columnDefs: [
         {
-          targets: [-1, -2, -3],
+          targets: [-1, -2, -3, -4],
           orderable: false,
         },
       ],
@@ -103,7 +103,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for recipe in recipes|reverse %}
+      {% for recipe in recipes %}
       <tr>
         <td>{{ recipe.name }}</td>
         <td>{{ recipe.type.name }}</td>
@@ -191,7 +191,7 @@
             <div class="form-floating">
               <select class="form-select" id="product" name="product" required>
                 <option selected disabled value="">Select a product</option>
-                {% for ptype in ptypes %}
+                {% for ptype in ptypes|sort(attribute='name') %}
                 <option value="{{ ptype.id }}">{{ ptype.name }}</option>
                 {% endfor %}
               </select>
@@ -214,7 +214,7 @@
         </div>
         <div class="text-start" id="checkboxContainer">
           <h6>Choose ingredientds to enter percent:</h6>
-          {% for itype in itypes %}
+          {% for itype in itypes|sort(attribute='name') %}
           <div class="form-check form-check-inline">
             <input
               class="form-check-input"
@@ -228,7 +228,7 @@
           {% endfor %}
         </div>
         <div class="row justify-content-md-center my-2">
-          {% for itype in itypes %}
+          {% for itype in itypes|sort(attribute='name') %}
           <div id="div-{{ itype.id }}" class="form-floating d-none">
             <input
               class="form-control form-control-sm percent-input"

@@ -1,9 +1,12 @@
-import random
+from decimal import Decimal
 from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
 from models import db, Production, IngredientArrival, ProductShipment, production_arrival_association, Recipe, ProductType, IngredientType
 
+# blueprint to register in app.py
 productions_bp = Blueprint('productions', __name__, url_prefix='/productions')
+
+# route to handle show and add
 
 
 @productions_bp.route('/', methods=['GET', 'POST'])
@@ -73,8 +76,8 @@ def productions():
                             ing_quant = 0
                         elif arr_stock > 0:
                             insertions.append(production_arrival_association.insert().values(
-                                production_id=new_production.id, arrival_id=arrival.id, quantity=arr_stock))
-                            ing_quant = ing_quant - arr_stock
+                                production_id=new_production.id, arrival_id=arrival.id, quantity=Decimal(arr_stock)))
+                            ing_quant = Decimal(ing_quant - arr_stock)
             for insertion in insertions:
                 db.session.execute(insertion)
             db.session.commit()
@@ -95,7 +98,7 @@ def productions():
         ingredients = IngredientArrival.query.order_by(
             IngredientArrival.arriving_date, IngredientArrival.type_id).all()
         recipes = Recipe.query.all()
-        
+
     context = {
         'ingredients': ingredients,
         'recipes': recipes,
@@ -104,6 +107,8 @@ def productions():
         'rtypes': rtypes,
     }
     return render_template('productions.html', **context)
+
+# route to handle delete
 
 
 @productions_bp.route('/delete', methods=["POST"])
@@ -138,6 +143,8 @@ def delete_production():
             return redirect(url_for('productions.productions'))
     return redirect(url_for('productions.productions'))
 
+# route to handle recipe search based on production
+
 
 @productions_bp.route('/search', methods=['POST'])
 def search():
@@ -167,6 +174,8 @@ def search():
     }
 
     return jsonify(response)
+
+# route to handle track
 
 
 @productions_bp.route('/track/production', methods=['POST'])

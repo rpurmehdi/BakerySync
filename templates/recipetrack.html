@@ -9,6 +9,12 @@
   document.addEventListener("DOMContentLoaded", function () {
     $("#production_table").dataTable({
       order: [0, "dsc"],
+      columnDefs: [
+        {
+          targets: [-1],
+          orderable: false,
+        },
+      ],
     });
     $("#shipment_table").dataTable({
       order: [0, "dsc"],
@@ -134,8 +140,7 @@
       aria-labelledby="nav-productions-tab"
     >
       <h5 class="mb-4">
-        List of {{recipe.type.name|lower}} production instances with {{ recipe.name|lower }}
-        recipe:
+        List of {{recipe.type.name|lower}} production instances with {{ recipe.name|lower }} recipe:
       </h5>
       <table id="production_table" class="table table-striped w-auto mx-auto">
         <thead>
@@ -143,7 +148,7 @@
             <th>Production Time</th>
             <th>Batch</th>
             <th>Production Quantity (Kg)</th>
-            <th>Ingredient Usages (Kg)</th>
+            <th>Ingredient Usages</th>
           </tr>
         </thead>
         <tbody>

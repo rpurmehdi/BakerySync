@@ -3,17 +3,20 @@
 {% block title %} {{ destination.name }} {% endblock %}
 <!--head-->
 {%block head %}
-<!-- shipment_table search and sort from datatables.net -->
+<!-- shipment_table and quantity_table search and sort from datatables.net -->
 <script>
   // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#shipment_table").dataTable({
       order: [0, "dsc"],
     });
+    $("#quantity_table").dataTable();
   });
   function tableAdjust() {
-    var table = $("#shipment_table").DataTable();
-    table.columns.adjust().draw();
+    var stable = $("#shipment_table").DataTable();
+    stable.columns.adjust().draw();
+    var qtable = $("#quantity_table").DataTable();
+    qtable.columns.adjust().draw();
   }
 
   // An event listener to re-adjust column width on window resize
@@ -64,7 +67,7 @@
       aria-labelledby="nav-stock-tab"
     >
       <h5 class="mb-4">The quantity of products shipped to {{ destination.name|lower }}:</h5>
-      <table class="table table-striped w-auto mx-auto">
+      <table id="quantity_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
             <th>Product</th>

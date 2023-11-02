@@ -1,7 +1,10 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from models import db, recipe_ingredient_association, Recipe, ProductType, IngredientType, Production
 
+# blueprint to register in app.py
 recipes_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
+
+# route to handle show and add
 
 
 @recipes_bp.route('/', methods=['GET', 'POST'])
@@ -93,6 +96,8 @@ def recipes():
 
     return render_template('recipes.html', **context)
 
+# route to handle delete
+
 
 @recipes_bp.route('/delete', methods=["POST"])
 def delete_recipe():
@@ -125,6 +130,8 @@ def delete_recipe():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('recipes.recipes'))
     return redirect(url_for('recipes.recipes'))
+
+# route to handle track
 
 
 @recipes_bp.route('/track/recipe', methods=['POST'])
