@@ -4,6 +4,33 @@
 <!--head-->
 {% block head %}
 <script>
+  // script to query production.stock for a certain batch number
+  function stockSearch(selectedValue) {
+    $.ajax({
+      type: "POST",
+      url: "{{ url_for('shipments.search') }}",
+      data: JSON.stringify({ data: selectedValue }),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function (response) {
+        // Clear existing inputs and messages
+        $("#message").empty();
+        const stock = response.stock.toFixed(1);
+        const text = "stock: " + stock + " Kgs";
+        $("#message").append(text);
+
+        // Update the max attribute of the quantity input
+        const quantityInput = document.getElementById("quantity");
+        quantityInput.max = stock;
+      },
+      error: function (err) {
+        $("#message").text("Error: " + err.responseText);
+      },
+    });
+  }
+</script>
+<!-- script to populate edit canvas based on the item selected for edit -->
+<script>
   function populateCanvas(shipmentId, productionId, productionId, shippingDate, quantity) {
     // Get the canvas element
     const editCanvas = document.getElementById("EditCanvas");
@@ -143,7 +170,13 @@
         <div class="row">
           <div class="col-auto">
             <div class="form-floating">
-              <select class="form-select" id="production_id" name="production_id" required>
+              <select
+                class="form-select"
+                id="production_id"
+                name="production_id"
+                onchange="stockSearch(this.value);"
+                required
+              >
                 <option selected disabled value="">Select a production</option>
                 {% for production in productions|sort(attribute='production_time') %} {% if
                 production.stock > 0 %}
@@ -154,6 +187,7 @@
               </select>
               <label for="production_id">Production</label>
             </div>
+            <div id="message" class="form-text text-danger"></div>
           </div>
         </div>
         <div class="row mt-4">

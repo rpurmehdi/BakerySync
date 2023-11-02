@@ -1,8 +1,11 @@
-from flask import flash, render_template, request, Blueprint, redirect, url_for
+from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
 from models import db, ProductShipment, Destination, Production
 
+# blueprint to register in app.py
 shipments_bp = Blueprint('shipments', __name__, url_prefix='/shipments')
+
+# route to handle show and add
 
 
 @shipments_bp.route('/', methods=['GET', 'POST'])
@@ -70,6 +73,8 @@ def shipments():
         }
         return render_template('shipments.html', **context)
 
+# route to handle edit
+
 
 @shipments_bp.route('/edit', methods=['POST'])
 def edit_shipment():
@@ -129,6 +134,8 @@ def edit_shipment():
     else:
         return redirect(url_for('shipments.shipments'))
 
+# route to handle delete
+
 
 @shipments_bp.route('/delete', methods=["POST"])
 def delete_shipment():
@@ -154,6 +161,25 @@ def delete_shipment():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('shipments.shipments'))
     return redirect(url_for('shipments.shipments'))
+
+# route to handle search for production.stock based on production.id
+
+
+@shipments_bp.route('/search', methods=['POST'])
+def search():
+    data = request.get_json()
+    if 'data' not in data:
+        return jsonify({'error': 'Production batch not provided'}), 400
+
+    production = Production.query.get(data['data'])
+    if production is None:
+        return jsonify({'error': 'Production not found'}), 404
+    stock = production.stock
+    response = {
+        'stock': stock
+    }
+
+    return jsonify(response)
 
 
 @shipments_bp.route('/track/shipment', methods=['POST'])
