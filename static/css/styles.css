@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'Dosis';
+  /* from https://fonts.google.com/specimen/Dosis?query=dosi */
+  src: url('/static/Dosis-VariableFont_wght.ttf') format('truetype');
+}
+
 body {
   font-family: "Dosis", sans-serif;
 }
@@ -5,6 +11,7 @@ body {
 .navbar a {
   text-decoration: none;
 }
+
 .border-left-primary {
   border-left: 0.25rem solid rgba(var(--bs-primary-rgb), var(--bs-border-opacity)) !important;
 }
@@ -13,7 +20,7 @@ body {
   border-left: 0.25rem solid rgba(var(--bs-success-rgb), var(--bs-border-opacity)) !important;
 }
 
-.border-x-secondary{
+.border-x-secondary {
   border-left: 0.25rem solid rgba(var(--bs-secondary-rgb), var(--bs-border-opacity)) !important;
   border-right: 0.25rem solid rgba(var(--bs-secondary-rgb), var(--bs-border-opacity)) !important;
 }
