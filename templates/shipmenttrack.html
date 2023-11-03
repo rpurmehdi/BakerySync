@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ shipment.production.type.name }} - {{ shipment.destination.name }} {% endblock
+{% block title %} {{ shipment.production.type.name }} - {{ shipment.customer.name }} {% endblock
 %}
 <!--head-->
 {%block head %} {% endblock %}
@@ -10,22 +10,22 @@
   <nav>
     <div class="mt-3">
       <h5 style="color: #c74b00">
-        {{ shipment.production.type.name }} to {{ shipment.destination.name }} on {{
+        {{ shipment.production.type.name }} to {{ shipment.customer.name }} on {{
         shipment.shipping_date.strftime('%Y-%m-%d') }}
       </h5>
     </div>
     <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
       <button
         class="nav-link active"
-        id="nav-sources-tab"
+        id="nav-suppliers-tab"
         data-bs-toggle="tab"
-        data-bs-target="#nav-sources"
+        data-bs-target="#nav-suppliers"
         type="button"
         role="tab"
-        aria-controls="nav-sources"
+        aria-controls="nav-suppliers"
         aria-selected="true"
       >
-        Destination
+        Customer
       </button>
       <button
         class="nav-link"
@@ -45,18 +45,18 @@
   <div class="tab-content" id="nav-tabContent">
     <div
       class="tab-pane fade active show"
-      id="nav-sources"
+      id="nav-suppliers"
       role="tabpanel"
-      aria-labelledby="nav-sources-tab"
+      aria-labelledby="nav-suppliers-tab"
     >
       <h5 class="mb-4">
-        Destination of {{ shipment.production.type.name|lower }} on {{
+        Customer of {{ shipment.production.type.name|lower }} on {{
         shipment.shipping_date.strftime('%Y-%m-%d') }}:
       </h5>
       <table class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
-            <th>Destination</th>
+            <th>Customer</th>
             <th>Contact</th>
             <th>Type</th>
             <th>Location</th>
@@ -65,14 +65,14 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ shipment.destination.name }}</td>
+            <td>{{ shipment.customer.name }}</td>
             <td>
-              {{ shipment.destination.contact_person }}: {{ shipment.destination.contact_information
+              {{ shipment.customer.contact_person }}: {{ shipment.customer.contact_information
               }}
             </td>
-            <td>{{ shipment.destination.type }}</td>
-            <td>{{ shipment.destination.location }}</td>
-            <td>{{ shipment.destination.description }}</td>
+            <td>{{ shipment.customer.type }}</td>
+            <td>{{ shipment.customer.location }}</td>
+            <td>{{ shipment.customer.description }}</td>
           </tr>
         </tbody>
       </table>
@@ -85,7 +85,7 @@
     >
       <h5 class="mb-4">
         Production of {{ shipment.production.type.name|lower }} shipped to {{
-        shipment.destination.name|lower }} on {{ shipment.shipping_date.strftime('%Y-%m-%d') }}:
+        shipment.customer.name|lower }} on {{ shipment.shipping_date.strftime('%Y-%m-%d') }}:
       </h5>
       <table class="table table-striped w-auto mx-auto">
         <thead>
@@ -109,7 +109,7 @@
                 {% set sorted_ingredients =
                 shipment.production.ingredients|list|sortgetu(shipment.production)|reverse %} {% for
                 ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
-                ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+                ingredient.supplier.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
                 <strong>{{ shipment.production.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
               </p>
             </td>

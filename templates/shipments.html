@@ -38,7 +38,7 @@
     // Populate the canvas form fields
     editCanvas.querySelector("#edit-shipment-id").value = shipmentId;
     editCanvas.querySelector("#edit-production_id").value = productionId;
-    editCanvas.querySelector("#edit-destination_id").value = productionId;
+    editCanvas.querySelector("#edit-customer_id").value = productionId;
     editCanvas.querySelector("#edit-shipping_date").value = shippingDate;
     editCanvas.querySelector("#edit-quantity").value = quantity;
   }
@@ -73,7 +73,7 @@
     <thead>
       <tr>
         <th>Shipping Date</th>
-        <th>Destination</th>
+        <th>Customer</th>
         <th>Product</th>
         <th>Quantity (Kg)</th>
         <th></th>
@@ -85,7 +85,7 @@
       {% for shipment in shipments %}
       <tr>
         <td>{{ shipment.shipping_date.strftime('%Y-%m-%d') }}</td>
-        <td>{{ shipment.destination.name }}</td>
+        <td>{{ shipment.customer.name }}</td>
         <td>{{ shipment.production.type.name }} : {{ shipment.production.print_batch }}</td>
         <td>{{ shipment.quantity }}</td>
         <td>
@@ -114,7 +114,7 @@
             onclick="populateCanvas(
               '{{ shipment.id }}',
               '{{ shipment.production.id }}',
-              '{{ shipment.destination_id }}',
+              '{{ shipment.customer_id }}',
               '{{ shipment.shipping_date }}',
               '{{ shipment.quantity }}'
             );"
@@ -130,10 +130,10 @@
             <img
               src="/static/icons/x-square.svg"
               alt="delete"
-              name="source_delete"
+              name="shipment_delete"
               type="submit"
               title="Delete this {{ shipment.production.type.name }} shipment"
-              onclick="return confirmDelete('del-{{ shipment.id }}', '{{ shipment.production.type.name|escape_html }} to {{ shipment.destination.name|escape_html }}');"
+              onclick="return confirmDelete('del-{{ shipment.id }}', '{{ shipment.production.type.name|escape_html }} to {{ shipment.customer.name|escape_html }}');"
             />
           </form>
         </td>
@@ -193,15 +193,15 @@
         <div class="row mt-4">
           <div class="col-auto">
             <div class="form-floating">
-              <select class="form-select" id="destination_id" name="destination_id" required>
-                <option selected disabled value="">Select a destination</option>
-                {% for destination in destinations %}
-                <option value="{{ destination.id }}">
-                  {{ destination.name }} ({{ destination.type }})
+              <select class="form-select" id="customer_id" name="customer_id" required>
+                <option selected disabled value="">Select a customer</option>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}">
+                  {{ customer.name }} ({{ customer.type }})
                 </option>
                 {% endfor %}
               </select>
-              <label for="destination_id">Destination</label>
+              <label for="customer_id">Customer</label>
             </div>
           </div>
         </div>
@@ -272,14 +272,14 @@
         <div class="row mt-4">
           <div class="col-auto">
             <div class="form-floating">
-              <select class="form-select" id="edit-destination_id" name="destination_id" required>
-                {% for destination in destinations %}
-                <option value="{{ destination.id }}">
-                  {{ destination.name }} ({{ destination.type }})
+              <select class="form-select" id="edit-customer_id" name="customer_id" required>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}">
+                  {{ customer.name }} ({{ customer.type }})
                 </option>
                 {% endfor %}
               </select>
-              <label for="edit-destination_id">Destination</label>
+              <label for="edit-customer_id">Customer</label>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} {{ source.name }} {% endblock %}
+{% block title %} {{ supplier.name }} {% endblock %}
 <!--head-->
 {%block head %}
 <!-- stock_table search and sort from datatables.net -->
@@ -24,7 +24,7 @@
 <div class="container mx-auto text-center">
   <nav>
     <div class="mt-3">
-      <h5 style="color: #c74b00">{{ source.name }}</h5>
+      <h5 style="color: #c74b00">{{ supplier.name }}</h5>
     </div>
     <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
       <button
@@ -61,7 +61,7 @@
       role="tabpanel"
       aria-labelledby="nav-stock-tab"
     >
-      <h5 class="mb-4">The stock of ingredients arrived from {{ source.name|lower }}:</h5>
+      <h5 class="mb-4">The stock of ingredients arrived from {{ supplier.name|lower }}:</h5>
       <table id="stock_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
@@ -75,16 +75,16 @@
           {% for type in arrived_types %}
           <tr>
             <td>{{ type.name }}</td>
-            <td>{{ source.arrtotal(type.id)|round(1) }}</td>
-            <td>{{ (source.arrtotal(type.id)-source.stktotal(type.id))|round(1) }}</td>
-            <td>{{ source.stktotal(type.id)|round(1) }}</td>
+            <td>{{ supplier.arrtotal(type.id)|round(1) }}</td>
+            <td>{{ (supplier.arrtotal(type.id)-supplier.stktotal(type.id))|round(1) }}</td>
+            <td>{{ supplier.stktotal(type.id)|round(1) }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     <div class="tab-pane fade" id="nav-arrivals" role="tabpanel" aria-labelledby="nav-arrivals-tab">
-      <h5 class="mb-4">Ingredient arrivals from {{ source.name|lower }}:</h5>
+      <h5 class="mb-4">Ingredient arrivals from {{ supplier.name|lower }}:</h5>
       <table id="arrival_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
@@ -94,7 +94,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for arrival in source.arrivals|sort(attribute='arriving_date') %}
+          {% for arrival in supplier.arrivals|sort(attribute='arriving_date') %}
           <tr>
             <td>{{ arrival.type.name }}</td>
             <td>{{ arrival.arriving_date.strftime('%Y-%m-%d') }}</td>

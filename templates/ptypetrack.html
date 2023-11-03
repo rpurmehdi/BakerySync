@@ -130,7 +130,7 @@
         <thead>
           <tr>
             <th>Shipping Date</th>
-            <th>Destination</th>
+            <th>Customer</th>
             <th>Batch</th>
             <th>Quantity (Kg)</th>
           </tr>
@@ -139,7 +139,7 @@
           {% for shipment in product.shipments %}
           <tr>
             <td>{{ shipment.shipping_date.strftime('%Y-%m-%d') }}</td>
-            <td>{{ shipment.destination.name }}</td>
+            <td>{{ shipment.customer.name }}</td>
             <td>{{ shipment.production.print_batch }}</td>
             <td>{{ shipment.quantity }}</td>
           </tr>
@@ -201,7 +201,7 @@
               <p class="m-0 text-end">
                 {% set sorted_ingredients = item.ingredients|list|sortgetu(item)|reverse %} {% for
                 ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
-                ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+                ingredient.supplier.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
                 <strong>{{ item.getu(ingredient.id) }} Kg</strong><br />{% endfor %}
               </p>
             </td>

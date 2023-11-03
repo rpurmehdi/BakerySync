@@ -161,7 +161,7 @@
           <p class="m-0 text-end">
             {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse %}
             {% for ingredient in sorted_ingredients %} {{ ingredient.type.name }}-{{
-            ingredient.source.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
+            ingredient.supplier.name }} ({{ ingredient.arriving_date.strftime('%y-%m-%d') }}):
             <strong>{{ production.getu(ingredient.id)|round(1) }} Kg</strong><br />{% endfor %}
           </p>
         </td>

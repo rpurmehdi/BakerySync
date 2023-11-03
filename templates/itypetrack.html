@@ -126,7 +126,7 @@
         <thead>
           <tr>
             <th>Arriving Date</th>
-            <th>Source</th>
+            <th>Supplier</th>
             <th>Quantity (Kg)</th>
           </tr>
         </thead>
@@ -134,7 +134,7 @@
           {% for arrival in ingredient.arrivals %}
           <tr>
             <td>{{ arrival.arriving_date.strftime('%Y-%m-%d') }}</td>
-            <td>{{ arrival.source.name }}</td>
+            <td>{{ arrival.supplier.name }}</td>
             <td>{{ arrival.quantity }}</td>
           </tr>
           {% endfor %}
@@ -204,7 +204,7 @@
             <td>
               <p class="m-0 text-end">
                 {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse
-                %} {% for item in sorted_ingredients %} {{ item.type.name }}-{{ item.source.name }}
+                %} {% for item in sorted_ingredients %} {{ item.type.name }}-{{ item.supplier.name }}
                 ({{ item.arriving_date.strftime('%y-%m-%d') }}):
                 <strong>{{ production.getu(item.id) }} Kg</strong><br />{% endfor %}
               </p>

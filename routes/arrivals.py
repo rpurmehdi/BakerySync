@@ -1,6 +1,6 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for
 from datetime import datetime
-from models import db, IngredientType, IngredientArrival, Source, production_arrival_association
+from models import db, IngredientType, IngredientArrival, Supplier, production_arrival_association
 
 # blueprint to register in app.py
 arrivals_bp = Blueprint('arrivals', __name__, url_prefix='/arrivals')
@@ -13,15 +13,15 @@ def arrivals():
     if request.method == 'POST':
         # Get data from the form
         type_id = request.form['type_id']
-        source_id = request.form['source_id']
+        supplier_id = request.form['supplier_id']
         arriving_date_str = request.form['arriving_date']
         quantity_str = request.form['quantity']
         # validate form data
         type = IngredientType.query.filter_by(
             id=type_id).first()
-        source = Source.query.filter_by(
-            id=source_id).first()
-        if type and source:
+        supplier = Supplier.query.filter_by(
+            id=supplier_id).first()
+        if type and supplier:
             try:
                 arriving_date = datetime.fromisoformat(arriving_date_str)
                 quantity = float(quantity_str)
@@ -32,7 +32,7 @@ def arrivals():
                 flash(f'Error: {str(e)}', 'warning')
                 return redirect(url_for('arrivals.arrivals'))
         else:
-            flash('Invalid type or source', 'warning')
+            flash('Invalid type or supplier', 'warning')
             return redirect(url_for('arrivals.arrivals'))
         if quantity == 0 or quantity < (-1 * type.stock):
             flash('Quantity is invalid', 'warning')
@@ -40,7 +40,7 @@ def arrivals():
         # Create a new arrival object and add it to the database
         new_arrival = IngredientArrival(
             type_id=type_id,
-            source_id=source_id,
+            supplier_id=supplier_id,
             arriving_date=arriving_date,
             quantity=quantity
         )
@@ -57,14 +57,14 @@ def arrivals():
             return redirect(url_for('arrivals.arrivals'))
 
     else:
-        # Retrieve all arrivals, itypes and sources from the database
+        # Retrieve all arrivals, itypes and suppliers from the database
         arrivals = IngredientArrival.query.all()
         itypes = IngredientType.query.order_by(IngredientType.name).all()
-        sources = Source.query.order_by(Source.name).all()
+        suppliers = Supplier.query.order_by(Supplier.name).all()
         context = {
             'arrivals': arrivals,
             'itypes': itypes,
-            'sources': sources
+            'suppliers': suppliers
         }
         return render_template('arrivals.html', **context)
 
@@ -77,17 +77,17 @@ def edit_arrival():
         # Get the data from the form
         id = request.form.get('id')
         type_id = request.form.get('type_id')
-        source_id = request.form.get('source_id')
+        supplier_id = request.form.get('supplier_id')
         arriving_date_str = request.form.get('arriving_date')
         quantity_str = request.form.get('quantity')
         # validate form data
         type = IngredientType.query.filter_by(
             id=type_id).first()
-        source = Source.query.filter_by(
-            id=source_id).first()
-        if type and source:
+        supplier = Supplier.query.filter_by(
+            id=supplier_id).first()
+        if type and supplier:
             try:
-                # Fetch the source to edit from the database
+                # Fetch the supplier to edit from the database
                 arrival_to_edit = IngredientArrival.query.get(id)
                 arriving_date = datetime.fromisoformat(arriving_date_str)
                 quantity = float(quantity_str)
@@ -98,7 +98,7 @@ def edit_arrival():
                 flash(f'Error: {str(e)}', 'warning')
                 return redirect(url_for('arrivals.arrivals'))
         else:
-            flash('Invalid type or source', 'warning')
+            flash('Invalid type or supplier', 'warning')
             return redirect(url_for('arrivals.arrivals'))
         if arrival_to_edit:
             is_referenced = db.session.query(
@@ -108,10 +108,10 @@ def edit_arrival():
                     f'This {arrival_to_edit.type.name} is used in database, cannot edit', 'danger')
             else:
                 try:
-                    # Update the source with the new data
+                    # Update the supplier with the new data
                     arrival_to_edit.id = id
                     arrival_to_edit.type_id = type_id
-                    arrival_to_edit.source_id = source_id
+                    arrival_to_edit.supplier_id = supplier_id
                     arrival_to_edit.arriving_date = arriving_date
                     arrival_to_edit.quantity = quantity
                     # Commit the changes to the database

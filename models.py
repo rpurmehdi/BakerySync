@@ -13,7 +13,7 @@ class BaseModel(db.Model):
 # classes for all tables
 
 
-class Source(BaseModel):
+class Supplier(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
     contact_person = db.Column(db.String(255))
     contact_information = db.Column(db.String(255))
@@ -21,7 +21,7 @@ class Source(BaseModel):
     location = db.Column(db.String(255))
     description = db.Column(db.String(255))
 
-    arrivals = db.relationship('IngredientArrival', backref='source')
+    arrivals = db.relationship('IngredientArrival', backref='supplier')
 
     def arrtotal(self, type_id):
         total_arrival = sum(
@@ -34,7 +34,7 @@ class Source(BaseModel):
         return round(total_stock, 1)
 
 
-class Destination(BaseModel):
+class Customer(BaseModel):
     name = db.Column(db.String(255), unique=True, nullable=False)
     contact_person = db.Column(db.String(255))
     contact_information = db.Column(db.String(255))
@@ -42,7 +42,7 @@ class Destination(BaseModel):
     location = db.Column(db.String(255))
     description = db.Column(db.String(255))
 
-    shipments = db.relationship('ProductShipment', backref='destination')
+    shipments = db.relationship('ProductShipment', backref='customer')
 
     def shptotal(self, type_id):
         total_shipment = sum(
@@ -131,7 +131,7 @@ class ProductType(BaseModel):
 class IngredientArrival(BaseModel):
     type_id = db.Column(db.Integer, db.ForeignKey(
         IngredientType.id), nullable=False)
-    source_id = db.Column(db.Integer, db.ForeignKey(Source.id), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey(Supplier.id), nullable=False)
     arriving_date = db.Column(db.DateTime, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
@@ -230,7 +230,7 @@ class Production(BaseModel):
 class ProductShipment(BaseModel):
     production_id = db.Column(db.Integer, db.ForeignKey(
         Production.id), nullable=False)
-    destination_id = db.Column(
-        db.Integer, db.ForeignKey(Destination.id), nullable=False)
+    customer_id = db.Column(
+        db.Integer, db.ForeignKey(Customer.id), nullable=False)
     shipping_date = db.Column(db.DateTime, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)

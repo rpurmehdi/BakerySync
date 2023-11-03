@@ -1,6 +1,6 @@
 from flask import flash, render_template, request, Blueprint, redirect, url_for, jsonify
 from datetime import datetime
-from models import db, ProductShipment, Destination, Production
+from models import db, ProductShipment, Customer, Production
 
 # blueprint to register in app.py
 shipments_bp = Blueprint('shipments', __name__, url_prefix='/shipments')
@@ -13,15 +13,15 @@ def shipments():
     if request.method == 'POST':
         # Get data from the form
         production_id = request.form['production_id']
-        destination_id = request.form['destination_id']
+        customer_id = request.form['customer_id']
         shipping_date_str = request.form['shipping_date']
         quantity_str = request.form['quantity']
         # validate form data
         production = Production.query.filter_by(
             id=production_id).first()
-        destination = Destination.query.filter_by(
-            id=destination_id).first()
-        if production and destination:
+        customer = Customer.query.filter_by(
+            id=customer_id).first()
+        if production and customer:
             try:
                 shipping_date = datetime.fromisoformat(shipping_date_str)
                 quantity = float(quantity_str)
@@ -32,7 +32,7 @@ def shipments():
                 flash(f'Can not add! - Error: {str(e)}', 'warning')
                 return redirect(url_for('shipments.shipments'))
         else:
-            flash('Can not add! - Invalid production or destination', 'warning')
+            flash('Can not add! - Invalid production or customer', 'warning')
             return redirect(url_for('shipments.shipments'))
         if quantity < 1 or quantity > production.stock:
             flash('Can not add! - Quantity value is invalid', 'warning')
@@ -43,7 +43,7 @@ def shipments():
         # Create a new shipment object and add it to the database
         new_shipment = ProductShipment(
             production_id=production_id,
-            destination_id=destination_id,
+            customer_id=customer_id,
             shipping_date=shipping_date,
             quantity=quantity
         )
@@ -61,15 +61,15 @@ def shipments():
             return redirect(url_for('shipments.shipments'))
 
     else:
-        # Retrieve all shipments, productions and destinations from the database
+        # Retrieve all shipments, productions and customers from the database
         shipments = ProductShipment.query.all()
         productions = Production.query.order_by(
             Production.type_id, Production.production_time).all()
-        destinations = Destination.query.order_by(Destination.name).all()
+        customers = Customer.query.order_by(Customer.name).all()
         context = {
             'shipments': shipments,
             'productions': productions,
-            'destinations': destinations
+            'customers': customers
         }
         return render_template('shipments.html', **context)
 
@@ -82,17 +82,17 @@ def edit_shipment():
         # Get the data from the form
         id = request.form.get('id')
         production_id = request.form['production_id']
-        destination_id = request.form['destination_id']
+        customer_id = request.form['customer_id']
         shipping_date_str = request.form['shipping_date']
         quantity_str = request.form['quantity']
         # validate form data
         production = Production.query.filter_by(
             id=production_id).first()
-        destination = Destination.query.filter_by(
-            id=destination_id).first()
-        if production and destination:
+        customer = Customer.query.filter_by(
+            id=customer_id).first()
+        if production and customer:
             try:
-                # Fetch the source to edit from the database
+                # Fetch the shipment to edit from the database
                 shipment_to_edit = ProductShipment.query.get(id)
                 shipping_date = datetime.fromisoformat(shipping_date_str)
                 quantity = float(quantity_str)
@@ -103,7 +103,7 @@ def edit_shipment():
                 flash(f'Error: {str(e)}', 'warning')
                 return redirect(url_for('shipments.shipments'))
         else:
-            flash('Invalid production or destination', 'warning')
+            flash('Invalid production or customer', 'warning')
             return redirect(url_for('shipments.shipments'))
         if quantity < 1 or quantity > production.stock + shipment_to_edit.quantity:
             flash('Quantity value is invalid', 'warning')
@@ -112,10 +112,10 @@ def edit_shipment():
             flash('Shipping date can not be before production', 'warning')
             return redirect(url_for('shipments.shipments'))
         if shipment_to_edit:
-            # Update the source with the new data
+            # Update the shipment with the new data
             shipment_to_edit.id = id
             shipment_to_edit.production_id = production_id
-            shipment_to_edit.destination_id = destination_id
+            shipment_to_edit.customer_id = customer_id
             shipment_to_edit.shipping_date = shipping_date
             shipment_to_edit.quantity = quantity
         else:
@@ -153,7 +153,7 @@ def delete_shipment():
             else:
                 flash('Shipment not found', 'danger')
 
-            # Redirect to the /sources page
+            # Redirect to the /shipment page
             return redirect(url_for('shipments.shipments'))
 
         except Exception as e:

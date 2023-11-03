@@ -3,8 +3,8 @@ from flask import Flask
 from models import db
 from routes.index import index_bp
 from routes.types import types_bp
-from routes.sources import sources_bp
-from routes.destinations import destinations_bp
+from routes.suppliers import suppliers_bp
+from routes.customers import customers_bp
 from routes.arrivals import arrivals_bp
 from routes.shipments import shipments_bp
 from routes.productions import productions_bp
@@ -71,11 +71,11 @@ app.register_blueprint(index_bp)
 # registering types.py
 app.register_blueprint(types_bp)
 
-# registering sources.py
-app.register_blueprint(sources_bp)
+# registering suppliers.py
+app.register_blueprint(suppliers_bp)
 
-# registering destinations.py
-app.register_blueprint(destinations_bp)
+# registering customers.py
+app.register_blueprint(customers_bp)
 
 # registering arrivals.py
 app.register_blueprint(arrivals_bp)

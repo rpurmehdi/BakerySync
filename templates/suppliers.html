@@ -1,41 +1,40 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
-{% block title %} Manage Destinations {% endblock %}
+{% block title %} Manage Suppliers {% endblock %}
 <!--head-->
-{% block head %}
+{%block head %}
 <!-- script to populate edit canvas based on the item selected for edit -->
 <script>
   function populateCanvas(
-    destinationId,
-    destinationName,
+    supplierId,
+    supplierName,
     contactPerson,
     contactInformation,
-    destinationType,
-    destinationLocation,
-    destinationDescription
+    supplierType,
+    supplierLocation,
+    supplierDescription
   ) {
     // Get the canvas element
     const editCanvas = document.getElementById("EditCanvas");
 
     // Populate the canvas form fields
-    editCanvas.querySelector("#edit-destination-id").value = destinationId;
-    editCanvas.querySelector("#edit-name").value = destinationName;
+    editCanvas.querySelector("#edit-supplier-id").value = supplierId;
+    editCanvas.querySelector("#edit-name").value = supplierName;
     editCanvas.querySelector("#edit-contact_person").value = contactPerson;
     editCanvas.querySelector("#edit-contact_information").value = contactInformation;
-    editCanvas.querySelector("#edit-type").value = destinationType;
-    editCanvas.querySelector("#edit-location").value = destinationLocation;
-    editCanvas.querySelector("#edit-description").value = destinationDescription;
+    editCanvas.querySelector("#edit-type").value = supplierType;
+    editCanvas.querySelector("#edit-location").value = supplierLocation;
+    editCanvas.querySelector("#edit-description").value = supplierDescription;
   }
 </script>
-<!-- destination_table search and sort from datatables.net -->
+<!-- supplier_table search and sort from datatables.net -->
 <script>
   // load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
-    $("#destination_table").dataTable({
-      order: [],
+    $("#supplier_table").dataTable({
       columnDefs: [
         {
-          targets: [-1, -2, -3],
+          targets: [1, -1, -2, -3, -4],
           orderable: false,
         },
       ],
@@ -43,7 +42,7 @@
   });
   //  an event listener to re-adjust column width on window resize
   window.addEventListener("resize", function () {
-    var table = $("#destination_table").DataTable();
+    var table = $("#supplier_table").DataTable();
     table.columns.adjust().draw();
   });
 </script>
@@ -51,84 +50,86 @@
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
-  <!-- List of existing destinations -->
-  <h3 class="my-4">Existing Destinations</h3>
-  <table id="destination_table" class="table table-striped w-auto mx-auto">
-    <thead>
-      <tr>
-        <th>Destination</th>
-        <th>Contact</th>
-        <th>Type</th>
-        <th>Location</th>
-        <th>Description</th>
-        <th></th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for destination in destinations %}
-      <tr>
-        <td>{{ destination.name }}</td>
-        <td>{{ destination.contact_person }}: {{ destination.contact_information }}</td>
-        <td>{{ destination.type }}</td>
-        <td>{{ destination.location }}</td>
-        <td>{{ destination.description }}</td>
-        <td>
-          <form action="{{ url_for('destinations.track') }}" method="post">
-            <input type="hidden" name="track" value="{{ destination.id }}" />
-            <input
-              type="image"
-              src="/static/icons/arrow-right-square.svg"
-              alt="track"
-              name="destination_track"
-              title="Track {{ destination.name }}"
-            />
-          </form>
-        </td>
-        <td>
-          <img
-            src="/static/icons/pencil-square.svg"
-            alt="edit"
-            name="destination_edit"
-            type="button"
-            class="edit-destination"
-            title="Edit {{ destination.name }}"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#EditCanvas"
-            aria-controls="EditCanvas"
-            onclick="populateCanvas(
-              '{{ destination.id }}',
-              '{{ destination.name|escape_html }}',
-              '{{ destination.contact_person|escape_html }}',
-              '{{ destination.contact_information|escape_html }}',
-              '{{ destination.type|escape_html }}',
-              '{{ destination.location|escape_html }}',
-              '{{ destination.description|escape_html }}'
-            );"
-          />
-        </td>
-        <td>
-          <form
-            id="del-{{ destination.id }}"
-            action="{{ url_for('destinations.delete_destination') }}"
-            method="post"
-          >
-            <input type="hidden" name="id" value="{{ destination.id }}" />
+  <!-- List of existing suppliers -->
+  <div class="container mx-auto">
+    <h3 class="my-4">Existing Suppliers</h3>
+    <table id="supplier_table" class="table table-striped w-auto mx-auto">
+      <thead>
+        <tr>
+          <th>Supplier</th>
+          <th>Contact</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Description</th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for supplier in suppliers %}
+        <tr>
+          <td>{{ supplier.name }}</td>
+          <td>{{ supplier.contact_person }}: {{ supplier.contact_information }}</td>
+          <td>{{ supplier.type }}</td>
+          <td>{{ supplier.location }}</td>
+          <td>{{ supplier.description }}</td>
+          <td>
+            <form action="{{ url_for('suppliers.track') }}" method="post">
+              <input type="hidden" name="track" value="{{ supplier.id }}" />
+              <input
+                type="image"
+                src="/static/icons/arrow-right-square.svg"
+                alt="track"
+                name="supplier_track"
+                title="Track {{ supplier.name }}"
+              />
+            </form>
+          </td>
+          <td>
             <img
-              src="/static/icons/x-square.svg"
-              alt="delete"
-              name="destination_delete"
-              type="submit"
-              title="Delete {{ destination.name }}"
-              onclick="return confirmDelete('del-{{ destination.id }}', '{{ destination.name|escape_html }}');"
+              src="/static/icons/pencil-square.svg"
+              alt="edit"
+              name="supplier_edit"
+              type="button"
+              class="edit-supplier"
+              title="Edit {{ supplier.name }}"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#EditCanvas"
+              aria-controls="EditCanvas"
+              onclick="populateCanvas(
+              '{{ supplier.id }}',
+              '{{ supplier.name|escape_html }}',
+              '{{ supplier.contact_person|escape_html }}',
+              '{{ supplier.contact_information|escape_html }}',
+              '{{ supplier.type|escape_html }}',
+              '{{ supplier.location|escape_html }}',
+              '{{ supplier.description|escape_html }}'
+            );"
             />
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          </td>
+          <td>
+            <form
+              id="del-{{ supplier.id }}"
+              action="{{ url_for('suppliers.delete_supplier') }}"
+              method="post"
+            >
+              <input type="hidden" name="id" value="{{ supplier.id }}" />
+              <img
+                src="/static/icons/x-square.svg"
+                alt="delete"
+                name="supplier_delete"
+                type="submit"
+                title="Delete {{ supplier.name }}"
+                onclick="return confirmDelete('del-{{ supplier.id }}', '{{ supplier.name|escape_html }}');"
+              />
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <button
     class="btn btn-success"
     type="button"
@@ -136,10 +137,10 @@
     data-bs-target="#AddCanvas"
     aria-controls="AddCanvas"
   >
-    + Add New Destination
+    + Add New Supplier
   </button>
 </div>
-<!-- offcanvas to add a new Destination -->
+<!-- offcanvas to add a new supplier -->
 <div
   class="offcanvas offcanvas-start text-end"
   data-bs-scroll="true"
@@ -148,14 +149,14 @@
   aria-labelledby="AddCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Destination</h5>
+    <h5 class="offcanvas-title" id="AddCanvasLabel">Add New Supplier</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <div class="container mx-auto">
-      <form method="POST" action="{{ url_for('destinations.destinations') }}">
+      <form method="POST" action="{{ url_for('suppliers.suppliers') }}">
         <div class="row">
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
               <input
                 type="text"
@@ -164,27 +165,27 @@
                 name="name"
                 autocomplete="off"
                 required
-                placeholder="Enter the destination name"
+                placeholder="Enter the supplier name"
               />
-              <label for="name">Destination Name</label>
+              <label for="name">Supplier Name</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
               <select class="form-select" id="type" name="type" required>
                 <option selected disabled value="">Select a type</option>
-                <option value="Wholesale Distributor">Wholesale Distributor</option>
+                <option value="Wholesaler">Wholesaler</option>
                 <option value="Online Retailer">Online Retailer</option>
                 <option value="Local Market">Local Market</option>
-                <option value="Restaurant">Restaurant</option>
-                <option value="Hotel">Hotel</option>
+                <option value="Flour Mill">Flour Mill</option>
+                <option value="Farm">Farm</option>
               </select>
-              <label for="type">Destination type</label>
+              <label for="type">Supplier type</label>
             </div>
           </div>
         </div>
         <div class="row mt-4">
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -198,7 +199,7 @@
               <label for="contact_person">Contact Person</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -212,7 +213,7 @@
               <label for="contact_information">Contact Information</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -223,31 +224,29 @@
                 required
                 placeholder="Enter the location"
               />
-              <label for="location">Destination Location</label>
+              <label for="location">Supplier Location</label>
             </div>
           </div>
         </div>
         <div class="row my-4">
-          <div class="col w-auto">
-            <div class="form-floating">
-              <textarea
-                class="form-control"
-                placeholder="Write destination description"
-                name="description"
-                id="description"
-                autocomplete="off"
-                style="height: 100px"
-              ></textarea>
-              <label for="description">Destination Description</label>
-            </div>
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              placeholder="Write supplier description"
+              name="description"
+              id="description"
+              autocomplete="off"
+              style="height: 100px"
+            ></textarea>
+            <label for="description">Supplier Description</label>
           </div>
         </div>
-        <button type="submit" class="btn btn-success">Add Destination</button>
+        <button type="submit" class="btn btn-success">Add Supplier</button>
       </form>
     </div>
   </div>
 </div>
-<!-- offcanvas for destination editing -->
+<!-- offcanvas for supplier editing -->
 <div
   class="offcanvas offcanvas-end text-start"
   data-bs-scroll="true"
@@ -256,16 +255,16 @@
   aria-labelledby="EditCanvasLabel"
 >
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Destination</h5>
+    <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Supplier</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <div class="container mx-auto">
-      <form method="POST" action="{{ url_for('destinations.edit_destination') }}">
+      <form method="POST" action="{{ url_for('suppliers.edit_supplier') }}">
         <div class="row">
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
-              <input type="hidden" name="id" id="edit-destination-id" />
+              <input type="hidden" name="id" id="edit-supplier-id" />
               <input
                 type="text"
                 class="form-control"
@@ -275,10 +274,10 @@
                 required
                 readonly
               />
-              <label for="edit-name">Destination Name</label>
+              <label for="edit-name">Supplier Name</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-6">
             <div class="form-floating">
               <input
                 type="text"
@@ -288,12 +287,12 @@
                 required
                 readonly
               />
-              <label for="edit-contact_person">Destination type</label>
+              <label for="edit-contact_person">Supplier type</label>
             </div>
           </div>
         </div>
         <div class="row mt-4">
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -307,7 +306,7 @@
               <label for="edit-contact_person">Contact Person</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -321,7 +320,7 @@
               <label for="edit-contact_information">Contact Information</label>
             </div>
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <div class="form-floating">
               <input
                 type="text"
@@ -332,26 +331,24 @@
                 required
                 placeholder="Enter the location"
               />
-              <label for="edit-location">Destination Location</label>
+              <label for="edit-location">Supplier Location</label>
             </div>
           </div>
         </div>
         <div class="row my-4">
-          <div class="col w-auto">
-            <div class="form-floating">
-              <textarea
-                class="form-control"
-                placeholder="Write destination description"
-                name="description"
-                id="edit-description"
-                autocomplete="off"
-                style="height: 100px"
-              ></textarea>
-              <label for="edit-description">Destination Description</label>
-            </div>
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              placeholder="Write supplier description"
+              name="description"
+              id="edit-description"
+              autocomplete="off"
+              style="height: 100px"
+            ></textarea>
+            <label for="edit-description">Supplier Description</label>
           </div>
         </div>
-        <button type="submit" class="btn btn-warning">Edit Destination</button>
+        <button type="submit" class="btn btn-warning">Edit Supplier</button>
       </form>
     </div>
   </div>

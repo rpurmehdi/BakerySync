@@ -125,8 +125,8 @@ def index():
         trackables = []
         itypes = IngredientType.query.order_by(IngredientType.name).all()
         ptypes = ProductType.query.order_by(ProductType.name).all()
-        sources = Source.query.order_by(Source.name).all()
-        destinations = Destination.query.order_by(Destination.name).all()
+        suppliers = Supplier.query.order_by(Supplier.name).all()
+        customers = Customer.query.order_by(Customer.name).all()
         arrivals = IngredientArrival.query.order_by(
             IngredientArrival.arriving_date
         ).all()
@@ -149,25 +149,25 @@ def index():
                 "name": f"type: {ptype.name}",
             }
             trackables.append(trackable)
-        for source in sources:
+        for supplier in suppliers:
             trackable = {
-                "type": url_for("sources.track"),
-                "id": source.id,
-                "name": f"source: {source.name}",
+                "type": url_for("suppliers.track"),
+                "id": supplier.id,
+                "name": f"supplier: {supplier.name}",
             }
             trackables.append(trackable)
-        for destination in destinations:
+        for customer in customers:
             trackable = {
-                "type": url_for("destinations.track"),
-                "id": destination.id,
-                "name": f"destination: {destination.name}",
+                "type": url_for("customers.track"),
+                "id": customer.id,
+                "name": f"customer: {customer.name}",
             }
             trackables.append(trackable)
         for arrival in arrivals:
             trackable = {
                 "type": url_for("arrivals.track"),
                 "id": arrival.id,
-                "name": f"arrival of {arrival.type.name} on {arrival.arriving_date.strftime('%Y-%m-%d')} from {arrival.source.name}",
+                "name": f"arrival of {arrival.type.name} on {arrival.arriving_date.strftime('%Y-%m-%d')} from {arrival.supplier.name}",
             }
             trackables.append(trackable)
         for recipe in recipes:
@@ -188,7 +188,7 @@ def index():
             trackable = {
                 "type": url_for("shipments.track"),
                 "id": shipment.id,
-                "name": f"shipment of {shipment.production.type.name} with batch {shipment.production.print_batch} on {shipment.shipping_date.strftime('%Y-%m-%d')} to {shipment.destination.name}",
+                "name": f"shipment of {shipment.production.type.name} with batch {shipment.production.print_batch} on {shipment.shipping_date.strftime('%Y-%m-%d')} to {shipment.customer.name}",
             }
             trackables.append(trackable)
         try:

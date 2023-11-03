@@ -151,7 +151,7 @@ def delete_type():
             db.session.rollback()  # Rollback any changes to the database
             return redirect(url_for('types.types'))
     else:
-        return redirect(url_for('sources.sources'))
+        return redirect(url_for('suppliers.suppliers'))
 
 # route to handle ingredient track
 

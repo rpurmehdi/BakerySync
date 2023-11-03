@@ -112,7 +112,7 @@
         <thead>
           <tr>
             <th>Ingredient Type</th>
-            <th>Source</th>
+            <th>Supplier</th>
             <th>Arriving Date</th>
             <th>Used Quantity (Kg)</th>
           </tr>
@@ -121,7 +121,7 @@
           {% for item in production.ingredients|sort(attribute='arriving_date') %}
           <tr>
             <td>{{ item.type.name }}</td>
-            <td>{{ item.source.name }}</td>
+            <td>{{ item.supplier.name }}</td>
             <td>{{ item.arriving_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ production.getu(item.id) }}</td>
           </tr>
@@ -171,7 +171,7 @@
         <thead>
           <tr>
             <th>Shipping Date</th>
-            <th>Destination</th>
+            <th>Customer</th>
             <th>Quantity (Kg)</th>
           </tr>
         </thead>
@@ -179,7 +179,7 @@
           {% for shipment in production.shipments|sort(attribute='shipping_date') %}
           <tr>
             <td>{{ shipment.shipping_date.strftime('%Y-%m-%d') }}</td>
-            <td>{{ shipment.destination.name }}</td>
+            <td>{{ shipment.customer.name }}</td>
             <td>{{ shipment.quantity }}</td>
           </tr>
           {% endfor %}

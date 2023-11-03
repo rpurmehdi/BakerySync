@@ -5,14 +5,14 @@
 {% block head %}
 <!-- script to populate edit canvas based on the item selected for edit -->
 <script>
-  function populateCanvas(arrivalId, typeId, sourceId, arrivingDate, quantity) {
+  function populateCanvas(arrivalId, typeId, supplierId, arrivingDate, quantity) {
     // Get the canvas element
     const editCanvas = document.getElementById("EditCanvas");
 
     // Populate the canvas form fields
     editCanvas.querySelector("#edit-arrival-id").value = arrivalId;
     editCanvas.querySelector("#edit-type_id").value = typeId;
-    editCanvas.querySelector("#edit-source_id").value = sourceId;
+    editCanvas.querySelector("#edit-supplier_id").value = supplierId;
     editCanvas.querySelector("#edit-arriving_date").value = arrivingDate;
     editCanvas.querySelector("#edit-quantity").value = quantity;
   }
@@ -48,7 +48,7 @@
       <tr>
         <th>Arriving Date</th>
         <th>Ingredient</th>
-        <th>Source</th>
+        <th>Supplier</th>
         <th>Quantity (Kg)</th>
         <th></th>
         <th></th>
@@ -60,7 +60,7 @@
       <tr>
         <td>{{ arrival.arriving_date.strftime('%Y-%m-%d') }}</td>
         <td>{{ arrival.type.name }}</td>
-        <td>{{ arrival.source.name }}</td>
+        <td>{{ arrival.supplier.name }}</td>
         <td>{{ arrival.quantity }}</td>
         <td>
           <form action="{{ url_for('arrivals.track') }}" method="post">
@@ -88,7 +88,7 @@
             onclick="populateCanvas(
               '{{ arrival.id }}',
               '{{ arrival.type_id }}',
-              '{{ arrival.source_id }}',
+              '{{ arrival.supplier_id }}',
               '{{ arrival.arriving_date }}',
               '{{ arrival.quantity }}'
             );"
@@ -104,10 +104,10 @@
             <img
               src="/static/icons/x-square.svg"
               alt="delete"
-              name="source_delete"
+              name="supplier_delete"
               type="submit"
               title="Delete this {{ arrival.type.name }} arrival"
-              onclick="return confirmDelete('del-{{ arrival.id }}', '{{ arrival.type.name|escape_html }} from {{ arrival.source.name|escape_html }}');"
+              onclick="return confirmDelete('del-{{ arrival.id }}', '{{ arrival.type.name|escape_html }} from {{ arrival.supplier.name|escape_html }}');"
             />
           </form>
         </td>
@@ -156,13 +156,13 @@
         <div class="row mt-4">
           <div class="col-auto">
             <div class="form-floating">
-              <select class="form-select" id="source_id" name="source_id" required>
-                <option selected disabled value="">Select a source</option>
-                {% for source in sources %}
-                <option value="{{ source.id }}">{{ source.name }} ({{ source.type }})</option>
+              <select class="form-select" id="supplier_id" name="supplier_id" required>
+                <option selected disabled value="">Select a supplier</option>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}">{{ supplier.name }} ({{ supplier.type }})</option>
                 {% endfor %}
               </select>
-              <label for="source_id">Source</label>
+              <label for="supplier_id">Supplier</label>
             </div>
           </div>
         </div>
@@ -231,12 +231,12 @@
         <div class="row mt-4">
           <div class="col-auto">
             <div class="form-floating">
-              <select class="form-select" id="edit-source_id" name="source_id" required>
-                {% for source in sources %}
-                <option value="{{ source.id }}">{{ source.name }} ({{ source.type }})</option>
+              <select class="form-select" id="edit-supplier_id" name="supplier_id" required>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}">{{ supplier.name }} ({{ supplier.type }})</option>
                 {% endfor %}
               </select>
-              <label for="edit-source_id">Source</label>
+              <label for="edit-supplier_id">Supplier</label>
             </div>
           </div>
         </div>
