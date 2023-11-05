@@ -2,13 +2,34 @@
 <!-- enter the page title here!-->
 {% block title %} Track Results {% endblock %}
 <!--head-->
-{%block head %} {% endblock %}
+{%block head %}
+<!-- customer_table search and sort from datatables.net -->
+<script>
+  // load the dataTable after page load
+  document.addEventListener("DOMContentLoaded", function () {
+    $("#result_table").dataTable({
+      order: [],
+      columnDefs: [
+        {
+          targets: [0, 1],
+          orderable: false,
+        },
+      ],
+    });
+  });
+  //  an event listener to re-adjust column width on window resize
+  window.addEventListener("resize", function () {
+    var table = $("#result_table").DataTable();
+    table.columns.adjust().draw();
+  });
+</script>
+{% endblock %}
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
   <!-- List of exact matches -->
   <div class="container mx-auto">
-    <table class="table w-auto mx-auto mt-4">
+    <table id="result_table" class="table w-auto mx-auto mt-4">
       <thead>
         <th class="text-start">
           <form class="form-inline" action="{{ url_for('index.index') }}" method="post">
@@ -36,6 +57,7 @@
           </form>
           <div class="mt-4">Track search results:</div>
         </th>
+		<th></th>
       </thead>
       <tbody>
         {% for result in results %}
