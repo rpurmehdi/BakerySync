@@ -57,8 +57,17 @@
 <div class="container mx-auto text-center">
   <div class="row">
     <div class="col">
-      <h3 class="my-4">Existing Ingredient Types</h3>
+      <button
+        class="btn btn-success shadow sticky-top"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#AddItypeCanvas"
+        aria-controls="AddItypeCanvas"
+      >
+        + Add New Ingredient Type
+      </button>
       <!-- List of existing ingredient types -->
+      <h3 class="mt-3">Existing Ingredient Types</h3>
       <table id="itype_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
@@ -121,20 +130,20 @@
           {% endfor %}
         </tbody>
       </table>
-      <button
-        class="btn btn-success"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#AddItypeCanvas"
-        aria-controls="AddItypeCanvas"
-      >
-        + Add New Ingredient Type
-      </button>
     </div>
     <div class="vr px-0"></div>
     <div class="col">
-      <h3 class="my-4">Existing Product Types</h3>
+      <button
+        class="btn btn-success shadow sticky-top"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#AddPtypeCanvas"
+        aria-controls="AddPtypeCanvas"
+      >
+        + Add New Product Type
+      </button>
       <!-- List of existing product types -->
+      <h3 class="mt-3">Existing Product Types</h3>
       <table id="ptype_table" class="table table-striped w-auto mx-auto">
         <thead>
           <tr>
@@ -197,15 +206,6 @@
           {% endfor %}
         </tbody>
       </table>
-      <button
-        class="btn btn-success"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#AddPtypeCanvas"
-        aria-controls="AddPtypeCanvas"
-      >
-        + Add New Product Type
-      </button>
     </div>
   </div>
 </div>
@@ -236,8 +236,9 @@
           />
           <label for="itype-name">Ingredient Name</label>
         </div>
-
-        <button name="itype_form" type="submit" class="btn btn-success">Add Ingredient Type</button>
+        <button name="itype_form" type="submit" class="btn btn-success shadow">
+          Add Ingredient Type
+        </button>
       </form>
     </div>
   </div>
@@ -271,7 +272,7 @@
           <label for="edit-itype-name">Ingredient Type Name</label>
         </div>
 
-        <button name="itype_edit" type="submit" class="btn btn-warning">
+        <button name="itype_edit" type="submit" class="btn btn-warning shadow">
           Edit Ingredient Type
         </button>
       </form>
@@ -305,8 +306,9 @@
           />
           <label for="ptype-name">Product Name</label>
         </div>
-
-        <button name="ptype_form" type="submit" class="btn btn-success">Add Product Type</button>
+        <button name="ptype_form" type="submit" class="btn btn-success shadow">
+          Add Product Type
+        </button>
       </form>
     </div>
   </div>
@@ -340,7 +342,9 @@
           <label for="edit-ptype-name">Product Type Name</label>
         </div>
 
-        <button name="ptype_edit" type="submit" class="btn btn-warning">Edit Product Type</button>
+        <button name="ptype_edit" type="submit" class="btn btn-warning shadow">
+          Edit Product Type
+        </button>
       </form>
     </div>
   </div>
