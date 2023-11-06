@@ -3,13 +3,147 @@
 {% block title %} Manage Recipes {% endblock %}
 <!--head-->
 {%block head %}
+<!-- script to populate edit canvas based on the item selected for edit and handle input and checkboxes -->
+<script>
+  // Function to recalculate the sum and update the display in add canvas
+  function updateSumE() {
+    const percentInputsE = document.querySelectorAll(".edit-percent-input");
+    const sumResultE = document.getElementById("editSumResult");
+    let sumE = 0;
+
+    percentInputsE.forEach(function (input) {
+      const value = parseFloat(parseFloat(input.value).toFixed(2));
+      if (!isNaN(value)) {
+        sumE += value;
+      }
+    });
+
+    sumResultE.className = sumE === 100 ? "text-success result" : "text-danger result";
+    sumResultE.textContent = "Sum: " + sumE.toFixed(2);
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    // Add input event listeners to the percentInputs
+    const percentInputsE = document.querySelectorAll(".edit-percent-input");
+    percentInputsE.forEach(function (input) {
+      input.addEventListener("input", updateSumE);
+    });
+
+    // Add a submit event listener to the form
+    const formE = document.getElementById("editForm");
+    const sumResultE = document.getElementById("editSumResult");
+    formE.addEventListener("submit", function (event) {
+      updateSumE(); // Ensure the sum is updated before form submission
+
+      if (sumResultE.className === "text-danger result") {
+        alert("Change the percents, The sum of the fields must be 100.");
+        event.preventDefault(); // Prevent the form submission if sum is not 100
+      }
+    });
+    const checkboxContainerE = document.getElementById("editCheckboxContainer");
+    const checkboxesE = checkboxContainerE.querySelectorAll(".form-check-input");
+
+    checkboxesE.forEach(function (checkbox) {
+      checkbox.addEventListener("change", function () {
+        updateSumE(); // Call updateSum when a checkbox is checked or unchecked
+      });
+    });
+  });
+  function toggleVisibilityE(elementId) {
+    const elementE = document.getElementById(elementId);
+    if (elementE) {
+      if (elementE.classList.contains("d-none")) {
+        elementE.classList.remove("d-none");
+        elementE.classList.add("d-block");
+      } else {
+        elementE.classList.remove("d-block");
+        elementE.classList.add("d-none");
+
+        // Clear the inputs in the element.
+        for (const input of elementE.querySelectorAll("input")) {
+          input.value = "";
+        }
+      }
+    }
+  }
+  function populateCanvas(
+    recipeId,
+    recipeName,
+    recipeProduct,
+    recipeDescription,
+    numbers,
+    percents
+  ) {
+    // Get the canvas element
+    const editCanvas = document.getElementById("EditCanvas");
+
+    // Get all checkboxes with the class "edit-check"
+    const checkboxes = document.querySelectorAll(".edit-check");
+
+    // Loop through the checkboxes and uncheck them
+    checkboxes.forEach(function (checkbox) {
+      checkbox.checked = false;
+    });
+    // Get all elements with the class 'edit-div'
+    const editDivs = document.querySelectorAll(".edit-div");
+
+    // Loop through each 'edit-div' element
+    editDivs.forEach((element) => {
+      // Check if the element has the class 'd-block'
+      if (element.classList.contains("d-block")) {
+        // Remove 'd-block' class and add 'd-none' class
+        element.classList.remove("d-block");
+        element.classList.add("d-none");
+      }
+    });
+    const editPercent = document.querySelectorAll(".edit-percent-input");
+
+    // Clear the values for all 'edit-percent-input' elements
+    editPercent.forEach((element) => {
+      element.value = "";
+    });
+    // Populate the canvas form fields
+    editCanvas.querySelector("#edit-recipe-id").value = recipeId;
+    editCanvas.querySelector("#edit-recipe-name").value = recipeName;
+    editCanvas.querySelector("#edit-product").value = recipeProduct;
+    editCanvas.querySelector("#edit-description").value = recipeDescription;
+    numbers = numbers.replace(/\[|\]|\s/g, "");
+    // Split the string into an array of numbers
+    var numberArray = numbers.split(",");
+
+    // Loop through the array and check the corresponding checkboxes
+    numberArray.forEach(function (number) {
+      var checkboxId = "edit_Checkbox-" + number;
+      var divId = "edit_div-" + number;
+      var checkbox = document.getElementById(checkboxId);
+
+      if (checkbox) {
+        checkbox.checked = true; // Check the checkbox
+        toggleVisibility(divId);
+      }
+    });
+    percents = percents.replace(/\[|\]|\s/g, "");
+    percentArray = percents.split(",");
+    // Find all the edit_inp-x elements and update their values
+    for (let i = 0; i < numberArray.length; i++) {
+      const inputValueE = percentArray[i];
+      const inputIdE = `edit-inp-${numberArray[i]}`;
+      const inputElementE = document.getElementById(inputIdE);
+
+      if (inputElementE) {
+        inputElementE.value = inputValueE;
+      }
+    }
+    updateSumE();
+  }
+</script>
+<!-- script to hande add canvs -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const percentInputs = document.querySelectorAll(".percent-input");
     const form = document.getElementById("addForm");
     const sumResult = document.getElementById("sumResult");
 
-    // Function to recalculate the sum and update the display
+    // Function to recalculate the sum and update the display in add canvas
     function updateSum() {
       let sum = 0;
 
@@ -89,8 +223,17 @@
 <!--body-->
 {%block main %}
 <div class="container mx-auto text-center">
+  <button
+    class="btn btn-success shadow sticky-top"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#AddCanvas"
+    aria-controls="AddCanvas"
+  >
+    + Add New Recipe
+  </button>
   <!-- List of existing recipes -->
-  <h3 class="my-4">Existing Recipes</h3>
+  <h3 class="mt-3">Existing Recipes</h3>
   <table id="recipe_table" class="table table-striped w-auto mx-auto">
     <thead>
       <tr>
@@ -100,10 +243,11 @@
         <th>Ingredients</th>
         <th></th>
         <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      {% for recipe in recipes %}
+      {% for recipe in recipes|reverse%}
       <tr>
         <td>{{ recipe.name }}</td>
         <td>{{ recipe.type.name }}</td>
@@ -127,6 +271,27 @@
           </form>
         </td>
         <td>
+          <img
+            src="/static/icons/pencil-square.svg"
+            alt="edit"
+            name="recipe_edit"
+            type="button"
+            class="edit-recipe"
+            title="Edit {{ recipe.name }}"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#EditCanvas"
+            aria-controls="EditCanvas"
+            onclick="populateCanvas(
+              '{{ recipe.id }}',
+              '{{ recipe.name|escape_html }}',
+              '{{ recipe.type.id }}',
+              '{{ recipe.description|escape_html }}',
+              '[{% for ingredient in recipe.ingredients %} {{ ingredient.id }},{% endfor %}]',
+              '[{% for ingredient in recipe.ingredients %} {{ recipe.getp(ingredient.id) }},{% endfor %}]'
+            );"
+          />
+        </td>
+        <td>
           <form
             id="del-{{recipe.id}}"
             action="{{ url_for('recipes.delete_recipe') }}"
@@ -147,15 +312,6 @@
       {% endfor %}
     </tbody>
   </table>
-  <button
-    class="btn btn-success"
-    type="button"
-    data-bs-toggle="offcanvas"
-    data-bs-target="#AddCanvas"
-    aria-controls="AddCanvas"
-  >
-    + Add New Recipe
-  </button>
 </div>
 <!-- offcanvas to add a new recipe -->
 <div
@@ -242,10 +398,106 @@
 
           {% endfor %}
         </div>
-        <div class="row justify-content-md-center my-2">
+        <div class="row text-center fs-5 my-2">
           <small id="sumResult" class="result">Sum: 0.00</small>
         </div>
-        <button type="submit" class="btn btn-success">Add Recipe</button>
+        <button type="submit" class="btn btn-success shadow">Add Recipe</button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- offcanvas to edit a recipe -->
+<div
+  class="offcanvas offcanvas-end text-start"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="EditCanvas"
+  aria-labelledby="AddCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="EditCanvasLabel">Edit Recipe</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="container mx-auto">
+      <form id="editForm" method="POST" action="{{url_for('recipes.edit_recipe')}}">
+        <div class="row">
+          <div class="col-6">
+            <div class="form-floating">
+              <input type="hidden" name="id" id="edit-recipe-id" />
+              <input
+                type="text"
+                class="form-control"
+                id="edit-recipe-name"
+                name="edit-recipe-name"
+                autocomplete="off"
+                required
+                placeholder="Enter the recipe name"
+              />
+              <label for="edit-recipe-name">Recipe Name</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating">
+              <select class="form-select" id="edit-product" name="edit-product" required>
+                <option selected disabled value="">Select a product</option>
+                {% for ptype in ptypes|sort(attribute='name') %}
+                <option value="{{ ptype.id }}">{{ ptype.name }}</option>
+                {% endfor %}
+              </select>
+              <label for="edit-product">Product type</label>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-md-center my-2">
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              placeholder="Write supplier description"
+              name="edit-description"
+              id="edit-description"
+              autocomplete="off"
+              style="height: 100px"
+            ></textarea>
+            <label for="edit-description">Recipe Description</label>
+          </div>
+        </div>
+        <div class="text-start" id="editCheckboxContainer">
+          <h6>Choose ingredientds to enter percent:</h6>
+          {% for itype in itypes|sort(attribute='name') %}
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input edit-check"
+              type="checkbox"
+              id="edit_Checkbox-{{ itype.id }}"
+              value=""
+              onclick="toggleVisibility('edit_div-{{ itype.id }}')"
+            />
+            <label class="form-check-label" for="edit_Checkbox-{{ itype.id }}"
+              >{{ itype.name }}</label
+            >
+          </div>
+          {% endfor %}
+        </div>
+        <div class="row justify-content-md-center my-2">
+          {% for itype in itypes|sort(attribute='name') %}
+          <div id="edit_div-{{ itype.id }}" class="form-floating d-none edit-div">
+            <input
+              class="form-control form-control-sm edit-percent-input"
+              type="number"
+              step="0.01"
+              id="edit-inp-{{ itype.id }}"
+              name="{{ itype.name }}"
+            />
+            <label for="edit-inp-{{ itype.id }}">{{ itype.name }} percent</label>
+          </div>
+
+          {% endfor %}
+        </div>
+        <div class="row text-center fs-5 my-2">
+          <small id="editSumResult" class="result">Sum: 0.00</small>
+        </div>
+        <button type="submit" class="btn btn-warning shadow">Edit Recipe</button>
       </form>
     </div>
   </div>
