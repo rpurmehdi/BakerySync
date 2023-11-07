@@ -1,7 +1,7 @@
 @font-face {
-  font-family: 'Dosis';
+  font-family: "Dosis";
   /* from https://fonts.google.com/specimen/Dosis?query=dosi */
-  src: url('/static/Dosis-VariableFont_wght.ttf') format('truetype');
+  src: url("/static/Dosis-VariableFont_wght.ttf") format("truetype");
 }
 
 body {
