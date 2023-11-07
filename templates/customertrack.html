@@ -5,22 +5,46 @@
 {%block head %}
 <!-- shipment_table and quantity_table search and sort from datatables.net -->
 <script>
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table1 = $("#shipment_table");
+    const table2 = $("#quantity_table");
+
+    // Get the widths of the tables
+    const table1Width = table1.width();
+    const table2Width = table2.width();
+
+    // Calculate the maximum width among the tables and add 24 pixels
+    const maxWidth = Math.max(table1Width, table2Width) + 24;
+
+    // Set the minimum body width
+    document.body.style.minWidth = maxWidth + "px";
+  }
   // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#shipment_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
     });
     $("#quantity_table").dataTable();
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
   function tableAdjust() {
     var stable = $("#shipment_table").DataTable();
-    stable.columns.adjust().draw();
     var qtable = $("#quantity_table").DataTable();
-    qtable.columns.adjust().draw();
+    stable.columns.adjust();
+    qtable.columns.adjust();
+    // Set the minimum body width after each resize
+    setBodyMinWidth();
   }
 
   // An event listener to re-adjust column width on window resize
-  window.addEventListener("resize", tableAdjust);
+  let resizeTimer;
+
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(tableAdjust, 250); // Adjust the delay time
+  });
 </script>
 {% endblock %}
 <!--body-->
@@ -40,6 +64,7 @@
         role="tab"
         aria-controls="nav-stock"
         aria-selected="true"
+        onclick="tableAdjust()"
       >
         Stock
       </button>

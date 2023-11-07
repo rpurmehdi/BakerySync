@@ -1,23 +1,13 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
 {% block title %} Dashboard {% endblock %}
+<!-- set body min-width -->
+{% block bodyclass %}class="chart-container-large"{% endblock %}
 <!--head-->
 {% block head %}
 <script src="/static/js/d3.v6.js"></script>
-<script>
-  // JavaScript code to handle form submission
-  document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("dateForm").addEventListener("submit", function (event) {
-      event.preventDefault();
-      const year = document.getElementById("year").value;
-      const month = document.getElementById("month").value;
-      const url = `/?year=${year}&month=${month}`;
-      window.location.href = url;
-    });
-  });
-</script>
 {% endblock %} {% block main %}
-<div class="container mx-auto text-center">
+<div class="container mx-auto text-center chart-container-large">
   <div class="row mt-3">
     <!-- where the ingredient graph will take place -->
     <div class="card-body align-items-center">

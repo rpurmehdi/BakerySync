@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 <!-- enter the page title here!-->
 {% block title %} Dashboard {% endblock %}
+<!-- set body min-width -->
+{% block bodyclass %}class="chart-container"{% endblock %}
 <!--head-->
 {% block head %}
 <script src="/static/js/d3.v6.js"></script>
@@ -17,7 +19,7 @@
   });
 </script>
 {% endblock %} {% block main %}
-<div class="container mx-auto text-center">
+<div class="container mx-auto text-center chart-container">
   <div class="row mt-4">
     <div class="col">
       <div class="card border-x-secondary border-secondary shadow h-100 py-2">
@@ -136,6 +138,25 @@
 <script>
   // Define a function to create a chart
   function createChart(chartId, data, title, text, chartColor) {
+    
+    // Check if the data array is empty
+    if (data.length === 0) {
+      // add text "No data available"
+      const svg = d3
+        .select(chartId)
+        .append("svg")
+        .attr("width", 400)
+        .attr("height", 300)
+        .append("g")
+      svg.append("text")
+        .attr("x", 200)
+        .attr("y", 150)
+        .attr("text-anchor", "middle")
+        .style("font-size", "15px")
+        .text("No data available for " + title);
+      // Return early and do not create the chart
+      return;
+    }
 
     // Set the dimensions and margins of the graph
     const margin = { top: 25, right: 5, bottom: 70, left: 35 },
@@ -150,18 +171,7 @@
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-    // Check if the data array is empty
-    if (data.length === 0) {
-      // add text "No data available"
-      svg.append("text")
-        .attr("x", width / 2)
-        .attr("y", height / 2)
-        .attr("text-anchor", "middle")
-        .style("font-size", "17px")
-        .text("No data available for " + title);
-      // Return early and do not create the chart
-      return;
-    }
+
     // Calculate the Y axis domain
     const maxY = d3.max(data, (d) => d[1]); // Find the maximum value in the data
     const yDomain = [0, maxY * 1.1]; // Adjust the maximum value by 10%

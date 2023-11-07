@@ -45,22 +45,39 @@
 </script>
 <!-- shipment_table search and sort from datatables.net -->
 <script>
-  // load the dataTable after page load
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table = $("#shipment_table");
+    const tableWidth = table.width() + 24;
+    document.body.style.minWidth = tableWidth + "px";
+  }
+
+  // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#shipment_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
       columnDefs: [
         {
-          targets: [-1, -2, -3],
+          targets: [-1],
           orderable: false,
         },
       ],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
-  //  an event listener to re-adjust column width on window resize
+
+  // An event listener to re-adjust column width on window resize
+  let resizeTimer;
+
   window.addEventListener("resize", function () {
-    var table = $("#shipment_table").DataTable();
-    table.columns.adjust().draw();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var table = $("#shipment_table").DataTable();
+      table.columns.adjust();
+      // Set the minimum body width after each resize
+      setBodyMinWidth();
+    }, 250); // Adjust the delay time
   });
 </script>
 {% endblock %}
@@ -68,7 +85,7 @@
 {%block main %}
 <div class="container mx-auto text-center">
   <button
-    class="btn btn-success shadow sticky-top"
+    class="btn btn-success shadow sticky-top offset-sticky"
     type="button"
     data-bs-toggle="offcanvas"
     data-bs-target="#AddCanvas"
@@ -86,8 +103,6 @@
         <th>Product</th>
         <th>Quantity (Kg)</th>
         <th></th>
-        <th></th>
-        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -97,7 +112,7 @@
         <td>{{ shipment.customer.name }}</td>
         <td>{{ shipment.production.type.name }} : {{ shipment.production.print_batch }}</td>
         <td>{{ shipment.quantity }}</td>
-        <td>
+        <td class="max-w">
           <form action="{{ url_for('shipments.track') }}" method="post">
             <input type="hidden" name="track" value="{{ shipment.id }}" />
             <input
@@ -108,8 +123,6 @@
               title="Track this {{ shipment.production.type.name }} shipment"
             />
           </form>
-        </td>
-        <td>
           <img
             src="/static/icons/pencil-square.svg"
             alt="edit"
@@ -128,8 +141,6 @@
               '{{ shipment.quantity }}'
             );"
           />
-        </td>
-        <td>
           <form
             id="del-{{ shipment.id }}"
             action="{{ url_for('shipments.delete_shipment') }}"
@@ -195,9 +206,7 @@
               <select class="form-select" id="customer_id" name="customer_id" required>
                 <option selected disabled value="">Select a customer</option>
                 {% for customer in customers %}
-                <option value="{{ customer.id }}">
-                  {{ customer.name }} ({{ customer.type }})
-                </option>
+                <option value="{{ customer.id }}">{{ customer.name }} ({{ customer.type }})</option>
                 {% endfor %}
               </select>
               <label for="customer_id">Customer</label>
@@ -273,9 +282,7 @@
             <div class="form-floating">
               <select class="form-select" id="edit-customer_id" name="customer_id" required>
                 {% for customer in customers %}
-                <option value="{{ customer.id }}">
-                  {{ customer.name }} ({{ customer.type }})
-                </option>
+                <option value="{{ customer.id }}">{{ customer.name }} ({{ customer.type }})</option>
                 {% endfor %}
               </select>
               <label for="edit-customer_id">Customer</label>

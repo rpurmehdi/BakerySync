@@ -201,22 +201,39 @@
 </script>
 <!-- recipe_table search and sort from datatables.net -->
 <script>
-  // load the dataTable after page load
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table = $("#recipe_table");
+    const tableWidth = table.width() + 24;
+    document.body.style.minWidth = tableWidth + "px";
+  }
+
+  // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#recipe_table").dataTable({
       order: [],
       columnDefs: [
         {
-          targets: [-1, -2, -3, -4],
+          targets: [-1, -2, -3],
           orderable: false,
         },
       ],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
-  //  an event listener to re-adjust column width on window resize
+
+  // An event listener to re-adjust column width on window resize
+  let resizeTimer;
+
   window.addEventListener("resize", function () {
-    var table = $("#recipe_table").DataTable();
-    table.columns.adjust().draw();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var table = $("#recipe_table").DataTable();
+      table.columns.adjust();
+      // Set the minimum body width after each resize
+      setBodyMinWidth();
+    }, 250); // Adjust the delay time
   });
 </script>
 {% endblock %}
@@ -224,7 +241,7 @@
 {%block main %}
 <div class="container mx-auto text-center">
   <button
-    class="btn btn-success shadow sticky-top"
+    class="btn btn-success shadow sticky-top offset-sticky"
     type="button"
     data-bs-toggle="offcanvas"
     data-bs-target="#AddCanvas"
@@ -242,8 +259,6 @@
         <th>Description</th>
         <th>Ingredients</th>
         <th></th>
-        <th></th>
-        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -258,7 +273,7 @@
           <strong>{{ recipe.getp(ingredient.id) }}%</strong><br />
           {% endfor %}
         </td>
-        <td>
+        <td class="min-w">
           <form action="{{ url_for('recipes.track') }}" method="post">
             <input type="hidden" name="track" value="{{ recipe.id }}" />
             <input
@@ -269,8 +284,6 @@
               title="Track {{ recipe.name }}"
             />
           </form>
-        </td>
-        <td>
           <img
             src="/static/icons/pencil-square.svg"
             alt="edit"
@@ -290,8 +303,6 @@
               '[{% for ingredient in recipe.ingredients %} {{ recipe.getp(ingredient.id) }},{% endfor %}]'
             );"
           />
-        </td>
-        <td>
           <form
             id="del-{{recipe.id}}"
             action="{{ url_for('recipes.delete_recipe') }}"

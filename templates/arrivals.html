@@ -19,22 +19,38 @@
 </script>
 <!-- arrival_table search and sort from datatables.net -->
 <script>
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table = $("#arrival_table");
+    const tableWidth = table.width() + 24;
+    document.body.style.minWidth = tableWidth + "px";
+  }
+
   // load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#arrival_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
       columnDefs: [
         {
-          targets: [-1, -2, -3],
+          targets: [-1],
           orderable: false,
         },
       ],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
-  //  an event listener to re-adjust column width on window resize
+  // An event listener to re-adjust column width on window resize
+  let resizeTimer;
+
   window.addEventListener("resize", function () {
-    var table = $("#arrival_table").DataTable();
-    table.columns.adjust().draw();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var table = $("#arrival_table").DataTable();
+      table.columns.adjust();
+      // Set the minimum body width after each resize
+      setBodyMinWidth();
+    }, 250); // Adjust the delay time
   });
 </script>
 {% endblock %}
@@ -42,14 +58,14 @@
 {%block main %}
 <div class="container mx-auto text-center">
   <button
-  class="btn btn-success shadow sticky-top"
-  type="button"
-  data-bs-toggle="offcanvas"
-  data-bs-target="#AddCanvas"
-  aria-controls="AddCanvas"
->
-  + Add New Arrival
-</button>
+    class="btn btn-success shadow sticky-top offset-sticky"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#AddCanvas"
+    aria-controls="AddCanvas"
+  >
+    + Add New Arrival
+  </button>
   <h3 class="mt-3">Existing Arrivals</h3>
   <!-- List of existing arrivals -->
   <table id="arrival_table" class="table table-striped w-auto mx-auto">
@@ -60,8 +76,6 @@
         <th>Supplier</th>
         <th>Quantity (Kg)</th>
         <th></th>
-        <th></th>
-        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -71,7 +85,7 @@
         <td>{{ arrival.type.name }}</td>
         <td>{{ arrival.supplier.name }}</td>
         <td>{{ arrival.quantity }}</td>
-        <td>
+        <td class="max-w">
           <form action="{{ url_for('arrivals.track') }}" method="post">
             <input type="hidden" name="track" value="{{ arrival.id }}" />
             <input
@@ -82,8 +96,6 @@
               title="Track this {{ arrival.type.name }} arrival"
             />
           </form>
-        </td>
-        <td>
           <img
             src="/static/icons/pencil-square.svg"
             alt="edit"
@@ -102,8 +114,6 @@
               '{{ arrival.quantity }}'
             );"
           />
-        </td>
-        <td>
           <form
             id="del-{{ arrival.id }}"
             action="{{ url_for('arrivals.delete_arrival') }}"

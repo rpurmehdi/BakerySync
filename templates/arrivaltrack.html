@@ -5,10 +5,17 @@
 {%block head %}
 <!-- production_table search and sort from datatables.net -->
 <script>
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table = $("#production_table");
+    const tableWidth = table.width() + 24;
+    document.body.style.minWidth = tableWidth + "px";
+  }
+
   // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#production_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
       columnDefs: [
         {
           targets: [-1],
@@ -16,14 +23,23 @@
         },
       ],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
-  function tableAdjust() {
+function tableAdjust() {
     var table = $("#production_table").DataTable();
     table.columns.adjust().draw();
+          // Set the minimum body width after each resize
+          setBodyMinWidth();
   }
 
   // An event listener to re-adjust column width on window resize
-  window.addEventListener("resize", tableAdjust);
+  let resizeTimer;
+
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(tableAdjust, 250); // Adjust the delay time
+  });
 </script>
 {% endblock %}
 <!--body-->
@@ -95,9 +111,15 @@
         Total usage is {{ (arrival.quantity-arrival.stock)|round(1) }} Kgs.
       </p>
     </div>
-    <div class="tab-pane fade" id="nav-suppliers" role="tabpanel" aria-labelledby="nav-suppliers-tab">
+    <div
+      class="tab-pane fade"
+      id="nav-suppliers"
+      role="tabpanel"
+      aria-labelledby="nav-suppliers-tab"
+    >
       <h5 class="mb-4">
-        Supplier of {{ arrival.type.name|lower }} on {{ arrival.arriving_date.strftime('%Y-%m-%d') }}:
+        Supplier of {{ arrival.type.name|lower }} on {{ arrival.arriving_date.strftime('%Y-%m-%d')
+        }}:
       </h5>
       <table class="table table-striped w-auto mx-auto">
         <thead>
@@ -112,7 +134,9 @@
         <tbody>
           <tr>
             <td>{{ arrival.supplier.name }}</td>
-            <td>{{ arrival.supplier.contact_person }}: {{ arrival.supplier.contact_information }}</td>
+            <td>
+              {{ arrival.supplier.contact_person }}: {{ arrival.supplier.contact_information }}
+            </td>
             <td>{{ arrival.supplier.type }}</td>
             <td>{{ arrival.supplier.location }}</td>
             <td>{{ arrival.supplier.description }}</td>

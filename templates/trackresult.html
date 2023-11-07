@@ -3,9 +3,16 @@
 {% block title %} Track Results {% endblock %}
 <!--head-->
 {%block head %}
-<!-- customer_table search and sort from datatables.net -->
+<!-- result_table search and sort from datatables.net -->
 <script>
-  // load the dataTable after page load
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table = $("#result_table");
+    const tableWidth = table.width() + 24;
+    document.body.style.minWidth = tableWidth + "px";
+  }
+
+  // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#result_table").dataTable({
       order: [],
@@ -16,11 +23,21 @@
         },
       ],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
-  //  an event listener to re-adjust column width on window resize
+
+  // An event listener to re-adjust column width on window resize
+  let resizeTimer;
+
   window.addEventListener("resize", function () {
-    var table = $("#result_table").DataTable();
-    table.columns.adjust().draw();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var table = $("#result_table").DataTable();
+      table.columns.adjust();
+      // Set the minimum body width after each resize
+      setBodyMinWidth();
+    }, 250); // Adjust the delay time
   });
 </script>
 {% endblock %}
@@ -57,7 +74,7 @@
           </form>
           <div class="mt-4">Track search results:</div>
         </th>
-		<th></th>
+        <th></th>
       </thead>
       <tbody>
         {% for result in results %}

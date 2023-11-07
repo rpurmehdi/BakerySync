@@ -115,22 +115,39 @@
 </script>
 <!-- production_table search and sort from datatables.net -->
 <script>
-  // load the dataTable after page load
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table = $("#production_table");
+    const tableWidth = table.width() + 24;
+    document.body.style.minWidth = tableWidth + "px";
+  }
+
+  // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#production_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
       columnDefs: [
         {
-          targets: [-1, -2, -3],
+          targets: [-1, -2],
           orderable: false,
         },
       ],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
-  //  an event listener to re-adjust column width on window resize
+
+  // An event listener to re-adjust column width on window resize
+  let resizeTimer;
+
   window.addEventListener("resize", function () {
-    var table = $("#production_table").DataTable();
-    table.columns.adjust().draw();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var table = $("#production_table").DataTable();
+      table.columns.adjust();
+      // Set the minimum body width after each resize
+      setBodyMinWidth();
+    }, 250); // Adjust the delay time
   });
 </script>
 {% endblock %}
@@ -138,7 +155,7 @@
 {%block main %}
 <div class="container mx-auto text-center">
   <button
-    class="btn btn-success shadow sticky-top"
+    class="btn btn-success shadow sticky-top offset-sticky"
     type="button"
     data-bs-toggle="offcanvas"
     data-bs-target="#AddCanvas"
@@ -159,7 +176,6 @@
         <th>Recipe</th>
         <th>Ingredient Usages</th>
         <th></th>
-        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -178,7 +194,7 @@
             <strong>{{ production.getu(ingredient.id)|round(1) }} Kg</strong><br />{% endfor %}
           </p>
         </td>
-        <td>
+        <td class="min-w">
           <form action="{{ url_for('productions.track') }}" method="post">
             <input type="hidden" name="track" value="{{ production.id }}" />
             <input
@@ -189,8 +205,6 @@
               title="Track {{ production.print_batch }}"
             />
           </form>
-        </td>
-        <td>
           <form
             id="del-{{production.id}}"
             action="{{ url_for('productions.delete_production') }}"
@@ -226,7 +240,10 @@
   </div>
   <div class="offcanvas-body">
     <div class="container mx-auto">
-      <span class="text-danger">Notice that production instances cannot be edited directly. For any changes, delete and re-add!</span>
+      <span class="text-danger"
+        >Notice that production instances cannot be edited directly. For any changes, delete and
+        re-add!</span
+      >
       <form method="POST" action="{{url_for('productions.productions')}}">
         <div class="row justify-content-md-center">
           <div class="col-md-auto">

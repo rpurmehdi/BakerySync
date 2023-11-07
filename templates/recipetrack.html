@@ -5,10 +5,25 @@
 {%block head %}
 <!-- production and shipment table search and sort from datatables.net -->
 <script>
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table1 = $("#production_table");
+    const table2 = $("#shipment_table");
+
+    // Get the widths of the tables
+    const table1Width = table1.width();
+    const table2Width = table2.width();
+
+    // Calculate the maximum width among the tables and add 24 pixels
+    const maxWidth = Math.max(table1Width, table2Width) + 24;
+
+    // Set the minimum body width
+    document.body.style.minWidth = maxWidth + "px";
+  }
   // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#production_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
       columnDefs: [
         {
           targets: [-1],
@@ -17,15 +32,26 @@
       ],
     });
     $("#shipment_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
   function tableAdjust() {
     var pTable = $("#production_table").DataTable();
-    var sTable = $("#shipment_table").DataTable();
-    pTable.columns.adjust().draw();
-    sTable.columns.adjust().draw();
+      var sTable = $("#shipment_table").DataTable();
+      pTable.columns.adjust();
+      sTable.columns.adjust();
+      // Set the minimum body width after each resize
+      setBodyMinWidth();
   }
+  // An event listener to re-adjust column width on window resize
+  let resizeTimer;
+
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(tableAdjust, 250); // Adjust the delay time
+  });
 </script>
 {% endblock %}
 <!--body-->

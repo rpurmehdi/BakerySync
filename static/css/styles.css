@@ -75,7 +75,10 @@ table.dataTable tfoot td {
 }
 
 .chart-container {
-  min-width: 500px;
+  min-width: 520px;
+}
+.chart-container-large {
+  min-width: 720px;
 }
 
 .table {
@@ -84,4 +87,17 @@ table.dataTable tfoot td {
 
 td {
   vertical-align: middle;
+}
+
+td.min-w {
+  max-width: 20px;
+}
+
+td.max-w {
+  min-width: 60px;
+}
+
+.offset-sticky {
+  top: 56px;
+  z-index: 1;
 }

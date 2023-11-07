@@ -5,10 +5,27 @@
 {%block head %}
 <!-- arrival, recipe and production table search and sort from datatables.net -->
 <script>
+  // Function to set the minimum body width
+  function setBodyMinWidth() {
+    const table1 = $("#arrival_table");
+    const table2 = $("#recipe_table");
+    const table3 = $("#production_table");
+
+    // Get the widths of the tables
+    const table1Width = table1.width();
+    const table2Width = table2.width();
+    const table3Width = table3.width();
+
+    // Calculate the maximum width among the tables and add 24 pixels
+    const maxWidth = Math.max(table1Width, table2Width, table3Width) + 24;
+
+    // Set the minimum body width
+    document.body.style.minWidth = maxWidth + "px";
+  }
   // Load the dataTable after page load
   document.addEventListener("DOMContentLoaded", function () {
     $("#arrival_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
     });
     $("#recipe_table").dataTable({
       order: [],
@@ -20,7 +37,7 @@
       ],
     });
     $("#production_table").dataTable({
-      order: [0, "dsc"],
+      order: [0, "desc"],
       columnDefs: [
         {
           targets: [-1],
@@ -28,18 +45,27 @@
         },
       ],
     });
+    // Set the minimum body width initially
+    setBodyMinWidth();
   });
   function tableAdjust() {
     var aTable = $("#arrival_table").DataTable();
     var rTable = $("#recipe_table").DataTable();
     var pTable = $("#production_table").DataTable();
-    aTable.columns.adjust().draw();
-    rTable.columns.adjust().draw();
-    pTable.columns.adjust().draw();
+    aTable.columns.adjust();
+    rTable.columns.adjust();
+    pTable.columns.adjust();
+    // Set the minimum body width after each resize
+    setBodyMinWidth();
   }
 
   // An event listener to re-adjust column width on window resize
-  window.addEventListener("resize", tableAdjust);
+  let resizeTimer;
+
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(tableAdjust, 250); // Adjust the delay time
+  });
 </script>
 {% endblock %}
 <!--body-->
@@ -70,7 +96,7 @@
         aria-controls="nav-arrivals"
         aria-selected="false"
         tabindex="-1"
-        onclick="tableAdjust()"
+        onclick="tableAdjust();"
       >
         Arrivals
       </button>
@@ -84,7 +110,7 @@
         aria-controls="nav-recipes"
         aria-selected="false"
         tabindex="-1"
-        onclick="tableAdjust()"
+        onclick="tableAdjust();"
       >
         Recipes
       </button>
@@ -98,7 +124,7 @@
         aria-controls="nav-productions"
         aria-selected="false"
         tabindex="-1"
-        onclick="tableAdjust()"
+        onclick="tableAdjust();"
       >
         Productions
       </button>
@@ -204,8 +230,8 @@
             <td>
               <p class="m-0 text-end">
                 {% set sorted_ingredients = production.ingredients|list|sortgetu(production)|reverse
-                %} {% for item in sorted_ingredients %} {{ item.type.name }}-{{ item.supplier.name }}
-                ({{ item.arriving_date.strftime('%y-%m-%d') }}):
+                %} {% for item in sorted_ingredients %} {{ item.type.name }}-{{ item.supplier.name
+                }} ({{ item.arriving_date.strftime('%y-%m-%d') }}):
                 <strong>{{ production.getu(item.id) }} Kg</strong><br />{% endfor %}
               </p>
             </td>
