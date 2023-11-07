@@ -21,12 +21,18 @@
           const name = response.names[i];
           const percent = response.percents[i];
           const stock = response.stocks[i].toFixed(1);
-          const text = name + " max: " + stock + " Kgs<br>";
-          const formDiv = $("<div>", {
-            class: "form-floating",
+          const text = name + ": " + percent + "%," + " in-stock: " + stock + " Kgs";
+          const groupDiv = $("<div>", {
+            class: "input-group input-group-sm my-1",
+          });
+          const preDiv = $("<div>", {
+            class: "input-group-prepend",
+          });
+          const span = $("<span>", {
+            class: "input-group-text",
           });
           const input = $("<input>", {
-            class: "form-control my-1",
+            class: "form-control",
             type: "number",
             step: "0.1",
             min: "0",
@@ -35,14 +41,11 @@
             name: name,
             required: true,
           });
-          const label = $("<label>", {
-            for: "rm" + id,
-            text: `${name} (${percent}%)`,
-          });
-          formDiv.append(input);
-          formDiv.append(label);
-          $("#rmContainer").append(formDiv);
-          $("#message").append(text);
+          span.append(text);
+          preDiv.append(span);
+          groupDiv.append(preDiv);
+          groupDiv.append(input);
+          $("#rmContainer").append(groupDiv);
         }
       },
       error: function (err) {
@@ -222,7 +225,8 @@
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <div class="container mx-auto mt-3">
+    <div class="container mx-auto">
+      <span class="text-danger">Notice that production instances cannot be edited directly. For any changes, delete and re-add!</span>
       <form method="POST" action="{{url_for('productions.productions')}}">
         <div class="row justify-content-md-center">
           <div class="col-md-auto">
@@ -282,9 +286,11 @@
               >{% endfor %}
               <label for="recipe0">Recipe</label>
             </div>
-            <div id="message" class="form-text text-danger"></div>
-            <div id="rmContainer"></div>
           </div>
+        </div>
+        <div class="row justify-content-md-center mt-1">
+          <div id="message" class="form-text text-danger"></div>
+          <div id="rmContainer"></div>
         </div>
         <div class="row justify-content-md-center mt-3">
           <div class="col-md-auto">
