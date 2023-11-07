@@ -98,22 +98,6 @@
   </div>
   <div class="row mt-3">
     <div class="col mt-4">
-      <!-- where the ingredient graph will take place -->
-      <div class="card border-x-secondary border-secondary shadow">
-        <div class="card-body align-items-center">
-          <div id="itype_chart"></div>
-        </div>
-      </div>
-    </div>
-    <div class="col mt-4">
-      <!-- where the product graph will take place -->
-      <div class="card border-x-secondary border-secondary shadow">
-        <div class="card-body align-items-center">
-          <div id="ptype_chart"></div>
-        </div>
-      </div>
-    </div>
-    <div class="col mt-4">
       <!-- where the production graph will take place -->
       <div class="card border-x-secondary border-secondary shadow">
         <div class="card-body align-items-center">
@@ -229,15 +213,11 @@
   }
 
   // Parse the Data and create charts
-  const ingredientsData = {{ ingredients| safe }};
-  const productsData = {{ products| safe }};
   const arrivalsData = {{ montharrivals| safe }};
   const shipmentsData = {{ monthshipments| safe }};
   const productionsData = {{ monthproductions| safe }};
   const productionsumData = {{ productionsum| safe }};
 
-  createChart("#itype_chart", ingredientsData, "Current Ingredients Stock (Kg)", true, "#ffc107");
-  createChart("#ptype_chart", productsData, "Current Products Stock (Kg)", true, "#2653d4");
   createChart("#productionsum_chart", productionsumData, "Productions of {{ month|safe }} {{ year|safe }} (Kg)", true, "#6610f2");
   createChart("#arrival_chart", arrivalsData, "Arrivals of {{ month|safe }} {{ year|safe }} (Kg)", true, "#fd7e14");
   createChart("#shipment_chart", shipmentsData, "Shipments of {{ month|safe }} {{ year|safe }} (Kg)", true, "#198754");

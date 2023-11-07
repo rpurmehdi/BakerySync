@@ -10,7 +10,7 @@ Follow these instructions to get BakerySync up and running on your local machine
 - Flask
 - Flask-SQLAlchemy
  - **how to run**:
- after installing the prerequisites, run app.py via python and go to localhost:5000 on your browser. Alternatively you can deploy it to a WSGI server, which is a fast application server written in C.
+ after installing the prerequisites, run app.py via python (or type flask run in your terminal)and go to localhost:5000 on your browser. Alternatively you can deploy it to a WSGI server, which is a fast application server written in C.
 ## Features
 - **Production Management**: Easily create, edit, and track bakery production batches. Each production batch can be associated with a recipe, production type, and ingredients used. you can also track the suppliers you got that ingredients from. this makes batch tracking to a whole new level.
 - **Inventory**: Keep an eye on your bakery's inventory by monitoring stock levels for different ingredients and products. Bakerysync uses FIFO when handling ingredient usage from inventory, ensuring what comes first, is used first.
@@ -30,7 +30,7 @@ The templates folder contains the HTML files for render_template, which is a Fla
 The back-end logic of adding, editing, deleting, tracking, and any other function inside the app is in one of the .py files in the routes folder, any of them containing one or more Flask routes.
 Here are some of the most important route files in the routes folder:
 ##### index.py
-This file gathers all data there is in the database and also the current or requested year and month. It then uses this data to show information on the dashboard when a GET request is sent to it or returns a search result page when an item is sent to it with a POST request.
+This file gathers all data there is in the database and also the current or requested year and month. It then uses this data to show information on the dashboard page when a GET request is sent to it or returns a search result page when an item is sent to it with a POST request. It also handles data gathering for current in-stock ingredients and products to show in warehouse page.
 ##### customers.py and suppliers.py
 These files similarly handle customers and suppliers. When a GET request is sent to them, they render a page to show the current list of customers/suppliers. They also handle four types of POST requests for adding, editing, deleting, and the track function.
 ##### arrivals.py and shipment.py

@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+<!-- enter the page title here!-->
+{% block title %} Dashboard {% endblock %}
+<!--head-->
+{% block head %}
+<script src="/static/js/d3.v6.js"></script>
+<script>
+  // JavaScript code to handle form submission
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("dateForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const year = document.getElementById("year").value;
+      const month = document.getElementById("month").value;
+      const url = `/?year=${year}&month=${month}`;
+      window.location.href = url;
+    });
+  });
+</script>
+{% endblock %} {% block main %}
+<div class="container mx-auto text-center">
+  <div class="row mt-3">
+    <!-- where the ingredient graph will take place -->
+    <div class="card-body align-items-center">
+      <div id="itype_chart"></div>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <!-- where the product graph will take place -->
+    <div class="card-body align-items-center">
+      <div id="ptype_chart"></div>
+    </div>
+  </div>
+</div>
+
+<!-- charts script -->
+<script>
+  // Define a function to create a chart
+  function createChart(chartId, data, title, text, chartColor) {
+
+    // Set the dimensions and margins of the graph
+    const margin = { top: 30, right: 5, bottom: 110, left: 40 },
+      width = 650 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+
+    // Append the svg object to the specified element
+    const svg = d3
+      .select(chartId)
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+    // Check if the data array is empty
+    if (data.length === 0) {
+      // add text "No data available"
+      svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "18px")
+        .text("No data available for " + title);
+      // Return early and do not create the chart
+      return;
+    }
+    // Calculate the Y axis domain
+    const maxY = d3.max(data, (d) => d[1]); // Find the maximum value in the data
+    const yDomain = [0, maxY * 1.1]; // Adjust the maximum value by 10%
+
+    // Y axis
+    const y = d3.scaleLinear().domain(yDomain).range([height, 0]);
+    svg.append("g").call(d3.axisLeft(y));
+
+    // X axis
+    const x = d3.scaleBand()
+      .range([0, width])
+      .domain(data.map((d) => d[0]))
+      .padding(0.4);
+    svg.append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .attr("transform", "translate(-4,0)rotate(-45)")
+      .style("font-size", "14px")
+      .style("text-anchor", "end");
+
+    // Bars
+    svg.selectAll("bar")
+      .data(data)
+      .join("rect")
+      .attr("x", (d) => x(d[0]))
+      .attr("y", (d) => y(d[1]))
+      .attr("width", x.bandwidth())
+      .attr("height", (d) => height - y(d[1]))
+      .attr("fill", chartColor);
+
+    // Text labels above the bars
+    svg.selectAll("label")
+      .data(data)
+      .join("text")
+      .attr("x", (d) => x(d[0]) + x.bandwidth() / 2)
+      .attr("y", (d) => y(d[1]) - 10) // Adjust the vertical position of the text
+      .text((d) => text ? `${d[1]}` : "")
+      .attr("text-anchor", "middle")
+      .style("fill", "black")
+      .style("font-size", "14px");
+
+    // Add title
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", -10)
+      .attr("text-anchor", "middle")
+      .style("font-size", "18px")
+      .text(title);
+  }
+
+  // Parse the Data and create charts
+  const ingredientsData = {{ ingredients| safe }};
+  const productsData = {{ products| safe }};
+
+
+  createChart("#itype_chart", ingredientsData, "Current in-stock Ingredients (Kg)", true, "#ffc107");
+  createChart("#ptype_chart", productsData, "Current in-stock Products (Kg)", true, "#2653d4");
+</script>
+
+{% endblock %}

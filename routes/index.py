@@ -90,20 +90,6 @@ def index():
             else:
                 productions_json = []
 
-        # ingredient stocks
-        ingredienttypes = []
-        for ingredient in ingredients:
-            if ingredient.stock > 0:
-                ingredienttypes.append((ingredient.name, ingredient.stock))
-        ingredients_json = json.dumps(ingredienttypes)
-
-        # product stocks
-        producttypes = []
-        for product in products:
-            if product.stock > 0:
-                producttypes.append((product.name, product.stock))
-        products_json = json.dumps(producttypes)
-
         context = {
             "years": years,
             "datasum": datasum,
@@ -111,8 +97,6 @@ def index():
             "productionsum": productionsum_json,
             "month": current_month_name,
             "year": current_year,
-            "ingredients": ingredients_json,
-            "products": products_json,
             "montharrivals": arrivals_json,
             "monthshipments": shipments_json,
             "monthproductions": productions_json,
@@ -235,3 +219,27 @@ def index():
         except Exception as e:
             flash(f"Error: {str(e)}", "danger")
             return render_template("trackresult.html", results=[], search_query="")
+
+@index_bp.route("/warehouse", methods=["GET"])
+def warehouse():
+    # ingredient stocks
+    ingredients = IngredientType.query.order_by(IngredientType.name).all()
+    ingredienttypes = []
+    for ingredient in ingredients:
+        if ingredient.stock > 0:
+            ingredienttypes.append((ingredient.name, ingredient.stock))
+    ingredients_json = json.dumps(ingredienttypes)
+
+    # product stocks
+    products = ProductType.query.order_by(ProductType.name).all()
+    producttypes = []
+    for product in products:
+        if product.stock > 0:
+            producttypes.append((product.name, product.stock))
+    products_json = json.dumps(producttypes)
+
+    context = {
+            "ingredients": ingredients_json,
+            "products": products_json,
+        }
+    return render_template("warehouse.html", **context)
