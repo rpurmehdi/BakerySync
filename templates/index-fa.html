@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, shrink-to-fit=no" />
+  <meta name="description" content="BakerySync ERP system" />
+  <meta name="author" content="rpurmehdi" />
+
+  <!-- bootstrap css and js from http://getbootstrap.com/docs/5.3/ -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css"
+    integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
+  <script src="/static/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <!-- jquery -->
+  <script src="/static/js/jquery-3.6.0.min.js"></script>
+  <!-- table search and sort from datatables.net -->
+  <link rel="stylesheet" href="/static/css/jquery.dataTables.css" />
+  <script src="/static/js/jquery.dataTables.js"></script>
+  <!-- script for deleting an item from a table -->
+  <script>
+    function confirmDelete(Item, Message) {
+      var confirmMessage =
+        "Are you sure you want to delete " +
+        Message +
+        "?\nThis can not be undone!\nNote: you can not delete items that are referenced eslsewhere in the database";
+      if (confirm(confirmMessage)) {
+        // If confirmed, submit the form
+        document.getElementById(Item).submit();
+      } else {
+        // If canceled, prevent form submission
+        return false;
+      }
+    }
+  </script>
+  <!-- icons and manifest file -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png" />
+  <link rel="manifest" href="/static/site.webmanifest" />
+  <link rel="icon" href="/static/images/favicon.ico" />
+  <!-- head block for templates -->
+  <script src="/static/js/d3.v6.js"></script>
+  <script>
+    // JavaScript code to handle form submission
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("dateForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const year = document.getElementById("year").value;
+        const month = document.getElementById("month").value;
+        const url = `/fa?year=${year}&month=${month}`;
+        window.location.href = url;
+      });
+    });
+  </script>
+  <!-- custom style -->
+  <link href="/static/css/styles.css" rel="stylesheet" />
+  <!-- page title -->
+  <title>داشبورد</title>
+</head>
+
+<body class="chart-container">
+  <!-- navbar -->
+  <nav class="navbar navbar-expand-lg sticky-top bg-warning-subtle shadow">
+    <div class="container-fluid">
+      <img src="/static/images/android-chrome-512x512.png" alt="BakerySyncLogo" class="navbar-brand py-0" width="30"
+        height="30" />
+      <a class="navbar-brand" href="{{ url_for('index.index') }}">همگام نانوا</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              پیکربندی
+            </a>
+            <ul class="dropdown-menu bg-warning-subtle">
+              <li>
+                <a class="dropdown-item" href="{{ url_for('types.types') }}">تعریف مواد</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ url_for('suppliers.suppliers') }}">تامین کنندگان</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ url_for('customers.customers') }}">مشتری‌ها</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{{ url_for('recipes.recipes') }}">دستورالعمل</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{{ url_for('productions.productions') }}">تولید</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              انبار داری
+            </a>
+            <ul class="dropdown-menu bg-warning-subtle">
+              <li>
+                <a class="dropdown-item" href="{{ url_for('index.warehouse') }}">انبار</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ url_for('arrivals.arrivals') }}">دریافت مواد اولیه</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ url_for('shipments.shipments') }}">ارسال محصول</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <!-- track search input form -->
+        <form class="form-inline" action="{{ url_for('index.index') }}" method="post">
+          <div class="row g-3 align-items-center">
+            <div class="col-auto">
+              <div class="input-group my-0">
+                <input type="search" name="track" id="track" class="form-control" placeholder="رهگیری"
+                  aria-label="رهگیری" autocomplete="off" title="حداقل 3 حرف وارد کنید" required />
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="submit">
+                    <img src="/static/icons/search.svg" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <main class="container-fluid text-center">
+    <div class="container mx-auto text-center chart-container">
+      <div class="row mt-4">
+        <div class="col">
+          <div class="card border-x-secondary border-secondary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                    سال و ماه را انتخاب کنید:
+                  </div>
+                  <form id="dateForm" class="form-inline secondary text-secondary">
+                    <div class="input-group justify-content-center my-0">
+                      <div class="input-group-append mx-1">
+                        <label for="year">سال:</label>
+                        <select class="form-control-sm text-secondary" name="year" id="year">
+                          <!-- years already in database -->
+                          {% for item in years|sort %}
+                          <option value="{{ item }}" {% if item|int==year %}selected{% endif %}>
+                            {{ item }}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="input-group-append mx-1">
+                        <label for="month">ماه:</label>
+                        <select class="form-control-sm text-secondary" name="month" id="month">
+                          <option value="1" {% if month=="January" %}selected{% endif %}>January</option>
+                          <option value="2" {% if month=="February" %}selected{% endif %}>February</option>
+                          <option value="3" {% if month=="March" %}selected{% endif %}>March</option>
+                          <option value="4" {% if month=="April" %}selected{% endif %}>April</option>
+                          <option value="5" {% if month=="May" %}selected{% endif %}>May</option>
+                          <option value="6" {% if month=="June" %}selected{% endif %}>June</option>
+                          <option value="7" {% if month=="July" %}selected{% endif %}>July</option>
+                          <option value="8" {% if month=="August" %}selected{% endif %}>August</option>
+                          <option value="9" {% if month=="September" %}selected{% endif %}>September</option>
+                          <option value="10" {% if month=="October" %}selected{% endif %}>October</option>
+                          <option value="11" {% if month=="November" %}selected{% endif %}>November</option>
+                          <option value="12" {% if month=="December" %}selected{% endif %}>December</option>
+                        </select>
+                      </div>
+                      <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">برو</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-left-success border-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                    جمع ارسال {{ month }} {{ year }}
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-success">{{ shipmentsum }} کیلوگرم</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card border-left-primary border-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    جمع تولید {{ month }} {{ year }}
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-primary">{{ datasum }} کیلوگرم</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col mt-4">
+          <!-- where the production graph will take place -->
+          <div class="card border-x-secondary border-secondary shadow">
+            <div class="card-body align-items-center">
+              <div id="productionsum_chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col mt-4">
+          <!-- where the production / day graph will take place -->
+          <div class="card border-x-secondary border-secondary shadow">
+            <div class="card-body align-items-center">
+              <div id="production_chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col mt-4">
+          <!-- where the arrival graph will take place -->
+          <div class="card border-x-secondary border-secondary shadow">
+            <div class="card-body align-items-center">
+              <div id="arrival_chart"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col mt-4">
+          <!-- where the shipment graph will take place -->
+          <div class="card border-x-secondary border-secondary shadow">
+            <div class="card-body align-items-center">
+              <div id="shipment_chart"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- charts script -->
+    <script>
+      // Define a function to create a chart
+      function createChart(chartId, data, title, text, chartColor) {
+
+        // Check if the data array is empty
+        if (data.length === 0) {
+          // add text "No data available"
+          const svg = d3
+            .select(chartId)
+            .append("svg")
+            .attr("width", 400)
+            .attr("height", 300)
+            .append("g")
+          svg.append("text")
+            .attr("x", 200)
+            .attr("y", 150)
+            .attr("text-anchor", "middle")
+            .style("font-size", "15px")
+            .text("داده ای برای " + title + " وجود ندارد");
+          // Return early and do not create the chart
+          return;
+        }
+
+        // Set the dimensions and margins of the graph
+        const margin = { top: 25, right: 35, bottom: 70, left: 5 },
+          width = 430 - margin.left - margin.right,
+          height = 320 - margin.top - margin.bottom;
+
+        // Append the svg object to the specified element
+        const svg = d3
+          .select(chartId)
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+        data = data.reverse();
+
+        // Calculate the Y axis domain
+        const maxY = d3.max(data, (d) => d[1]); // Find the maximum value in the data
+        const yDomain = [0, maxY * 1.1]; // Adjust the maximum value by 10%
+
+        // Y axis
+        const y = d3.scaleLinear().domain(yDomain).range([height, 0]);
+        svg.append("g")
+          .attr("transform", `translate(${width}, 0)`)
+          .call(d3.axisRight(y))
+          .selectAll("text")
+          .attr("transform", "translate(4,0)")
+          .style("text-anchor", "end");
+
+        // X axis
+        const x = d3.scaleBand()
+          .range([0, width])
+          .domain(data.map((d) => d[0]))
+          .padding(0.4);
+        svg.append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(x))
+          .selectAll("text")
+          .attr("transform", "translate(-4,0)rotate(-45)")
+          .style("text-anchor", "start");
+
+        // Bars
+        svg.selectAll("bar")
+          .data(data)
+          .join("rect")
+          .attr("x", (d) => x(d[0]))
+          .attr("y", (d) => y(d[1]))
+          .attr("width", x.bandwidth())
+          .attr("height", (d) => height - y(d[1]))
+          .attr("fill", chartColor);
+
+        // Text labels above the bars
+        svg.selectAll("label")
+          .data(data)
+          .join("text")
+          .attr("x", (d) => x(d[0]) + x.bandwidth() / 2)
+          .attr("y", (d) => y(d[1]) - 10) // Adjust the vertical position of the text
+          .text((d) => text ? `${d[1]}` : "")
+          .attr("text-anchor", "middle")
+          .style("fill", "black")
+          .style("font-size", "11px");
+
+        // Add title
+        svg.append("text")
+          .attr("x", width / 2)
+          .attr("y", -10)
+          .attr("text-anchor", "middle")
+          .style("font-size", "18px")
+          .text(title);
+      }
+
+      // Parse the Data and create charts
+      const arrivalsData = {{ montharrivals| safe }};
+      const shipmentsData = {{ monthshipments| safe }};
+      const productionsData = {{ monthproductions| safe }};
+      const productionsumData = {{ productionsum| safe }};
+      createChart("#productionsum_chart", productionsumData, "تولید {{ month|safe }} {{ year|safe }} (کیلوگرم)", true, "#6610f2");
+      createChart("#arrival_chart", arrivalsData, "رسیده‌های {{ month|safe }} {{ year|safe }} (کیلوگرم)", true, "#fd7e14");
+      createChart("#shipment_chart", shipmentsData, "ارسال‌های {{ month|safe }} {{ year|safe }} (کیلوگرم)", true, "#198754");
+      createChart("#production_chart", productionsData, "میزان تولید {{ month|safe }} {{ year|safe }} (کیلوگرم)", false, "#4e73df");
+    </script>
+  </main>
+
+  <footer class="mb-5 small text-center text-muted"></footer>
+</body>
+
+</html>

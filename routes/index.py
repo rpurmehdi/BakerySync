@@ -15,10 +15,8 @@ index_bp = Blueprint("index", __name__, url_prefix="")
 def index():
     # Dashboard
     if request.method == "GET":
-        current_year = int(request.args.get(
-            "year", datetime.datetime.now().year))
-        current_month = int(request.args.get(
-            "month", datetime.datetime.now().month))
+        current_year = int(request.args.get("year", datetime.datetime.now().year))
+        current_month = int(request.args.get("month", datetime.datetime.now().month))
         current_month_name = datetime.date(current_year, current_month, 1).strftime(
             "%B"
         )
@@ -115,10 +113,8 @@ def index():
             IngredientArrival.arriving_date
         ).all()
         recipes = Recipe.query.all()
-        productions = Production.query.order_by(
-            Production.production_time).all()
-        shipments = ProductShipment.query.order_by(
-            ProductShipment.shipping_date).all()
+        productions = Production.query.order_by(Production.production_time).all()
+        shipments = ProductShipment.query.order_by(ProductShipment.shipping_date).all()
         for itype in itypes:
             trackable = {
                 "type": url_for("types.itrack"),
@@ -220,6 +216,7 @@ def index():
             flash(f"Error: {str(e)}", "danger")
             return render_template("trackresult.html", results=[], search_query="")
 
+
 @index_bp.route("/warehouse", methods=["GET"])
 def warehouse():
     # ingredient stocks
@@ -239,7 +236,172 @@ def warehouse():
     products_json = json.dumps(producttypes)
 
     context = {
-            "ingredients": ingredients_json,
-            "products": products_json,
-        }
+        "ingredients": ingredients_json,
+        "products": products_json,
+    }
     return render_template("warehouse.html", **context)
+
+
+# TEMP PERSIAN PREVIEW
+@index_bp.route("/fa", methods=["GET"])
+def fa():
+    # Dashboard
+    if request.method == "GET":
+        current_year = int(request.args.get("year", datetime.datetime.now().year))
+        current_month = int(request.args.get("month", datetime.datetime.now().month))
+        current_month_name = datetime.date(current_year, current_month, 1).strftime(
+            "%B"
+        )
+        # keep track of all years included in database
+        years = set()
+        # arrivals of the month
+        ingredients = IngredientType.query.order_by(IngredientType.name).all()
+        month_arrivals = []
+        for ingredient in ingredients:
+            sum = 0
+            for arrival in ingredient.arrivals:
+                years.add(arrival.arriving_date.strftime("%Y"))
+                if arrival.arriving_date.strftime("%y-%m-%d").startswith(
+                    f"{current_year % 100:02d}-{current_month:02d}"
+                ):
+                    sum += arrival.quantity
+            if sum > 0:
+                month_arrivals.append((ingredient.name, sum))
+        arrivals_json = json.dumps(month_arrivals)
+
+        # shipments of the month
+        shipmentsum = 0
+        products = ProductType.query.order_by(ProductType.name).all()
+        month_shipments = []
+        month_productionsum = []
+        for product in products:
+            shipsum = 0
+            for shipment in product.shipments:
+                years.add(shipment.shipping_date.strftime("%Y"))
+                if shipment.shipping_date.strftime("%Y-%m-%d").startswith(
+                    f"{current_year}-{current_month:02d}"
+                ):
+                    shipsum += shipment.quantity
+            if shipsum > 0:
+                month_shipments.append((product.name, shipsum))
+                shipmentsum += shipsum
+            prdsum = 0
+            for production in product.productions:
+                years.add(production.production_time.strftime("%Y"))
+                if production.production_time.strftime("%Y-%m-%d").startswith(
+                    f"{current_year}-{current_month:02d}"
+                ):
+                    prdsum += production.quantity
+            if prdsum > 0:
+                month_productionsum.append((product.name, prdsum))
+        shipments_json = json.dumps(month_shipments)
+        productionsum_json = json.dumps(month_productionsum)
+
+        # production / day in month
+        productions = Production.query.all()
+
+        # Generate a list of "YY-MM-DD" strings for each day in the current month
+        days_in_month = calendar.monthrange(current_year, current_month)[1]
+        days = [
+            f"{current_year}-{current_month:02d}-{day:02d}"
+            for day in range(1, days_in_month + 1)
+        ]
+        month_production = []
+        datasum = 0
+        for day in days:
+            sum = 0
+            for production in productions:
+                if production.production_time.strftime("%Y-%m-%d").startswith(day):
+                    sum += production.quantity
+            datasum += sum
+            month_production.append((day.split("-")[2], sum))
+            if datasum > 0:
+                productions_json = json.dumps(month_production)
+            else:
+                productions_json = []
+        if current_month == 11:
+            shipments_json = [
+                ["باگت", 300],
+                ["بیگل", 50],
+                ["پای سیب", 100],
+                ["دونات", 80],
+                ["کتاب", 250],
+                ["کوکی بادامی", 175],
+                ["کیک شکلاتی", 25],
+                ["نان تست قهوه‌ای", 300],
+                ["نان تست سفید", 210],
+                ["فوکاچیا", 100],
+            ]
+            arrivals_json = [
+                ["بادام درختی", 20],
+                ["بیکینگ پودر", 15],
+                ["سیب", 30],
+                ["شکر", 120],
+                ["شیر", 10],
+                ["کره", 50],
+                ["گردو", 15],
+                ["مخمر", 35],
+                ["نمک", 55],
+                ["روغن زیتون", 2],
+            ]
+            productions_json = [
+                ["01", 100],
+                ["02", 150],
+                ["03", 120],
+                ["04", 50],
+                ["05", 25],
+                ["06", 80],
+                ["07", 100],
+                ["08", 100],
+                ["09", 100],
+                ["10", 0],
+                ["11", 100],
+                ["12", 130],
+                ["13", 100],
+                ["14", 210],
+                ["15", 150],
+                ["16", 0],
+                ["17", 0],
+                ["18", 0],
+                ["19", 0],
+                ["20", 0],
+                ["21", 0],
+                ["22", 0],
+                ["23", 0],
+                ["24", 0],
+                ["25", 0],
+                ["26", 0],
+                ["27", 0],
+                ["28", 0],
+                ["29", 0],
+                ["30", 0],
+            ]
+            productionsum_json = [
+                ["باگت", 360],
+                ["بیگل", 50],
+                ["دونات", 80],
+                ["کتاب", 250],
+                ["کوکی بادامی", 100],
+                ["کیک شکلاتی", 25],
+                ["نان تست قهوه‌ای", 370],
+                ["نان تست سفید", 230],
+                ["فوکاچیا", 100],
+                ["پای سیب", 100],
+            ]
+        else:
+            shipments_json = []
+            arrivals_json = []
+            productionsum_json = []
+            productions_json = []
+        context = {
+            "years": years,
+            "datasum": datasum,
+            "shipmentsum": shipmentsum,
+            "productionsum": productionsum_json,
+            "month": current_month_name,
+            "year": current_year,
+            "montharrivals": arrivals_json,
+            "monthshipments": shipments_json,
+            "monthproductions": productions_json,
+        }
+        return render_template("index-fa.html", **context)
