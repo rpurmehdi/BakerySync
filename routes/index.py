@@ -243,3 +243,95 @@ def warehouse():
             "products": products_json,
         }
     return render_template("warehouse.html", **context)
+#TEMP PERSIAN PREVIEW
+@index_bp.route("/fa", methods=["GET"])
+def fa():
+    # Dashboard
+    if request.method == "GET":
+        current_year = int(request.args.get(
+            "year", datetime.datetime.now().year))
+        current_month = int(request.args.get(
+            "month", datetime.datetime.now().month))
+        current_month_name = datetime.date(current_year, current_month, 1).strftime(
+            "%B"
+        )
+        # keep track of all years included in database
+        years = set()
+        # arrivals of the month
+        ingredients = IngredientType.query.order_by(IngredientType.name).all()
+        month_arrivals = []
+        for ingredient in ingredients:
+            sum = 0
+            for arrival in ingredient.arrivals:
+                years.add(arrival.arriving_date.strftime("%Y"))
+                if arrival.arriving_date.strftime("%y-%m-%d").startswith(
+                    f"{current_year % 100:02d}-{current_month:02d}"
+                ):
+                    sum += arrival.quantity
+            if sum > 0:
+                month_arrivals.append((ingredient.name, sum))
+        arrivals_json = json.dumps(month_arrivals)
+
+        # shipments of the month
+        shipmentsum = 0
+        products = ProductType.query.order_by(ProductType.name).all()
+        month_shipments = []
+        month_productionsum = []
+        for product in products:
+            shipsum = 0
+            for shipment in product.shipments:
+                years.add(shipment.shipping_date.strftime("%Y"))
+                if shipment.shipping_date.strftime("%Y-%m-%d").startswith(
+                    f"{current_year}-{current_month:02d}"
+                ):
+                    shipsum += shipment.quantity
+            if shipsum > 0:
+                month_shipments.append((product.name, shipsum))
+                shipmentsum += shipsum
+            prdsum = 0
+            for production in product.productions:
+                years.add(production.production_time.strftime("%Y"))
+                if production.production_time.strftime("%Y-%m-%d").startswith(
+                    f"{current_year}-{current_month:02d}"
+                ):
+                    prdsum += production.quantity
+            if prdsum > 0:
+                month_productionsum.append((product.name, prdsum))
+        shipments_json = json.dumps(month_shipments)
+        productionsum_json = json.dumps(month_productionsum)
+
+        # production / day in month
+        productions = Production.query.all()
+
+        # Generate a list of "YY-MM-DD" strings for each day in the current month
+        days_in_month = calendar.monthrange(current_year, current_month)[1]
+        days = [
+            f"{current_year}-{current_month:02d}-{day:02d}"
+            for day in range(1, days_in_month + 1)
+        ]
+        month_production = []
+        datasum = 0
+        for day in days:
+            sum = 0
+            for production in productions:
+                if production.production_time.strftime("%Y-%m-%d").startswith(day):
+                    sum += production.quantity
+            datasum += sum
+            month_production.append((day.split("-")[2], sum))
+            if datasum > 0:
+                productions_json = json.dumps(month_production)
+            else:
+                productions_json = []
+
+        context = {
+            "years": years,
+            "datasum": datasum,
+            "shipmentsum": shipmentsum,
+            "productionsum": productionsum_json,
+            "month": current_month_name,
+            "year": current_year,
+            "montharrivals": arrivals_json,
+            "monthshipments": shipments_json,
+            "monthproductions": productions_json,
+        }
+        return render_template("index-fa.html", **context)
