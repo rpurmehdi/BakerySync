@@ -46,7 +46,7 @@
         event.preventDefault();
         const year = document.getElementById("year").value;
         const month = document.getElementById("month").value;
-        const url = `/?year=${year}&month=${month}`;
+        const url = `/fa?year=${year}&month=${month}`;
         window.location.href = url;
       });
     });
@@ -57,13 +57,13 @@
   <title>داشبورد</title>
 </head>
 
-<body {% block bodyclass %}{% endblock %}>
+<body class="chart-container">
   <!-- navbar -->
   <nav class="navbar navbar-expand-lg sticky-top bg-warning-subtle shadow">
     <div class="container-fluid">
       <img src="/static/images/android-chrome-512x512.png" alt="BakerySyncLogo" class="navbar-brand py-0" width="30"
         height="30" />
-      <a class="navbar-brand" href="{{ url_for('index.index') }}">BakerySync</a>
+      <a class="navbar-brand" href="{{ url_for('index.index') }}">همگام نانوا</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -87,7 +87,7 @@
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="{{ url_for('recipes.recipes') }}">دستور تولید</a>
+            <a class="nav-link" aria-current="page" href="{{ url_for('recipes.recipes') }}">دستورالعمل</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="{{ url_for('productions.productions') }}">تولید</a>
@@ -114,9 +114,8 @@
           <div class="row g-3 align-items-center">
             <div class="col-auto">
               <div class="input-group my-0">
-                <input type="search" name="track" id="track" class="form-control" placeholder="type what to track"
-                  aria-label="type what to track" autocomplete="off" title="Must be at least 3 characters long"
-                  required />
+                <input type="search" name="track" id="track" class="form-control" placeholder="رهگیری"
+                  aria-label="رهگیری" autocomplete="off" title="حداقل 3 حرف وارد کنید" required />
                 <div class="input-group-append">
                   <button class="btn btn-outline-secondary" type="submit">
                     <img src="/static/icons/search.svg" />
@@ -171,7 +170,7 @@
                         </select>
                       </div>
                       <div class="input-group-append">
-                        <button class="btn btn-sm btn-outline-secondary" type="submit">Go</button>
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">برو</button>
                       </div>
                     </div>
                   </form>
@@ -264,7 +263,7 @@
             .attr("y", 150)
             .attr("text-anchor", "middle")
             .style("font-size", "15px")
-            .text("No data available for " + title);
+            .text("داده ای برای " + title + " وجود ندارد");
           // Return early and do not create the chart
           return;
         }
@@ -340,43 +339,10 @@
       }
 
       // Parse the Data and create charts
-      const arrivalsData = [
-        ["بادام درختی", 20],
-        ["بیکینگ پودر", 15],
-        ["سیب", 30],
-        ["شکر", 120],
-        ["شیر", 10],
-        ["کره", 50],
-        ["گردو", 15],
-        ["مخمر", 35],
-        ["نمک", 55],
-        ["روغن زیتون", 2],
-      ];
-      const shipmentsData = [
-        ["باگت", 300],
-        ["بیگل", 50],
-        ["پای سیب", 100],
-        ["دونات", 80],
-        ["کتاب", 250],
-        ["کوکی بادامی", 175],
-        ["کیک شکلاتی", 25],
-        ["نان تست قهوه‌ای", 300],
-        ["نان تست سفید", 210],
-        ["فوکاچیا", 100],
-      ];
-      const productionsData = [["01", 100], ["02", 150], ["03", 120], ["04", 50], ["05", 25], ["06", 80], ["07", 100], ["08", 100], ["09", 100], ["10", 0], ["11", 100], ["12", 130], ["13", 100], ["14", 210], ["15", 150], ["16", 0], ["17", 0], ["18", 0], ["19", 0], ["20", 0], ["21", 0], ["22", 0], ["23", 0], ["24", 0], ["25", 0], ["26", 0], ["27", 0], ["28", 0], ["29", 0], ["30", 0]];
-      const productionsumData = [
-        ["باگت", 360],
-        ["بیگل", 50],
-        ["دونات", 80],
-        ["کتاب", 250],
-        ["کوکی بادامی", 100],
-        ["کیک شکلاتی", 25],
-        ["نان تست قهوه‌ای", 370],
-        ["نان تست سفید", 230],
-        ["فوکاچیا", 100],
-        ["پای سیب", 100],
-      ];
+      const arrivalsData = {{ montharrivals| safe }};
+      const shipmentsData = {{ monthshipments| safe }};
+      const productionsData = {{ monthproductions| safe }};
+      const productionsumData = {{ productionsum| safe }};
       createChart("#productionsum_chart", productionsumData, "تولید {{ month|safe }} {{ year|safe }} (کیلوگرم)", true, "#6610f2");
       createChart("#arrival_chart", arrivalsData, "رسیده‌های {{ month|safe }} {{ year|safe }} (کیلوگرم)", true, "#fd7e14");
       createChart("#shipment_chart", shipmentsData, "ارسال‌های {{ month|safe }} {{ year|safe }} (کیلوگرم)", true, "#198754");

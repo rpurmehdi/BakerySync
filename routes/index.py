@@ -220,6 +220,7 @@ def index():
             flash(f"Error: {str(e)}", "danger")
             return render_template("trackresult.html", results=[], search_query="")
 
+
 @index_bp.route("/warehouse", methods=["GET"])
 def warehouse():
     # ingredient stocks
@@ -239,11 +240,14 @@ def warehouse():
     products_json = json.dumps(producttypes)
 
     context = {
-            "ingredients": ingredients_json,
-            "products": products_json,
-        }
+        "ingredients": ingredients_json,
+        "products": products_json,
+    }
     return render_template("warehouse.html", **context)
-#TEMP PERSIAN PREVIEW
+
+# TEMP PERSIAN PREVIEW
+
+
 @index_bp.route("/fa", methods=["GET"])
 def fa():
     # Dashboard
@@ -271,7 +275,6 @@ def fa():
             if sum > 0:
                 month_arrivals.append((ingredient.name, sum))
         arrivals_json = json.dumps(month_arrivals)
-
         # shipments of the month
         shipmentsum = 0
         products = ProductType.query.order_by(ProductType.name).all()
@@ -299,10 +302,8 @@ def fa():
                 month_productionsum.append((product.name, prdsum))
         shipments_json = json.dumps(month_shipments)
         productionsum_json = json.dumps(month_productionsum)
-
         # production / day in month
         productions = Production.query.all()
-
         # Generate a list of "YY-MM-DD" strings for each day in the current month
         days_in_month = calendar.monthrange(current_year, current_month)[1]
         days = [
@@ -322,7 +323,80 @@ def fa():
                 productions_json = json.dumps(month_production)
             else:
                 productions_json = []
-
+        if current_month == 11:
+            shipments_json = [
+                ["باگت", 300],
+                ["بیگل", 50],
+                ["پای سیب", 100],
+                ["دونات", 80],
+                ["کتاب", 250],
+                ["کوکی بادامی", 175],
+                ["کیک شکلاتی", 25],
+                ["نان تست قهوه‌ای", 300],
+                ["نان تست سفید", 210],
+                ["فوکاچیا", 100],
+            ]
+            arrivals_json = [
+                ["بادام درختی", 20],
+                ["بیکینگ پودر", 15],
+                ["روغن زیتون", 2],
+                ["سیب", 30],
+                ["شکر", 120],
+                ["شیر", 10],
+                ["کره", 50],
+                ["گردو", 15],
+                ["مخمر", 35],
+                ["نمک", 55],
+            ]
+            productions_json = [
+                ["01", 100],
+                ["02", 150],
+                ["03", 120],
+                ["04", 50],
+                ["05", 25],
+                ["06", 80],
+                ["07", 100],
+                ["08", 100],
+                ["09", 100],
+                ["10", 0],
+                ["11", 100],
+                ["12", 130],
+                ["13", 100],
+                ["14", 210],
+                ["15", 150],
+                ["16", 0],
+                ["17", 0],
+                ["18", 0],
+                ["19", 0],
+                ["20", 0],
+                ["21", 0],
+                ["22", 0],
+                ["23", 0],
+                ["24", 0],
+                ["25", 0],
+                ["26", 0],
+                ["27", 0],
+                ["28", 0],
+                ["29", 0],
+                ["30", 0],
+            ]
+            productionsum_json = [
+                ["باگت", 360],
+                ["بیگل", 50],
+                ["پای سیب", 100],
+                ["دونات", 80],
+                ["کتاب", 250],
+                ["کوکی بادامی", 100],
+                ["کیک شکلاتی", 25],
+                ["نان تست قهوه‌ای", 370],
+                ["نان تست سفید", 230],
+                ["فوکاچیا", 100],
+            ]
+        else:
+            shipments_json = []
+            arrivals_json = []
+            productionsum_json = []
+            productions_json = []
         context = {
             "years": years,
             "datasum": datasum,
